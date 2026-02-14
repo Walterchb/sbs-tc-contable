@@ -1,0 +1,211 @@
+name: SBS TC Contable Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sbs-tc-contable
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scrape SBS and build data files (resilient inline Python)
+        shell: bash
+        run: |
+          python - <<'PY'
+          import re, json, hashlib, time
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+          from urllib.error import URLError, HTTPError
+          from html import unescape
+          from datetime import datetime, timezone
+
+          URL = "https://www.sbs.gob.pe/app/pp/SISTIP_PORTAL/Paginas/Publicacion/TipoCambioContable.aspx"
+          DATA = Path("data")
+          DATA.mkdir(parents=True, exist_ok=True)
+
+          def norm(s=""):
+              return re.sub(r"\s+", " ", str(s)).strip()
+
+          def valid_tc(x):
+              try:
+                  v = float(x)
+                  return 0 < v < 20
+              except:
+                  return False
+
+          def clean_desc(d):
+              d = norm(d)
+              d = re.sub(r"^PAISMONEDATIPO DE CAMBIO\s*\(EN S/\)\s*", "", d, flags=re.I)
+              d = re.sub(r"^PAIS\s+MONEDA\s+TIPO DE CAMBIO\s*\(EN S/\)\s*", "", d, flags=re.I)
+              d = re.sub(r"^TIPO DE CAMBIO AL \d{2}/\d{2}/\d{4}\s*", "", d, flags=re.I)
+              return d.strip()
+
+          def split_pais_moneda(desc):
+              d = norm(desc)
+              cues = [
+                  "Dólar","Euro","Peso","Yuan","Won","Colón","Dirham","Rublo","Lari","Quetzal",
+                  "Rupia","Yen","Ringgit","Corona","Balboa","Guaraní","Zloty","Libra","Franco",
+                  "Baht","Lira","Dong","Boliviano","Lev","Real","Naira","Nuevo Dólar"
+              ]
+              idx = -1
+              for cue in cues:
+                  i = d.find(cue)
+                  if i > 0 and (idx == -1 or i < idx):
+                      idx = i
+              if idx > 0:
+                  pais = norm(d[:idx]); moneda = norm(d[idx:])
+                  if pais and moneda:
+                      return pais, moneda
+              parts = [p for p in d.split(" ") if p]
+              if len(parts) >= 3:
+                  return " ".join(parts[:-2]), " ".join(parts[-2:])
+              return d, ""
+
+          def fetch_with_retries(url, tries=7):
+              last = None
+              for i in range(1, tries + 1):
+                  try:
+                      req = Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36"})
+                      with urlopen(req, timeout=45) as r:
+                          return r.read().decode("utf-8", "ignore")
+                  except (URLError, HTTPError, TimeoutError, Exception) as e:
+                      last = e
+                      wait = min(60, i * 8)
+                      print(f"[retry {i}/{tries}] fetch failed: {e} | waiting {wait}s")
+                      time.sleep(wait)
+              raise RuntimeError(f"fetch failed after {tries} attempts: {last}")
+
+          raw = fetch_with_retries(URL, tries=7)
+
+          m = re.search(r"Tipo\s+de\s+Cambio\s+al\s+(\d{2}/\d{2}/\d{4})", raw, flags=re.I)
+          if not m:
+              (DATA / "last_error_raw_head.txt").write_text(raw[:20000], encoding="utf-8")
+              raise SystemExit("No se encontró 'Tipo de Cambio al dd/mm/yyyy'.")
+
+          fecha = m.group(1)
+          d, mth, y = fecha.split("/")
+          fecha_iso = f"{y}-{mth}-{d}"
+
+          text = raw
+          text = re.sub(r"<script[\s\S]*?</script>", " ", text, flags=re.I)
+          text = re.sub(r"<style[\s\S]*?</style>", " ", text, flags=re.I)
+          text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
+          text = re.sub(r"</(p|div|tr|li|h\d)>", "\n", text, flags=re.I)
+          text = re.sub(r"<[^>]+>", " ", text)
+          text = unescape(text)
+
+          lines = [norm(x) for x in re.split(r"\r?\n+", text) if norm(x)]
+
+          rows = []
+          for ln in lines:
+              up = ln.upper()
+              if "PAISMONEDATIPO DE CAMBIO" in up:
+                  continue
+              if "TIPO DE CAMBIO (EN S/)" in up:
+                  continue
+              if "COLUMNS" in up or "INGRESE FECHA" in up:
+                  continue
+
+              mm = re.search(r"(.+?)(-?\d+(?:[.,]\d{3,8}))$", ln)
+              if not mm:
+                  continue
+
+              desc = clean_desc(mm.group(1))
+              tc_s = mm.group(2).replace(",", ".")
+              if not valid_tc(tc_s) or len(desc) < 4:
+                  continue
+
+              pais, moneda = split_pais_moneda(desc)
+              rows.append({"pais": pais, "moneda": moneda, "tc": float(tc_s)})
+
+          if len(rows) < 10:
+              compact = norm(text)
+              start = compact.upper().find("TIPO DE CAMBIO")
+              chunk = compact[start if start >= 0 else 0:]
+              rows2 = []
+              for mm in re.finditer(r"([A-Za-zÁÉÍÓÚÜÑáéíóúüñ().,\-/ ]{4,}?)(-?\d+(?:[.,]\d{3,8}))", chunk):
+                  desc = clean_desc(mm.group(1))
+                  tc_s = mm.group(2).replace(",", ".")
+                  if not valid_tc(tc_s) or len(desc) < 4:
+                      continue
+                  pais, moneda = split_pais_moneda(desc)
+                  rows2.append({"pais": pais, "moneda": moneda, "tc": float(tc_s)})
+              rows = rows2
+
+          seen, ded = set(), []
+          for r in rows:
+              k = f'{r["pais"]}|{r["moneda"]}|{r["tc"]}'
+              if k in seen:
+                  continue
+              seen.add(k)
+              ded.append(r)
+          rows = ded
+
+          if len(rows) == 0:
+              (DATA / "last_error_text_head.txt").write_text(text[:20000], encoding="utf-8")
+              prev = DATA / "tc_contable_meta.json"
+              if prev.exists():
+                  print("WARNING: No se parsearon filas hoy; se conserva data anterior y se continúa sin fallar.")
+                  raise SystemExit(0)
+              raise SystemExit("No se parsearon filas de TC y no existe data previa.")
+
+          rows.sort(key=lambda z: (z["pais"] + z["moneda"]).lower())
+
+          payload = {"fecha_publicada": fecha, "rows": rows}
+          hashv = hashlib.sha256(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
+          generado_utc = datetime.now(timezone.utc).isoformat()
+
+          meta = {
+              "fuente": URL,
+              "fecha_publicada": fecha,
+              "fecha_iso": fecha_iso,
+              "generado_utc": generado_utc,
+              "rows": len(rows),
+              "hash": hashv
+          }
+          latest_json = {**meta, "data": rows}
+
+          def csv_escape(v):
+              s = str(v)
+              if any(c in s for c in [",", '"', "\n"]):
+                  s = '"' + s.replace('"', '""') + '"'
+              return s
+
+          csv_lines = ["pais,moneda,tc"]
+          for r in rows:
+              csv_lines.append(",".join([csv_escape(r["pais"]), csv_escape(r["moneda"]), csv_escape(r["tc"])]))
+          csv_txt = "\ufeff" + "\n".join(csv_lines)
+
+          (DATA / "tc_contable_latest.csv").write_text(csv_txt, encoding="utf-8")
+          (DATA / "tc_contable_latest.json").write_text(json.dumps(latest_json, ensure_ascii=False, indent=2), encoding="utf-8")
+          (DATA / "tc_contable_meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+          (DATA / f"tc_contable_{fecha_iso}.csv").write_text(csv_txt, encoding="utf-8")
+          (DATA / f"tc_contable_{fecha_iso}.json").write_text(json.dumps(latest_json, ensure_ascii=False, indent=2), encoding="utf-8")
+
+          print(f"OK | Fecha: {fecha} | Filas: {len(rows)} | Hash: {hashv}")
+          PY
+
+      - name: Commit if changed
+        shell: bash
+        run: |
+          if git diff --quiet -- data; then
+            echo "Sin cambios en data/"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git commit -m "update: SBS TC $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
