@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SBS TC Contable - Descarga</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#121a2b; --line:#243657; --text:#eaf0ff; --muted:#8fa3c7;
+      --pri:#4f8cff; --pri2:#6a5cff; --ok:#2ecc71; --err:#e74c3c;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: Inter,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
+      background:linear-gradient(180deg,#0b1220,#0e1628 40%,#0b1220 100%);
+      min-height:100vh; display:grid; place-items:center; padding:20px;
+    }
+    .app{
+      width:min(920px,100%); background:var(--card); border:1px solid var(--line);
+      border-radius:18px; overflow:hidden; box-shadow:0 18px 52px rgba(0,0,0,.35);
+    }
+    .head{padding:20px 22px; border-bottom:1px solid var(--line)}
+    h1{margin:0; font-size:1.2rem}
+    .sub{margin-top:8px; color:var(--muted); line-height:1.45}
+    .main{padding:18px 22px 24px; display:grid; gap:14px}
+    .card{
+      border:1px solid var(--line); border-radius:14px; padding:14px; background:rgba(255,255,255,.01);
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    button,a.btn{
+      border:0; border-radius:10px; padding:11px 14px; cursor:pointer; text-decoration:none;
+      color:#fff; font-weight:600; background:linear-gradient(135deg,var(--pri),var(--pri2));
+      box-shadow:0 8px 20px rgba(79,140,255,.33);
+    }
+    button.secondary, a.btn.secondary{background:#1b2742; border:1px solid #30456d; box-shadow:none}
+    .kvs{display:grid; grid-template-columns:200px 1fr; gap:8px 10px; font-size:.95rem}
+    .k{color:var(--muted)}
+    .log{
+      min-height:100px; max-height:260px; overflow:auto; white-space:pre-wrap;
+      border-radius:10px; border:1px dashed #315083; background:#0c1427;
+      padding:10px; font-family:ui-monospace,Consolas,monospace; font-size:.84rem;
+    }
+    .ok{color:var(--ok)} .err{color:var(--err)}
+    .small{font-size:.86rem;color:var(--muted)}
+    code{background:#0c1427;padding:1px 6px;border-radius:6px}
+    @media(max-width:800px){ .kvs{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="head">
+      <h1>SBS Tipo de Cambio Contable - Descargador estable (GitHub Actions)</h1>
+      <p class="sub">
+        Esta página no scrapea SBS desde tu navegador (evita CORS).
+        Lee archivos actualizados automáticamente por GitHub Actions en <code>data/</code>.
+      </p>
+    </section>
+    <section class="main">
+      <article class="card">
+        <div class="row">
+          <button id="btnRefresh">Actualizar estado</button>
+          <a id="btnCsv" class="btn" href="./data/tc_contable_latest.csv" download>Descargar CSV latest</a>
+          <a id="btnJson" class="btn secondary" href="./data/tc_contable_latest.json" download>Descargar JSON latest</a>
+        </div>
+        <p class="small" style="margin-top:10px">
+          Si abres este HTML desde <code>file://</code>, el fetch puede fallar.
+          Úsalo en GitHub Pages.
+        </p>
+      </article>
+
+      <article class="card">
+        <div class="kvs">
+          <div class="k">Fecha publicada SBS</div><div id="vFecha">—</div>
+          <div class="k">Generado (UTC)</div><div id="vGen">—</div>
+          <div class="k">Filas</div><div id="vRows">—</div>
+          <div class="k">Hash</div><div id="vHash">—</div>
+          <div class="k">Estado</div><div id="vStatus">—</div>
+        </div>
+        <div id="log" class="log"></div>
+      </article>
+    </section>
+  </main>
+
+<script>
+(() => {
+  const logEl = document.getElementById("log");
+  const vFecha = document.getElementById("vFecha");
+  const vGen = document.getElementById("vGen");
+  const vRows = document.getElementById("vRows");
+  const vHash = document.getElementById("vHash");
+  const vStatus = document.getElementById("vStatus");
+  const btnRefresh = document.getElementById("btnRefresh");
+
+  function log(msg, isErr=false){
+    const t = new Date().toLocaleString("es-PE");
+    logEl.textContent = `[${t}] ${msg}\n` + logEl.textContent;
+    vStatus.innerHTML = isErr ? '<span class="err">❌ Error</span>' : '<span class="ok">✅ OK</span>';
+  }
+
+  async function refresh(){
+    vStatus.textContent = "Consultando...";
+    try{
+      const r = await fetch("./data/tc_contable_meta.json?ts=" + Date.now(), {cache: "no-store"});
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      const m = await r.json();
+
+      vFecha.textContent = m.fecha_publicada || "—";
+      vGen.textContent = m.generado_utc || "—";
+      vRows.textContent = Number.isFinite(m.rows) ? String(m.rows) : "—";
+      vHash.textContent = m.hash || "—";
+      log(`Meta cargada. Fecha SBS: ${m.fecha_publicada || "n/d"} | Filas: ${m.rows ?? "n/d"}`);
+    }catch(e){
+      vStatus.innerHTML = '<span class="err">❌ Error</span>';
+      log("No se pudo leer ./data/tc_contable_meta.json. Verifica que Actions ya ejecutó al menos una vez.", true);
+      log("Detalle: " + (e.message || e), true);
+    }
+  }
+
+  btnRefresh.addEventListener("click", refresh);
+  refresh();
+})();
+</script>
+</body>
+</html>
