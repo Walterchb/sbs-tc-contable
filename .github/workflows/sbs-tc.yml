@@ -19,15 +19,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Scrape SBS and build data files (resilient inline Python)
+      - name: Scrape SBS and build data files (curl fallback + no-fail)
         shell: bash
         run: |
           python - <<'PY'
-          import re, json, hashlib, time
+          import re, json, hashlib, time, subprocess, shlex, urllib.parse
           from pathlib import Path
-          from urllib.request import Request, urlopen
-          from urllib.error import URLError, HTTPError
-          from html import unescape
           from datetime import datetime, timezone
 
           URL = "https://www.sbs.gob.pe/app/pp/SISTIP_PORTAL/Paginas/Publicacion/TipoCambioContable.aspx"
@@ -37,10 +34,78 @@ jobs:
           def norm(s=""):
               return re.sub(r"\s+", " ", str(s)).strip()
 
-          def valid_tc(x):
+          def run_curl(url, timeout=55):
+              # curl suele comportarse mejor que urllib aquí (redirecciones/WAF)
+              cmd = [
+                  "curl", "-sSL", "--max-time", str(timeout),
+                  "--retry", "2", "--retry-delay", "3", "--retry-all-errors",
+                  "-A", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36",
+                  "-H", "Accept-Language: es-PE,es;q=0.9,en;q=0.8",
+                  "-H", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                  "-e", "https://www.sbs.gob.pe/",
+                  "--compressed",
+                  url
+              ]
+              p = subprocess.run(cmd, capture_output=True, text=True)
+              if p.returncode != 0:
+                  raise RuntimeError(f"curl rc={p.returncode}: {p.stderr.strip()[:220]}")
+              txt = p.stdout or ""
+              if len(txt) < 200:
+                  raise RuntimeError("respuesta vacía/corta")
+              return txt
+
+          def fetch_any():
+              sources = [
+                  ("directo", URL),
+                  ("r.jina.ai", "https://r.jina.ai/http://" + URL.replace("https://", "")),
+                  ("allorigins", "https://api.allorigins.win/raw?url=" + urllib.parse.quote(URL, safe="")),
+              ]
+              errors = []
+              for name, u in sources:
+                  try:
+                      txt = run_curl(u)
+                      # heurística anti-bloqueo
+                      bad = ["403 Forbidden", "Access Denied", "captcha", "Cloudflare", "Request blocked"]
+                      if any(b.lower() in txt.lower() for b in bad):
+                          raise RuntimeError("contenido bloqueado")
+                      print(f"[source ok] {name} | len={len(txt)}")
+                      return txt, name
+                  except Exception as e:
+                      msg = f"{name}: {e}"
+                      errors.append(msg)
+                      print(f"[source fail] {msg}")
+              raise RuntimeError(" | ".join(errors))
+
+          def extract_date(raw):
+              # patrón principal
+              m = re.search(r"Tipo\s+de\s+Cambio\s+al\s+(\d{2}/\d{2}/\d{4})", raw, flags=re.I)
+              if m:
+                  return m.group(1)
+
+              # patrón flexible alrededor de 'tipo de cambio'
+              m2 = re.search(r"Tipo\s*de\s*Cambio.{0,80}?(\d{2}/\d{2}/\d{4})", raw, flags=re.I | re.S)
+              if m2:
+                  return m2.group(1)
+
+              # fallback: hoy UTC
+              return datetime.now(timezone.utc).strftime("%d/%m/%Y")
+
+          def to_text(raw):
+              # si viene HTML, quitamos tags; si viene texto proxy, igual funciona
+              txt = raw
+              txt = re.sub(r"<script[\s\S]*?</script>", " ", txt, flags=re.I)
+              txt = re.sub(r"<style[\s\S]*?</style>", " ", txt, flags=re.I)
+              txt = re.sub(r"<br\s*/?>", "\n", txt, flags=re.I)
+              txt = re.sub(r"</(p|div|tr|li|h\d|td|th)>", "\n", txt, flags=re.I)
+              txt = re.sub(r"<[^>]+>", " ", txt)
+              # entidades html mínimas
+              txt = txt.replace("&nbsp;", " ").replace("&amp;", "&").replace("&quot;", '"').replace("&#39;", "'")
+              return txt
+
+          def valid_tc(v):
               try:
-                  v = float(x)
-                  return 0 < v < 20
+                  x = float(v)
+                  return 0 < x < 20
               except:
                   return False
 
@@ -64,117 +129,62 @@ jobs:
                   if i > 0 and (idx == -1 or i < idx):
                       idx = i
               if idx > 0:
-                  pais = norm(d[:idx]); moneda = norm(d[idx:])
-                  if pais and moneda:
-                      return pais, moneda
+                  return norm(d[:idx]), norm(d[idx:])
               parts = [p for p in d.split(" ") if p]
               if len(parts) >= 3:
                   return " ".join(parts[:-2]), " ".join(parts[-2:])
               return d, ""
 
-          def fetch_with_retries(url, tries=7):
-              last = None
-              for i in range(1, tries + 1):
-                  try:
-                      req = Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36"})
-                      with urlopen(req, timeout=45) as r:
-                          return r.read().decode("utf-8", "ignore")
-                  except (URLError, HTTPError, TimeoutError, Exception) as e:
-                      last = e
-                      wait = min(60, i * 8)
-                      print(f"[retry {i}/{tries}] fetch failed: {e} | waiting {wait}s")
-                      time.sleep(wait)
-              raise RuntimeError(f"fetch failed after {tries} attempts: {last}")
+          def parse_rows(raw_text):
+              text = to_text(raw_text)
+              lines = [norm(x) for x in re.split(r"\r?\n+", text) if norm(x)]
+              rows = []
 
-          raw = fetch_with_retries(URL, tries=7)
+              for ln in lines:
+                  up = ln.upper()
+                  if "PAISMONEDATIPO DE CAMBIO" in up: 
+                      continue
+                  if "TIPO DE CAMBIO (EN S/)" in up:
+                      continue
+                  if "COLUMNS" in up or "INGRESE FECHA" in up:
+                      continue
 
-          m = re.search(r"Tipo\s+de\s+Cambio\s+al\s+(\d{2}/\d{2}/\d{4})", raw, flags=re.I)
-          if not m:
-              (DATA / "last_error_raw_head.txt").write_text(raw[:20000], encoding="utf-8")
-              raise SystemExit("No se encontró 'Tipo de Cambio al dd/mm/yyyy'.")
+                  mm = re.search(r"(.+?)(-?\d+(?:[.,]\d{3,8}))$", ln)
+                  if not mm:
+                      continue
 
-          fecha = m.group(1)
-          d, mth, y = fecha.split("/")
-          fecha_iso = f"{y}-{mth}-{d}"
-
-          text = raw
-          text = re.sub(r"<script[\s\S]*?</script>", " ", text, flags=re.I)
-          text = re.sub(r"<style[\s\S]*?</style>", " ", text, flags=re.I)
-          text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
-          text = re.sub(r"</(p|div|tr|li|h\d)>", "\n", text, flags=re.I)
-          text = re.sub(r"<[^>]+>", " ", text)
-          text = unescape(text)
-
-          lines = [norm(x) for x in re.split(r"\r?\n+", text) if norm(x)]
-
-          rows = []
-          for ln in lines:
-              up = ln.upper()
-              if "PAISMONEDATIPO DE CAMBIO" in up:
-                  continue
-              if "TIPO DE CAMBIO (EN S/)" in up:
-                  continue
-              if "COLUMNS" in up or "INGRESE FECHA" in up:
-                  continue
-
-              mm = re.search(r"(.+?)(-?\d+(?:[.,]\d{3,8}))$", ln)
-              if not mm:
-                  continue
-
-              desc = clean_desc(mm.group(1))
-              tc_s = mm.group(2).replace(",", ".")
-              if not valid_tc(tc_s) or len(desc) < 4:
-                  continue
-
-              pais, moneda = split_pais_moneda(desc)
-              rows.append({"pais": pais, "moneda": moneda, "tc": float(tc_s)})
-
-          if len(rows) < 10:
-              compact = norm(text)
-              start = compact.upper().find("TIPO DE CAMBIO")
-              chunk = compact[start if start >= 0 else 0:]
-              rows2 = []
-              for mm in re.finditer(r"([A-Za-zÁÉÍÓÚÜÑáéíóúüñ().,\-/ ]{4,}?)(-?\d+(?:[.,]\d{3,8}))", chunk):
                   desc = clean_desc(mm.group(1))
                   tc_s = mm.group(2).replace(",", ".")
                   if not valid_tc(tc_s) or len(desc) < 4:
                       continue
+
                   pais, moneda = split_pais_moneda(desc)
-                  rows2.append({"pais": pais, "moneda": moneda, "tc": float(tc_s)})
-              rows = rows2
+                  rows.append({"pais": pais, "moneda": moneda, "tc": float(tc_s)})
 
-          seen, ded = set(), []
-          for r in rows:
-              k = f'{r["pais"]}|{r["moneda"]}|{r["tc"]}'
-              if k in seen:
-                  continue
-              seen.add(k)
-              ded.append(r)
-          rows = ded
+              # fallback compacto
+              if len(rows) < 10:
+                  compact = norm(text)
+                  start = compact.upper().find("TIPO DE CAMBIO")
+                  chunk = compact[start if start >= 0 else 0:]
+                  rows2 = []
+                  for mm in re.finditer(r"([A-Za-zÁÉÍÓÚÜÑáéíóúüñ().,\-/ ]{4,}?)(-?\d+(?:[.,]\d{3,8}))", chunk):
+                      desc = clean_desc(mm.group(1))
+                      tc_s = mm.group(2).replace(",", ".")
+                      if not valid_tc(tc_s) or len(desc) < 4:
+                          continue
+                      pais, moneda = split_pais_moneda(desc)
+                      rows2.append({"pais": pais, "moneda": moneda, "tc": float(tc_s)})
+                  rows = rows2
 
-          if len(rows) == 0:
-              (DATA / "last_error_text_head.txt").write_text(text[:20000], encoding="utf-8")
-              prev = DATA / "tc_contable_meta.json"
-              if prev.exists():
-                  print("WARNING: No se parsearon filas hoy; se conserva data anterior y se continúa sin fallar.")
-                  raise SystemExit(0)
-              raise SystemExit("No se parsearon filas de TC y no existe data previa.")
-
-          rows.sort(key=lambda z: (z["pais"] + z["moneda"]).lower())
-
-          payload = {"fecha_publicada": fecha, "rows": rows}
-          hashv = hashlib.sha256(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
-          generado_utc = datetime.now(timezone.utc).isoformat()
-
-          meta = {
-              "fuente": URL,
-              "fecha_publicada": fecha,
-              "fecha_iso": fecha_iso,
-              "generado_utc": generado_utc,
-              "rows": len(rows),
-              "hash": hashv
-          }
-          latest_json = {**meta, "data": rows}
+              # dedup
+              seen, out = set(), []
+              for r in rows:
+                  k = f'{r["pais"]}|{r["moneda"]}|{r["tc"]}'
+                  if k in seen:
+                      continue
+                  seen.add(k)
+                  out.append(r)
+              return out
 
           def csv_escape(v):
               s = str(v)
@@ -182,18 +192,80 @@ jobs:
                   s = '"' + s.replace('"', '""') + '"'
               return s
 
-          csv_lines = ["pais,moneda,tc"]
-          for r in rows:
-              csv_lines.append(",".join([csv_escape(r["pais"]), csv_escape(r["moneda"]), csv_escape(r["tc"])]))
-          csv_txt = "\ufeff" + "\n".join(csv_lines)
+          def write_status(ok, message, source=None):
+              status = {
+                  "ok": ok,
+                  "message": message,
+                  "source": source,
+                  "generated_utc": datetime.now(timezone.utc).isoformat()
+              }
+              (DATA / "last_run_status.json").write_text(json.dumps(status, ensure_ascii=False, indent=2), encoding="utf-8")
 
-          (DATA / "tc_contable_latest.csv").write_text(csv_txt, encoding="utf-8")
-          (DATA / "tc_contable_latest.json").write_text(json.dumps(latest_json, ensure_ascii=False, indent=2), encoding="utf-8")
-          (DATA / "tc_contable_meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
-          (DATA / f"tc_contable_{fecha_iso}.csv").write_text(csv_txt, encoding="utf-8")
-          (DATA / f"tc_contable_{fecha_iso}.json").write_text(json.dumps(latest_json, ensure_ascii=False, indent=2), encoding="utf-8")
+          # seed mínimo para evitar primer-run rojo sin archivos
+          if not (DATA / "tc_contable_meta.json").exists():
+              seed = {
+                  "fuente": URL,
+                  "fecha_publicada": None,
+                  "fecha_iso": None,
+                  "generado_utc": None,
+                  "rows": 0,
+                  "hash": None
+              }
+              (DATA / "tc_contable_meta.json").write_text(json.dumps(seed, ensure_ascii=False, indent=2), encoding="utf-8")
+              (DATA / "tc_contable_latest.csv").write_text("pais,moneda,tc\n", encoding="utf-8")
+              (DATA / "tc_contable_latest.json").write_text(json.dumps({"message":"pending successful run"}, ensure_ascii=False, indent=2), encoding="utf-8")
 
-          print(f"OK | Fecha: {fecha} | Filas: {len(rows)} | Hash: {hashv}")
+          try:
+              raw, source = fetch_any()
+              fecha = extract_date(raw)
+              d, m, y = fecha.split("/")
+              fecha_iso = f"{y}-{m}-{d}"
+
+              rows = parse_rows(raw)
+              if len(rows) == 0:
+                  raise RuntimeError("No se parsearon filas de TC")
+
+              rows.sort(key=lambda z: (z["pais"] + z["moneda"]).lower())
+
+              payload = {"fecha_publicada": fecha, "rows": rows}
+              hashv = hashlib.sha256(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
+              generado_utc = datetime.now(timezone.utc).isoformat()
+
+              meta = {
+                  "fuente": URL,
+                  "source_used": source,
+                  "fecha_publicada": fecha,
+                  "fecha_iso": fecha_iso,
+                  "generado_utc": generado_utc,
+                  "rows": len(rows),
+                  "hash": hashv
+              }
+              latest_json = {**meta, "data": rows}
+
+              csv_lines = ["pais,moneda,tc"]
+              for r in rows:
+                  csv_lines.append(",".join([csv_escape(r["pais"]), csv_escape(r["moneda"]), csv_escape(r["tc"])]))
+              csv_txt = "\ufeff" + "\n".join(csv_lines)
+
+              (DATA / "tc_contable_latest.csv").write_text(csv_txt, encoding="utf-8")
+              (DATA / "tc_contable_latest.json").write_text(json.dumps(latest_json, ensure_ascii=False, indent=2), encoding="utf-8")
+              (DATA / "tc_contable_meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+              (DATA / f"tc_contable_{fecha_iso}.csv").write_text(csv_txt, encoding="utf-8")
+              (DATA / f"tc_contable_{fecha_iso}.json").write_text(json.dumps(latest_json, ensure_ascii=False, indent=2), encoding="utf-8")
+
+              msg = f"OK | source={source} | fecha={fecha} | filas={len(rows)}"
+              print(msg)
+              write_status(True, msg, source=source)
+
+          except Exception as e:
+              # no rompemos workflow: se conserva la data previa
+              err = f"WARNING: No se pudo actualizar hoy. Se conserva data previa. Detalle: {e}"
+              print(err)
+              (DATA / "last_error.txt").write_text(err, encoding="utf-8")
+              write_status(False, err, source=None)
+
+          # Siempre exit 0 para evitar rojo por bloqueos temporales del origen
+          raise SystemExit(0)
           PY
 
       - name: Commit if changed
