@@ -1,0 +1,1 @@
+WARNING: No se pudo actualizar hoy. Se conserva data previa. Detalle: No se parsearon filas de TC
