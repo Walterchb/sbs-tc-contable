@@ -1,608 +1,221 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SBS TC Contable · Treasury Hub FX</title>
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-  <style>
-    :root{
-      color-scheme: light;
-      --navy:#051c2c; --navy2:#08283f; --navy3:#0b3654;
-      --bg:#eef3f7; --panel:#ffffff; --panel2:#fbfdff; --soft:#f6f9fc;
-      --ink:#102033; --muted:#5f7283; --line:#d9e3ec; --line2:#c2d0dc; --grid:#e8eef4;
-      --blue:#1f5eff; --cyan:#00a3b5; --green:#13966b; --amber:#c17a18; --red:#bd2c22; --purple:#635bff; --avg:#7b61ff;
-      --tooltip-bg:#051c2c; --tooltip-border:#125078;
-      --shadow:0 10px 24px rgba(5,28,44,.08); --radius:7px;
+{
+  "fuente": "https://www.sbs.gob.pe/app/pp/SISTIP_PORTAL/Paginas/Publicacion/TipoCambioContable.aspx",
+  "source_used": "directo",
+  "fecha_publicada": "22/05/2026",
+  "fecha_iso": "2026-05-22",
+  "generado_utc": "2026-05-25T06:09:17.992652+00:00",
+  "rows": 42,
+  "hash": "4747b9b7acbf83a0358e5b5edf472cfc38ec33e1b60cad6adeae6f142a720b10",
+  "data": [
+    {
+      "pais": "Argentina",
+      "moneda": "Peso Argentino",
+      "tc": 0.00244
+    },
+    {
+      "pais": "Australia",
+      "moneda": "Dólar Australiano",
+      "tc": 2.439321
+    },
+    {
+      "pais": "Bolivia, Estado Plurinacional de",
+      "moneda": "Boliviano",
+      "tc": 0.498469
+    },
+    {
+      "pais": "Brasil",
+      "moneda": "Real",
+      "tc": 0.680977
+    },
+    {
+      "pais": "Bulgaria",
+      "moneda": "Lev",
+      "tc": 2.029097
+    },
+    {
+      "pais": "Canadá",
+      "moneda": "Dólar Canadiense",
+      "tc": 2.474116
+    },
+    {
+      "pais": "Chile",
+      "moneda": "Peso Chileno",
+      "tc": 0.003796
+    },
+    {
+      "pais": "China",
+      "moneda": "Yuan",
+      "tc": 0.502914
+    },
+    {
+      "pais": "China",
+      "moneda": "Yuan Chino Off-Shore",
+      "tc": 0.502788
+    },
+    {
+      "pais": "Colombia",
+      "moneda": "Peso Colombiano",
+      "tc": 0.000933
+    },
+    {
+      "pais": "Corea, República de (Sur)",
+      "moneda": "Won Surcoreano",
+      "tc": 0.002252
+    },
+    {
+      "pais": "Costa Rica",
+      "moneda": "Colón de Costa Rica",
+      "tc": 0.007575
+    },
+    {
+      "pais": "Ecuador",
+      "moneda": "Dólar de N.A.",
+      "tc": 3.417
+    },
+    {
+      "pais": "Emiratos Árabes Unidos",
+      "moneda": "Dirham",
+      "tc": 0.930302
+    },
+    {
+      "pais": "Estados Unidos de América",
+      "moneda": "Dólar de N.A.",
+      "tc": 3.417
+    },
+    {
+      "pais": "Federación Rusa (Rusia)",
+      "moneda": "Rublo",
+      "tc": 0.048077
+    },
+    {
+      "pais": "Filipinas",
+      "moneda": "Peso de Filipinas",
+      "tc": 0.055407
+    },
+    {
+      "pais": "Georgia",
+      "moneda": "Lari Georgiano",
+      "tc": 1.291626
+    },
+    {
+      "pais": "Guatemala",
+      "moneda": "Quetzal",
+      "tc": 0.448427
+    },
+    {
+      "pais": "Hong Kong",
+      "moneda": "Dólar de Hong Kong",
+      "tc": 0.436064
+    },
+    {
+      "pais": "India",
+      "moneda": "Rupia de la India",
+      "tc": 0.035711
+    },
+    {
+      "pais": "Indonesia",
+      "moneda": "Rupia de Indonesia",
+      "tc": 0.000191
+    },
+    {
+      "pais": "Japón",
+      "moneda": "Yen Japonés",
+      "tc": 0.021472
+    },
+    {
+      "pais": "Malasia",
+      "moneda": "Dólar Malasio o Ringgit",
+      "tc": 0.861682
+    },
+    {
+      "pais": "México",
+      "moneda": "Peso Mexicano",
+      "tc": 0.197441
+    },
+    {
+      "pais": "Namibia",
+      "moneda": "Dólar Namibio",
+      "tc": 0.208013
+    },
+    {
+      "pais": "Nigeria",
+      "moneda": "Naira Nigeriana",
+      "tc": 0.002491
+    },
+    {
+      "pais": "Noruega",
+      "moneda": "Corona Noruega",
+      "tc": 0.368851
+    },
+    {
+      "pais": "Panamá",
+      "moneda": "Balboa",
+      "tc": 3.417
+    },
+    {
+      "pais": "Paraguay",
+      "moneda": "Guaraní",
+      "tc": 0.000557
+    },
+    {
+      "pais": "Polonia",
+      "moneda": "Zloty Polaco",
+      "tc": 0.936627
+    },
+    {
+      "pais": "Reino Unido",
+      "moneda": "Libra Esterlina",
+      "tc": 4.595831
+    },
+    {
+      "pais": "República Dominicana",
+      "moneda": "Peso de República Dominicana",
+      "tc": 0.05772
+    },
+    {
+      "pais": "Singapur",
+      "moneda": "Dólar de Singapur",
+      "tc": 2.671619
+    },
+    {
+      "pais": "Suecia",
+      "moneda": "Corona Sueca",
+      "tc": 0.365882
+    },
+    {
+      "pais": "Suiza",
+      "moneda": "Franco Suizo",
+      "tc": 4.35675
+    },
+    {
+      "pais": "Tailandia",
+      "moneda": "Baht",
+      "tc": 0.104721
+    },
+    {
+      "pais": "Taiwán, Provincia de China",
+      "moneda": "Nuevo Dólar de Taiwan",
+      "tc": 0.108339
+    },
+    {
+      "pais": "Turquía",
+      "moneda": "Lira",
+      "tc": 0.074709
+    },
+    {
+      "pais": "Unión",
+      "moneda": "Europea Euro",
+      "tc": 3.96864
+    },
+    {
+      "pais": "Uruguay",
+      "moneda": "Peso Uruguayo",
+      "tc": 0.085531
+    },
+    {
+      "pais": "Vietnam",
+      "moneda": "Dong",
+      "tc": 0.00013
     }
-    :root[data-theme="dark"]{
-      color-scheme: dark;
-      --navy:#071827; --navy2:#0b2438; --navy3:#13415e;
-      --bg:#07111d; --panel:#0d1b2a; --panel2:#102236; --soft:#0a1725;
-      --ink:#e8f1f8; --muted:#8ea6b8; --line:#20384b; --line2:#2b4a61; --grid:#172b3d;
-      --blue:#4f7cff; --cyan:#13b9c8; --green:#2dc48a; --amber:#d99a30; --red:#ff6b61; --purple:#8e7cff; --avg:#b39cff;
-      --tooltip-bg:#081521; --tooltip-border:#285575;
-      --shadow:0 12px 28px rgba(0,0,0,.28);
-    }
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;font-family:Manrope,Inter,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);}
-    button,input,select{font:inherit} a{color:inherit;text-decoration:none}
-    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr}
-    .topbar{background:var(--navy);color:#fff;border-bottom:4px solid #125078;position:sticky;top:0;z-index:20}
-    :root[data-theme="dark"] .topbar{border-bottom-color:#1f5b7e}
-    .topbar-inner{width:min(1500px,100%);margin:0 auto;padding:11px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{display:flex;align-items:center;gap:11px;min-width:0}.logo{width:38px;height:38px;border-radius:7px;background:#fff;color:#051c2c;display:grid;place-items:center;font-weight:950;letter-spacing:-.055em;box-shadow:inset 0 -4px 0 rgba(5,28,44,.14);flex:0 0 auto}
-    .brand h1{margin:0;font-size:1.02rem;letter-spacing:-.03em;line-height:1.05}.brand p{margin:3px 0 0;color:#a4c0d4;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .top-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}.status{height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;border-radius:var(--radius);background:#09273d;border:1px solid #174c70;color:#d9edf9;font-size:.78rem;font-weight:900;white-space:nowrap}.dot{width:8px;height:8px;border-radius:50%;background:#8fa4b6}.status.ok .dot{background:var(--green)}.status.warn .dot{background:var(--amber)}.status.err .dot{background:var(--red)}
-    .btn,button{min-height:34px;border:1px solid transparent;border-radius:var(--radius);background:var(--blue);color:#fff;padding:8px 11px;font-size:.8rem;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:transform .12s ease,filter .12s ease,background .12s ease,border-color .12s ease}.btn:hover,button:hover{transform:translateY(-1px);filter:brightness(1.03)}.btn:active,button:active{transform:translateY(0)}.btn.dark,button.dark{background:#0b324e;border-color:#1e5a80;color:#eaf7ff}.btn.light,button.light{background:#fff;color:#051c2c;border-color:#bdd0df}.btn.soft,button.soft{background:var(--soft);color:var(--ink);border-color:var(--line2)}
-    :root[data-theme="dark"] .btn.light,:root[data-theme="dark"] button.light{background:#eaf2f8;color:#051c2c;border-color:#d3e1eb}
-    .wrap{width:min(1500px,100%);margin:0 auto;padding:14px 18px 24px}.snapshot{display:grid;grid-template-columns:minmax(260px,1fr) auto;gap:10px;align-items:stretch;margin-bottom:10px}.date-card,.download-card,.panel,.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.date-card{padding:11px 13px;border-left:5px solid var(--navy3);display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0}.label{font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:950}.date-value{font-size:1.16rem;font-weight:950;letter-spacing:-.04em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.download-card{padding:10px;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-    .kpi-grid{display:grid;grid-template-columns:1.15fr repeat(5,1fr);gap:10px;margin-bottom:10px}.kpi{padding:12px;min-height:98px;position:relative;overflow:hidden;display:grid;align-content:space-between}.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--navy3)}.kpi.accent::before{background:var(--cyan)}.kpi.green::before{background:var(--green)}.kpi.purple::before{background:var(--purple)}.kpi.amber::before{background:var(--amber)}.kpi-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.kpi span{font-size:.68rem;color:var(--muted);font-weight:950;text-transform:uppercase;letter-spacing:.09em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpi strong{font-size:1.48rem;line-height:1;font-weight:950;letter-spacing:-.055em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpi small{font-size:.74rem;color:var(--muted);font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.delta{font-variant-numeric:tabular-nums;border-radius:20px;padding:3px 7px;font-size:.66rem;font-weight:950;border:1px solid var(--line);background:var(--soft);color:var(--muted);white-space:nowrap}.delta.pos{background:rgba(19,150,107,.13);border-color:rgba(19,150,107,.28);color:var(--green)}.delta.neg{background:rgba(189,44,34,.12);border-color:rgba(189,44,34,.28);color:var(--red)}.delta.flat{background:var(--soft);color:var(--muted)}
-    .chart-row{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(340px,.9fr);gap:12px;margin-bottom:12px}.content-row{display:grid;grid-template-columns:minmax(340px,.78fr) minmax(380px,.72fr) minmax(0,1fr);gap:12px;margin-bottom:12px;align-items:start}.panel{overflow:hidden}.panel-head{padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel2);display:flex;align-items:center;justify-content:space-between;gap:10px}.panel-title{display:flex;align-items:center;gap:9px;min-width:0}.mark{width:5px;height:25px;background:var(--navy3);border-radius:2px;flex:0 0 auto}.panel-title h2{margin:0;font-size:.9rem;letter-spacing:-.02em;color:var(--ink)}.panel-title p{margin:2px 0 0;font-size:.72rem;color:var(--muted);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.panel-body{padding:12px}.tools{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}select,input{border:1px solid var(--line2);background:var(--panel);border-radius:var(--radius);color:var(--ink);padding:8px 9px;min-height:34px;outline:none;font-size:.8rem;font-weight:850}input:focus,select:focus{border-color:#789db9;box-shadow:0 0 0 3px rgba(19,185,200,.12)}.tabs,.trend-quick{display:flex;gap:5px;flex-wrap:wrap}.tab,.pair-btn{min-height:30px;padding:6px 8px;border-radius:var(--radius);border:1px solid var(--line);background:var(--panel);color:var(--muted);box-shadow:none;font-size:.74rem}.tab.active,.pair-btn.active{background:var(--navy3);border-color:var(--navy3);color:#fff}.trend-other{min-width:138px}.trend-mobile{display:none}
-    .chart{height:342px;width:100%}.chart.side{height:342px}.chart.stats{height:272px}.chart.empty{display:grid;place-items:center;text-align:center;color:var(--muted);font-weight:900;font-size:.86rem;padding:20px;background:var(--soft);border:1px dashed var(--line)}
-    .converter{display:grid;gap:10px}.conv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.conv-grid input,.conv-grid select,.swapline select{width:100%}.swapline{display:grid;grid-template-columns:40px 1fr;gap:8px;align-items:center}.result-box{border:1px solid var(--line);border-left:4px solid var(--navy3);border-radius:var(--radius);background:var(--soft);padding:12px;overflow:hidden}.result-box .big{font-size:1.42rem;font-weight:950;letter-spacing:-.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.result-box .sub{margin-top:4px;color:var(--muted);font-size:.74rem;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.quick-pairs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.pair-card{border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);padding:9px;cursor:pointer;transition:background .12s,border-color .12s}.pair-card:hover{background:var(--soft);border-color:#9fb8cb}.pair-card.active{background:rgba(0,163,181,.10);border-color:#125078}.pair-card .c{font-size:.68rem;color:var(--muted);font-weight:950;letter-spacing:.08em}.pair-card .r{margin-top:5px;font-size:.98rem;font-weight:950;letter-spacing:-.03em}.pair-card .d{margin-top:3px;font-size:.7rem;color:var(--muted);font-weight:850}
-    .table-tools{display:flex;gap:9px;align-items:center;justify-content:space-between;margin-bottom:9px;flex-wrap:wrap}.search{min-width:240px;flex:1}.chip{border:1px solid var(--line);background:var(--soft);color:var(--muted);border-radius:var(--radius);padding:6px 8px;font-size:.74rem;font-weight:900;white-space:nowrap}.table-wrap{max-height:326px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius)}table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);font-size:.82rem}th,td{padding:9px 10px;border-bottom:1px solid var(--grid);white-space:nowrap;text-align:left}th{position:sticky;top:0;background:var(--soft);color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;z-index:2}td.code{font-weight:950;color:var(--navy3)}td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:900}tbody tr:hover{background:var(--soft)}
-    :root[data-theme="dark"] td.code{color:#9ed8ef}
-    @media(max-width:1260px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.chart-row,.content-row{grid-template-columns:1fr}.chart.side{height:290px}.chart.stats{height:250px}}
-    @media(max-width:760px){.topbar-inner{align-items:flex-start;flex-direction:column;padding:10px 12px}.top-actions{justify-content:flex-start;width:100%}.wrap{padding:12px}.snapshot{grid-template-columns:1fr}.date-card{align-items:flex-start;flex-direction:column}.download-card{justify-content:flex-start}.kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{min-height:90px;padding:10px}.kpi strong{font-size:1.18rem}.panel-head{align-items:flex-start;flex-direction:column}.tools{justify-content:flex-start;width:100%}.chart{height:286px}.chart.side{height:250px}.chart.stats{height:232px}.conv-grid{grid-template-columns:1fr}.quick-pairs{grid-template-columns:1fr}.search{min-width:100%}th,td{padding:8px}.trend-quick,.trend-other{display:none}.trend-mobile{display:block;width:100%}.tabs{width:100%}.tab{flex:1}}
-  </style>
-</head>
-<body>
-  <main class="app">
-    <header class="topbar">
-      <div class="topbar-inner">
-        <div class="brand">
-          <div class="logo">BIF</div>
-          <div><h1>TC Contable SBS</h1><p>FX Control Tower</p></div>
-        </div>
-        <div class="top-actions">
-          <div id="vStatus" class="status"><span class="dot"></span><span>Consultando</span></div>
-          <button id="btnRefresh" class="light">Actualizar</button>
-          <button id="btnReloadHistory" class="dark">Histórico</button>
-          <button id="btnTheme" class="dark">Modo oscuro</button>
-        </div>
-      </div>
-    </header>
-
-    <section class="wrap">
-      <section class="snapshot">
-        <article class="date-card">
-          <div><div class="label">Fecha SBS</div><div id="vFecha" class="date-value">—</div></div>
-        </article>
-        <article class="download-card">
-          <a class="btn" href="./data/tc_contable_latest.csv" download>CSV</a>
-          <a class="btn dark" href="./data/tc_contable_latest.json" download>JSON</a>
-          <button id="btnCopy" class="soft">Copiar resumen</button>
-        </article>
-      </section>
-
-      <section class="kpi-grid">
-        <article class="kpi"><div class="kpi-top"><span>USDPEN</span><b id="dUsd" class="delta flat">—</b></div><strong id="kUsd">—</strong><small>Dólar de N.A.</small></article>
-        <article class="kpi accent"><div class="kpi-top"><span>EURUSD</span><b id="dEur" class="delta flat">—</b></div><strong id="kEur">—</strong><small>EURPEN / USDPEN</small></article>
-        <article class="kpi green"><div class="kpi-top"><span>GBPUSD</span><b id="dGbp" class="delta flat">—</b></div><strong id="kGbp">—</strong><small>GBPPEN / USDPEN</small></article>
-        <article class="kpi purple"><div class="kpi-top"><span>CNHUSD</span><b id="dCnh" class="delta flat">—</b></div><strong id="kCnh">—</strong><small>CNHPEN / USDPEN</small></article>
-        <article class="kpi amber"><div class="kpi-top"><span>JPYUSD</span><b id="dJpy" class="delta flat">—</b></div><strong id="kJpy">—</strong><small>JPYPEN / USDPEN</small></article>
-        <article class="kpi"><div class="kpi-top"><span>Cobertura</span><b id="dCover" class="delta flat">SBS</b></div><strong id="kCover">—</strong><small id="kCoverSub">monedas</small></article>
-      </section>
-
-      <section class="chart-row">
-        <article class="panel">
-          <div class="panel-head">
-            <div class="panel-title"><span class="mark"></span><div><h2>Tendencia</h2><p id="historySource">histórico</p></div></div>
-            <div class="tools"><div id="trendQuick" class="trend-quick"></div><select id="trendOther" class="trend-other"></select><select id="trendCcy" class="trend-mobile"></select><div class="tabs" id="rangeTabs"><button class="tab" data-range="15">15D</button><button class="tab active" data-range="30">30D</button><button class="tab" data-range="60">60D</button><button class="tab" data-range="120">120D</button></div></div>
-          </div>
-          <div class="panel-body"><div id="trendChart" class="chart"></div></div>
-        </article>
-        <article class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Variación diaria</h2><p id="changeSource">—</p></div></div><button id="btnZoomReset" class="soft">Reset zoom</button></div>
-          <div class="panel-body"><div id="changeChart" class="chart side"></div></div>
-        </article>
-      </section>
-
-      <section class="content-row">
-        <article class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Estadísticas</h2><p id="statsPair">—</p></div></div></div>
-          <div class="panel-body"><div id="statsChart" class="chart stats"></div></div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Conversor</h2><p>vía PEN</p></div></div></div>
-          <div class="panel-body converter">
-            <div class="conv-grid"><input id="amount" type="number" inputmode="decimal" value="1000" min="0" step="0.01"><select id="fromCcy"></select></div>
-            <div class="swapline"><button id="swapBtn" class="dark">⇄</button><select id="toCcy"></select></div>
-            <div class="result-box"><div id="convResult" class="big">—</div><div id="convSub" class="sub">—</div></div>
-            <div id="quickPairs" class="quick-pairs"></div>
-          </div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Tabla FX</h2><p>USDPEN directo; demás cruces contra USD</p></div></div></div>
-          <div class="panel-body">
-            <div class="table-tools"><input id="searchBox" class="search" placeholder="Buscar: USDPEN, EURUSD, Dólar de N.A., yen…"><span id="tableCount" class="chip">0 pares</span></div>
-            <div class="table-wrap"><table><thead><tr><th>Par</th><th>Moneda SBS</th><th style="text-align:right">TC</th><th style="text-align:right">Cálculo</th></tr></thead><tbody id="ratesTable"><tr><td colspan="4">Cargando…</td></tr></tbody></table></div>
-          </div>
-        </article>
-      </section>
-    </section>
-  </main>
-
-<script>
-(() => {
-  const CORE = ["USD","EUR","GBP","CNH","JPY"];
-  const CACHE_KEY = "sbs_tc_history_v8_treasuryhub";
-  const THEME_KEY = "sbs_tc_theme_treasuryhub";
-  const MANIFESTS = [
-    "./data/tc_contable_manifest.json",
-    "./data/tc_contable_history.json",
-    "./data/tc_contable_series.json",
-    "./data/tc_contable_index.json",
-    "./data/manifest.json",
-    "./data/index.json"
-  ];
-  const PATTERNS = [
-    d => `./data/tc_contable_${d.ymd}.json`,
-    d => `./data/tc_contable_${d.compact}.json`,
-    d => `./data/${d.ymd}.json`,
-    d => `./data/${d.compact}.json`,
-    d => `./data/sbs_tc_contable_${d.ymd}.json`,
-    d => `./data/sbs_tc_contable_${d.compact}.json`,
-    d => `./data/tc_contable_${d.ymd}.csv`,
-    d => `./data/tc_contable_${d.compact}.csv`,
-    d => `./data/${d.ymd}.csv`,
-    d => `./data/${d.compact}.csv`,
-    d => `./data/sbs_tc_contable_${d.ymd}.csv`,
-    d => `./data/sbs_tc_contable_${d.compact}.csv`
-  ];
-  const el = id => document.getElementById(id);
-  const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),history:[],trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
-
-  function cssVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
-  function themeColors(){return {navy:cssVar("--navy3")||"#0b3654",ink:cssVar("--ink")||"#102033",muted:cssVar("--muted")||"#5f7283",line:cssVar("--line")||"#d9e3ec",grid:cssVar("--grid")||"#e8eef4",panel:cssVar("--panel")||"#fff",soft:cssVar("--soft")||"#f6f9fc",cyan:cssVar("--cyan")||"#00a3b5",green:cssVar("--green")||"#13966b",red:cssVar("--red")||"#bd2c22",avg:cssVar("--avg")||"#7b61ff",tooltipBg:cssVar("--tooltip-bg")||"#051c2c",tooltipBorder:cssVar("--tooltip-border")||"#125078"};}
-  function marker(color){return `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${color};box-shadow:0 0 0 3px rgba(255,255,255,.18);margin-right:7px;vertical-align:middle"></span>`;}
-  function applyTheme(theme){
-    const value = theme === "dark" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", value);
-    try{localStorage.setItem(THEME_KEY,value);}catch(e){}
-    const btn=el("btnTheme"); if(btn) btn.textContent = value === "dark" ? "Modo claro" : "Modo oscuro";
-    setTimeout(()=>{renderCharts(); Object.values(state.charts).forEach(c=>c&&c.resize());},0);
-  }
-  function initTheme(){
-    let saved=""; try{saved=localStorage.getItem(THEME_KEY)||"";}catch(e){}
-    const preferred = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    applyTheme(preferred);
-  }
-  function toggleTheme(){applyTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");}
-
-
-  function log(msg,type="info"){
-    try{ console[type==="error"?"error":type==="warn"?"warn":"log"](`[TC SBS] ${msg}`); }catch(e){}
-  }
-  function setStatus(text,cls=""){
-    const s = el("vStatus"); if(!s) return;
-    s.className = `status ${cls}`.trim();
-    const label=s.querySelector("span:last-child"); if(label) label.textContent = text;
-  }
-  function perf(text,pct=0){
-  }
-  function normText(v){return String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().trim();}
-  function toNum(v){
-    if(typeof v==="number") return Number.isFinite(v)?v:NaN;
-    if(v==null) return NaN;
-    let s=String(v).trim(); if(!s||s==="—") return NaN;
-    s=s.replace(/\s/g,"").replace(/[A-Za-z$€£¥]/g,"");
-    const c=s.lastIndexOf(","), d=s.lastIndexOf(".");
-    if(c>d) s=s.replace(/\./g,"").replace(",","."); else s=s.replace(/,/g,"");
-    const n=Number(s); return Number.isFinite(n)?n:NaN;
-  }
-  function parseDate(v){
-    if(!v) return null; if(v instanceof Date && !Number.isNaN(v.getTime())) return v;
-    const s=String(v).trim();
-    const iso=s.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); if(iso) return new Date(+iso[1],+iso[2]-1,+iso[3]);
-    const lat=s.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/); if(lat) return new Date(+lat[3],+lat[2]-1,+lat[1]);
-    const d=new Date(s); return Number.isNaN(d.getTime())?null:d;
-  }
-  function dateKey(v){
-    const d=parseDate(v); if(!d) return "";
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  }
-  function displayDate(v){const d=parseDate(v); return d?new Intl.DateTimeFormat("es-PE",{year:"numeric",month:"short",day:"2-digit"}).format(d):(v||"—");}
-
-  function fileStamp(){
-    const d=new Date(), pad=n=>String(n).padStart(2,"0");
-    return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-  }
-  function safeName(v){
-    return String(v||"grafico").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_-]+/g,"_").replace(/^_+|_+$/g,"").slice(0,120) || "grafico";
-  }
-  function ceilTo(n,d=4){
-    if(!Number.isFinite(n)) return NaN;
-    const p=10**Math.min(4,Math.max(0,d));
-    return Math.ceil((n * p) - 1e-9) / p;
-  }
-  function fmt(n,d=4){
-    if(!Number.isFinite(n)) return "—";
-    const digits=Math.min(4,Math.max(0,d));
-    return new Intl.NumberFormat("es-PE",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(ceilTo(n,digits));
-  }
-  function pct(n){return Number.isFinite(n)?`${n>=0?"+":""}${fmt(n,4)}%`:"—";}
-  function digits(code,v){return 4;}
-  async function fetchText(url,{fresh=false,cache="default"}={}){
-    const full=fresh ? url + (url.includes("?")?"&":"?") + "ts=" + Date.now() : url;
-    const r=await fetch(full,{cache}); if(!r.ok) throw new Error(`HTTP ${r.status}`); return await r.text();
-  }
-  async function fetchJSON(url,{fresh=false,cache="default"}={}){
-    const text=await fetchText(url,{fresh,cache});
-    try{return JSON.parse(text);}catch(e){throw new Error(`JSON inválido en ${url}`);}
-  }
-  async function fetchAny(url,{fresh=false,cache="default"}={}){
-    const text=await fetchText(url,{fresh,cache});
-    const trimmed=text.trim();
-    if(trimmed.startsWith("{")||trimmed.startsWith("[")){
-      try{return JSON.parse(trimmed);}catch(e){}
-    }
-    return rowsFromCsv(trimmed);
-  }
-  function splitCsvLine(line,sep){
-    const out=[]; let cur="", q=false;
-    for(let i=0;i<line.length;i++){
-      const ch=line[i], next=line[i+1];
-      if(ch==='"' && q && next==='"'){cur+='"'; i++; continue;}
-      if(ch==='"'){q=!q; continue;}
-      if(ch===sep && !q){out.push(cur); cur=""; continue;}
-      cur+=ch;
-    }
-    out.push(cur); return out.map(x=>x.trim());
-  }
-  function rowsFromCsv(text){
-    const lines=String(text||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-    if(lines.length<2) return [];
-    const first=lines[0];
-    const sep=(first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length?";":",";
-    const headers=splitCsvLine(first,sep).map((h,i)=>h||`col_${i+1}`);
-    return lines.slice(1).map(line=>{
-      const vals=splitCsvLine(line,sep); const row={};
-      headers.forEach((h,i)=>row[h]=vals[i]??""); return row;
-    });
-  }
-  function rowsFromPayload(payload){
-    if(typeof payload==="string") return rowsFromCsv(payload);
-    if(Array.isArray(payload)){
-      if(!payload.length) return [];
-      if(Array.isArray(payload[0])){
-        const headers=payload[0].map((h,i)=>String(h||`col_${i+1}`));
-        return payload.slice(1).map(arr=>{const row={}; headers.forEach((h,i)=>row[h]=arr[i]); return row;});
-      }
-      return payload.filter(x=>x && typeof x==="object");
-    }
-    if(!payload || typeof payload!=="object") return [];
-    const rowKeys=["rows","data","items","tasas","tipos_cambio","monedas","records","latest","result","values"];
-    for(const k of rowKeys){ if(Array.isArray(payload[k])) return rowsFromPayload(payload[k]); }
-    const csvKeys=["csv","content","text"];
-    for(const k of csvKeys){ if(typeof payload[k]==="string" && /[;,]/.test(payload[k])) return rowsFromCsv(payload[k]); }
-    if(payload.data && typeof payload.data==="object") return rowsFromPayload(payload.data);
-    if(payload.rates && typeof payload.rates==="object" && !Array.isArray(payload.rates)){
-      return Object.entries(payload.rates).map(([code,val])=>{
-        if(val && typeof val==="object") return {codigo:code,...val};
-        return {codigo:code,tipo_cambio:val};
-      });
-    }
-    const objEntries=Object.entries(payload).filter(([k,v])=>/^[A-Z]{3}$/i.test(k) && v && typeof v==="object" && !Array.isArray(v));
-    if(objEntries.length) return objEntries.map(([code,obj])=>({codigo:code,...obj}));
-    const numEntries=Object.entries(payload).filter(([k,v])=>/^[A-Z]{3}$/i.test(k) && Number.isFinite(toNum(v)));
-    if(numEntries.length) return numEntries.map(([code,val])=>({codigo:code,tipo_cambio:val}));
-    return [];
-  }
-  function inferCode(row){
-    const keys=Object.keys(row||{});
-    const pick=(...names)=>{for(const n of names){const k=keys.find(x=>normText(x).replace(/[^A-Z0-9]/g,"")===normText(n).replace(/[^A-Z0-9]/g,"")); if(k && row[k]!=null && String(row[k]).trim()!=="") return String(row[k]).trim();} return "";};
-    const direct=pick("codigo","cod_moneda","codmon","currency","ccy","moneda_codigo","cod","iso","currency_code","sigla");
-    const upper=normText(direct).replace(/[^A-Z]/g,""); if(/^[A-Z]{3}$/.test(upper)) return upper==="CNY"?"CNH":upper;
-    const source=`${normText(direct)} ${normText(keys.map(k=>row[k]).join(" "))}`;
-    const compact=source.replace(/[^A-Z0-9]/g,"");
-    if(/\bUSD\b/.test(source)||compact.includes("DOLARDENA")||compact.includes("DOLARESDENA")||compact.includes("DOLARNORTEAMERICANO")||compact.includes("DOLARESTADOUNIDENSE")||compact.includes("DOLARDELOSESTADOSUNIDOS")||compact.includes("UNITEDSTATESDOLLAR")||compact.includes("USDOLLAR")) return "USD";
-    const aliases=[
-      ["EUR",/(^|\b)(EUR|EURO)(\b|$)/],["GBP",/(^|\b)(GBP|LIBRA|POUND|STERLING)(\b|$)/],["CNH",/(^|\b)(CNH|YUAN OFFSHORE|RENMINBI OFFSHORE)(\b|$)/],["CNH",/(^|\b)(CNY|YUAN|RENMINBI|CHINA|YUAN CHINO)(\b|$)/],["JPY",/(^|\b)(JPY|YEN|JAPON)(\b|$)/],["CHF",/(^|\b)(CHF|FRANCO SUIZO|SWISS)(\b|$)/],["CAD",/(^|\b)(CAD|DOLAR CANADIENSE|CANADIAN|CANADIENSE)(\b|$)/],["AUD",/(^|\b)(AUD|DOLAR AUSTRALIANO|AUSTRALIAN|AUSTRALIANO)(\b|$)/],["NZD",/(^|\b)(NZD|DOLAR NEOZELANDES|NEW ZEALAND)(\b|$)/],["MXN",/(^|\b)(MXN|PESO MEXICANO|MEXICANO)(\b|$)/],["BRL",/(^|\b)(BRL|REAL BRASIL|BRAZIL)(\b|$)/],["CLP",/(^|\b)(CLP|PESO CHILENO|CHILE|CHILENO)(\b|$)/],["COP",/(^|\b)(COP|PESO COLOMBIANO|COLOMBIA|COLOMBIANO)(\b|$)/]
-    ];
-    for(const [code,re] of aliases){if(re.test(source)) return code;}
-    const iso=source.match(/\b[A-Z]{3}\b/); return iso?iso[0]:"";
-  }
-  function inferName(row,code){
-    const keys=Object.keys(row||{});
-    for(const nk of ["moneda","descripcion","desc_moneda","nombre","currency_name","divisa","pais"]){const k=keys.find(x=>normText(x).replace(/[^A-Z0-9]/g,"")===normText(nk).replace(/[^A-Z0-9]/g,"")); if(k && row[k]!=null && String(row[k]).trim()!=="") return String(row[k]).trim();}
-    return {PEN:"Sol peruano",USD:"Dólar de N.A.",EUR:"Euro",GBP:"Libra esterlina",CNH:"Yuan offshore",CNY:"Yuan chino",JPY:"Yen japonés"}[code]||code||"Moneda";
-  }
-  function inferRate(row){
-    const keys=Object.keys(row||{});
-    for(const name of ["tipo_cambio","tc","t_c","t.c.","t.c. contable","tc_contable","tipo de cambio","tipo cambio contable","valor","rate","exchange_rate","venta","promedio","equivalencia","pen","soles"]){
-      const k=keys.find(x=>normText(x).replace(/[^A-Z0-9]/g,"")===normText(name).replace(/[^A-Z0-9]/g,"")); if(k){const n=toNum(row[k]); if(Number.isFinite(n)&&n>0) return n;}
-    }
-    const nums=keys.map(k=>[k,toNum(row[k])]).filter(([k,n])=>Number.isFinite(n)&&n>0&&n<100000&&!/(fecha|date|codigo|cod|fila|row|id)/i.test(k));
-    nums.sort((a,b)=>((/(cambio|contable|venta|rate|valor|equiv|tc)/i.test(a[0])?0:1)-(/(cambio|contable|venta|rate|valor|equiv|tc)/i.test(b[0])?0:1)));
-    return nums[0]?.[1]??NaN;
-  }
-  function normalizeRates(payload){
-    const rows=rowsFromPayload(payload); const map=new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]);
-    for(const row of rows){
-      if(!row||typeof row!=="object") continue; const code=inferCode(row); const rate=inferRate(row); if(!code||!Number.isFinite(rate)||rate<=0) continue;
-      const b=toNum(row.base??row.unidad??row.factor??row.cantidad??row.units??1); const base=Number.isFinite(b)&&b>0?b:1;
-      map.set(code,{code,name:inferName(row,code),rate:rate/base,base,raw:row});
-    }
-    return {rows,map};
-  }
-  function getRaw(code,ratesObj=null){
-    if(code==="PEN") return 1;
-    if(ratesObj){ if(code==="CNH"&&ratesObj.CNH==null&&ratesObj.CNY!=null) return toNum(ratesObj.CNY); return toNum(ratesObj[code]); }
-    if(code==="CNH"&&!state.rates.has("CNH")&&state.rates.has("CNY")) return state.rates.get("CNY").rate;
-    return state.rates.get(code)?.rate??NaN;
-  }
-  function shownRate(code,ratesObj=null){
-    const usd=getRaw("USD",ratesObj); if(code==="USD") return usd;
-    const raw=getRaw(code,ratesObj); return Number.isFinite(raw)&&Number.isFinite(usd)&&usd>0?raw/usd:NaN;
-  }
-  function pair(code){return code==="USD"?"USDPEN":`${code}USD`;}
-  function calc(code){return code==="USD"?"Dólar de N.A. en PEN":`${code}PEN / USDPEN`;}
-  function allCodes(){return [...state.rates.keys()].filter(c=>c!=="PEN"&&Number.isFinite(shownRate(c))).sort((a,b)=>(CORE.indexOf(a)<0?99:CORE.indexOf(a))-(CORE.indexOf(b)<0?99:CORE.indexOf(b))||a.localeCompare(b));}
-  function snapshotFromPayload(payload,fallbackDate=""){
-    if(payload?.rates && typeof payload.rates==="object"){
-      const rates={}; for(const [k,v] of Object.entries(payload.rates)){const n=toNum(v?.rate??v); if(Number.isFinite(n)) rates[k.toUpperCase()]=n;}
-      const dk=dateKey(payload.date||payload.fecha||payload.fecha_publicada||fallbackDate); return Object.keys(rates).length&&dk?{date:dk,rates}:null;
-    }
-    const {map}=normalizeRates(payload); const rates={}; for(const [code,obj] of map) if(code!=="PEN") rates[code]=obj.rate;
-    const dk=dateKey(payload?.fecha_publicada||payload?.fecha||payload?.date||payload?.generated_at||fallbackDate);
-    return Object.keys(rates).length&&dk?{date:dk,rates}:null;
-  }
-  function manifestEntries(payload){
-    const out=[]; const add=x=>{if(!x)return; if(typeof x==="string") out.push(x); else if(typeof x==="object"){const emb=snapshotFromPayload(x,x.date||x.fecha||x.fecha_publicada); if(emb) out.push({embedded:emb}); else out.push(x.url||x.path||x.file||x.filename||x.href||"");}};
-    if(Array.isArray(payload)) payload.forEach(add); else if(payload&&typeof payload==="object"){["files","history","snapshots","items","data"].forEach(k=>Array.isArray(payload[k])&&payload[k].forEach(add)); const emb=snapshotFromPayload(payload); if(emb) out.push({embedded:emb});}
-    return out.filter(Boolean).map(x=>typeof x==="object"?x:(/^https?:\/\//i.test(String(x))||String(x).startsWith("./")?String(x):"./data/"+String(x).replace(/^data\//,"")));
-  }
-  async function mapLimit(items,limit,fn,onProgress){
-    const results=[]; let i=0,done=0;
-    async function worker(){while(i<items.length){const idx=i++; try{results[idx]=await fn(items[idx],idx);}catch(e){results[idx]=null;} done++; if(onProgress) onProgress(done,items.length);}}
-    await Promise.all(Array.from({length:Math.min(limit,items.length)},worker)); return results;
-  }
-  function mergeHistory(snaps){
-    const by=new Map(); for(const s of snaps){const dk=dateKey(s.date); if(dk&&s.rates) by.set(dk,{date:dk,rates:s.rates});}
-    const latestDate=dateKey(state.meta?.fecha_publicada||state.meta?.fecha||new Date()); const latest={}; for(const [code,obj] of state.rates) if(code!=="PEN") latest[code]=obj.rate;
-    if(Object.keys(latest).length&&latestDate) by.set(latestDate,{date:latestDate,rates:latest});
-    return [...by.values()].sort((a,b)=>a.date.localeCompare(b.date));
-  }
-  function loadCache(){
-    try{
-      const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
-      if(c?.history?.length){
-        state.history=mergeHistory(c.history);
-        state.cacheAge=Date.now()-(c.savedAt||0);
-        el("historySource").textContent=`${state.history.length} cortes · caché local`;
-        renderCharts();
-        return true;
-      }
-    }catch(e){}
-    return false;
-  }
-  function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({savedAt:Date.now(),history:state.history.slice(-260)}));}catch(e){} }
-  async function loadHistoryManifest({fresh=false}={}){
-    for(const url of MANIFESTS){
-      try{
-        const payload=await fetchJSON(url,{fresh,cache:fresh?"no-store":"force-cache"}); const entries=manifestEntries(payload); if(!entries.length) continue;
-        const embedded=entries.filter(x=>typeof x==="object").map(x=>x.embedded); const urls=entries.filter(x=>typeof x==="string").slice(-260);
-        perf(`Manifest detectado: ${url.split('/').pop()} · ${urls.length+embedded.length} archivos`,50);
-        const fetched=await mapLimit(urls,12,async f=>snapshotFromPayload(await fetchAny(f,{fresh,cache:fresh?"no-store":"force-cache"}),f),(d,t)=>perf(`Leyendo manifest ${d}/${t}`,50+Math.round(d/t*40)));
-        const snaps=[...embedded,...fetched.filter(Boolean)]; if(snaps.length){state.historySource=`manifest ${url.split('/').pop()}`; return snaps;}
-      }catch(e){}
-    }
-    return [];
-  }
-  function dateParts(days){
-    const base=parseDate(state.meta?.fecha_publicada||state.meta?.fecha)||new Date(); const arr=[];
-    for(let i=0;i<days;i++){const d=new Date(base); d.setDate(base.getDate()-i); const wd=d.getDay(); if(wd===0) continue; const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0"); arr.push({ymd:`${y}-${m}-${day}`,compact:`${y}${m}${day}`});}
-    return arr.reverse();
-  }
-  async function loadHistoryProbe(){
-    const dates=dateParts(Math.min(150,Math.max(state.range+18,45))); const found=new Map();
-    for(let p=0;p<PATTERNS.length;p++){
-      const missing=dates.filter(d=>!found.has(d.ymd)); if(!missing.length) break;
-      const tasks=missing.map(d=>({d,url:PATTERNS[p](d)})); perf(`Probando patrón ${p+1}/${PATTERNS.length}`,18+p*10);
-      const res=await mapLimit(tasks,14,async item=>({d:item.d,s:snapshotFromPayload(await fetchAny(item.url,{cache:"force-cache"}),item.d.ymd)}),(done,total)=>perf(`Histórico rápido ${done}/${total}`,20+p*10+Math.round(done/total*8)));
-      for(const r of res){if(r?.s) found.set(r.d.ymd,r.s);}
-      if(found.size>=Math.min(state.range,30)) break;
-    }
-    state.historySource="detección por fecha"; return [...found.values()];
-  }
-  async function loadHistory(force=false){
-    setStatus("Histórico",""); perf("Iniciando carga histórica…",5);
-    const hasCache=!force && loadCache();
-    async function syncManifest(){
-      try{
-        const snaps=await loadHistoryManifest({fresh:true});
-        if(snaps.length){
-          state.history=mergeHistory(snaps); saveCache();
-          el("historySource").textContent=`${state.history.length} cortes · ${state.historySource}`;
-          setStatus("Actualizado","ok"); renderCharts(); renderDeltas();
-          return true;
-        }
-      }catch(e){log(`Sync histórico: ${e.message||e}`,"warn");}
-      return false;
-    }
-    if(hasCache){
-      setStatus("Latest OK","ok");
-      setTimeout(syncManifest,0);
-      return;
-    }
-    let synced=await syncManifest();
-    if(!synced){
-      const snaps=await loadHistoryProbe();
-      state.history=mergeHistory(snaps); saveCache();
-      el("historySource").textContent=state.history.length?`${state.history.length} cortes · ${state.historySource}`:"solo latest";
-      setStatus(state.history.length?"Actualizado":"Sin histórico",state.history.length?"ok":"warn");
-      renderCharts(); renderDeltas();
-    }
-  }
-  function ensureChart(id){
-    const dom=el(id); if(!window.echarts){dom.className="chart empty"; dom.textContent="No se pudo cargar ECharts. Revisa conexión/CDN."; return null;}
-    dom.classList.remove("empty"); if(!state.charts[id]) state.charts[id]=echarts.init(dom,null,{renderer:"canvas"}); return state.charts[id];
-  }
-  function seriesFor(code){
-    return state.history.map(s=>({date:s.date,value:shownRate(code,s.rates)})).filter(x=>Number.isFinite(x.value));
-  }
-  function prevChange(code){
-    const s=seriesFor(code); if(s.length<2) return NaN; const a=s.at(-2).value,b=s.at(-1).value; return a?((b/a)-1)*100:NaN;
-  }
-  function renderDeltas(){
-    for(const [code,id] of [["USD","dUsd"],["EUR","dEur"],["GBP","dGbp"],["CNH","dCnh"],["JPY","dJpy"]]){
-      const v=prevChange(code), node=el(id); node.textContent=pct(v); node.className=`delta ${!Number.isFinite(v)||Math.abs(v)<0.005?"flat":v>0?"pos":"neg"}`;
-    }
-  }
-  function renderTrend(){
-    const chart=ensureChart("trendChart"); if(!chart) return;
-    const code=state.trend, data=seriesFor(code).slice(-state.range); const name=pair(code); const t=themeColors();
-    if(!data.length){chart.clear(); chart.setOption({title:{text:"Sin histórico disponible",left:"center",top:"center",textStyle:{fontSize:13,color:t.muted}}}); return;}
-    const values=data.map(x=>x.value); const avg=values.reduce((a,b)=>a+b,0)/values.length;
-    chart.setOption({
-      color:[t.navy,t.avg], animationDuration:520,
-      grid:{left:50,right:24,top:34,bottom:58},
-      legend:{top:0,left:6,itemWidth:16,itemHeight:8,textStyle:{color:t.muted,fontWeight:850,fontSize:11}},
-      tooltip:{trigger:"axis",axisPointer:{type:"cross",lineStyle:{color:t.muted,width:1}},backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff"},formatter:params=>{
-        const arr=Array.isArray(params)?params:[params];
-        const rows=arr.map(p=>`${marker(typeof p.color==="string"?p.color:(p.seriesName==="Promedio"?t.avg:t.navy))}<span style="display:inline-block;min-width:74px">${p.seriesName}</span><b>${fmt(Array.isArray(p.value)?p.value[1]:p.value,4)}</b>`).join("<br>");
-        return `<div style="font-weight:900;margin-bottom:5px">${arr[0]?.axisValue||""}</div>${rows}`;
-      }},
-      toolbox:{right:8,iconStyle:{borderColor:t.muted},emphasis:{iconStyle:{borderColor:t.ink}},feature:{dataZoom:{yAxisIndex:"none",title:{zoom:"Zoom",back:"Atrás"}},restore:{title:"Restaurar"},saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Tendencia_${name}_${fileStamp()}`)}}},
-      dataZoom:[{type:"inside",throttle:60},{type:"slider",height:22,bottom:18,borderColor:t.line,fillerColor:"rgba(0,163,181,.12)",handleStyle:{color:t.navy},textStyle:{color:t.muted},backgroundColor:t.soft}],
-      xAxis:{type:"category",data:data.map(x=>x.date),boundaryGap:false,axisLabel:{color:t.muted,fontWeight:750},axisLine:{lineStyle:{color:t.line}},axisTick:{show:false}},
-      yAxis:{type:"value",scale:true,axisLabel:{color:t.muted,formatter:v=>fmt(v,4)},splitLine:{lineStyle:{color:t.grid}}},
-      series:[
-        {name,type:"line",data:values,smooth:true,showSymbol:false,symbol:"circle",symbolSize:7,lineStyle:{width:1.55,color:t.navy},areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:"rgba(0,163,181,.22)"},{offset:.58,color:"rgba(0,163,181,.055)"},{offset:1,color:"rgba(0,163,181,0)"}])},emphasis:{focus:"series",scale:1.2,lineStyle:{width:2},itemStyle:{color:t.navy,borderColor:t.panel,borderWidth:2,shadowBlur:8,shadowColor:"rgba(0,0,0,.22)"}},markPoint:{symbol:"pin",symbolSize:58,itemStyle:{color:t.navy,borderColor:t.panel,borderWidth:1.5},label:{color:"#fff",fontSize:9,fontWeight:950,formatter:p=>`${p.name}\n${fmt(p.value,4)}`},data:[{type:"max",name:"Máx"},{type:"min",name:"Mín"}]}},
-        {name:"Promedio",type:"line",data:values.map(()=>avg),smooth:false,showSymbol:false,silent:false,lineStyle:{width:1.35,type:"dashed",color:t.avg,opacity:.95},emphasis:{disabled:true},endLabel:{show:true,formatter:()=>`Prom ${fmt(avg,4)}`,color:t.avg,fontWeight:900,fontSize:10}}
-      ]
-    },true);
-  }
-  function renderChange(){
-    const chart=ensureChart("changeChart"); if(!chart) return;
-    const code=state.trend, base=seriesFor(code).slice(-state.range), changes=[], t=themeColors();
-    for(let i=1;i<base.length;i++){const a=base[i-1].value,b=base[i].value; if(a) changes.push({date:base[i].date,value:(b/a-1)*100});}
-    el("changeSource").textContent=`${pair(code)} · % diario`;
-    if(!changes.length){chart.clear(); chart.setOption({title:{text:"Sin variaciones suficientes",left:"center",top:"center",textStyle:{fontSize:13,color:t.muted}}}); return;}
-    chart.setOption({
-      animationDuration:520, grid:{left:54,right:18,top:24,bottom:46},
-      tooltip:{trigger:"axis",backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff"},formatter:params=>{const p=Array.isArray(params)?params[0]:params; const val=Array.isArray(p.value)?p.value[1]:p.value; return `<div style="font-weight:900;margin-bottom:5px">${p.axisValue||""}</div>${marker(val>=0?t.green:t.red)}Var. diaria <b>${pct(val)}</b>`;}},
-      toolbox:{right:6,iconStyle:{borderColor:t.muted},feature:{saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Variacion_diaria_${pair(code)}_${fileStamp()}`)}}},
-      dataZoom:[{type:"inside",throttle:60}],
-      xAxis:{type:"category",data:changes.map(x=>x.date),axisLabel:{color:t.muted,fontWeight:750},axisTick:{show:false},axisLine:{lineStyle:{color:t.line}}},
-      yAxis:{type:"value",axisLabel:{color:t.muted,formatter:v=>`${fmt(v,4)}%`},splitLine:{lineStyle:{color:t.grid}}},
-      series:[{name:"Var. diaria",type:"bar",data:changes.map(x=>({value:x.value,itemStyle:{color:x.value>=0?t.green:t.red,borderRadius:[3,3,0,0]}})),barMaxWidth:20,markLine:{symbol:"none",data:[{yAxis:0}],lineStyle:{color:t.muted,type:"dashed"}}}]
-    },true);
-  }
-  function renderBar(){}
-  function renderCharts(){renderTrend(); renderChange(); renderStats(); renderDeltas();}
-  function renderKpis(){
-    const values={USD:shownRate("USD"),EUR:shownRate("EUR"),GBP:shownRate("GBP"),CNH:shownRate("CNH"),JPY:shownRate("JPY")};
-    el("kUsd").textContent=fmt(values.USD,digits("USD",values.USD)); el("kEur").textContent=fmt(values.EUR,digits("EUR",values.EUR)); el("kGbp").textContent=fmt(values.GBP,digits("GBP",values.GBP)); el("kCnh").textContent=fmt(values.CNH,digits("CNH",values.CNH)); el("kJpy").textContent=fmt(values.JPY,digits("JPY",values.JPY));
-    const codes=allCodes(); el("kCover").textContent=codes.length||"—"; el("kCoverSub").textContent=`${codes.length} pares · USD ${state.rates.has("USD")?"OK":"no detectado"}`;
-  }
-  function syncTrendControls(){
-    const all=allCodes();
-    if(!all.includes(state.trend)) state.trend=all.includes("USD")?"USD":(all[0]||"USD");
-    const mobile=el("trendCcy"), other=el("trendOther"), quick=el("trendQuick");
-    if(mobile) mobile.value=state.trend;
-    if(other) other.value=CORE.includes(state.trend)?"":state.trend;
-    if(quick) quick.querySelectorAll(".pair-btn").forEach(b=>b.classList.toggle("active",b.dataset.code===state.trend));
-  }
-  function selectTrend(code){ if(!code) return; state.trend=code; syncTrendControls(); renderCharts(); renderQuickPairs(); }
-  function populateSelectors(){
-    const codes=["PEN",...allCodes()];
-    const opts=codes.map(c=>`<option value="${c}">${c}${c==="USD"?" · Dólar de N.A.":""}</option>`).join("");
-    for(const id of ["fromCcy","toCcy"]){const node=el(id); const old=node.value; node.innerHTML=opts; if(codes.includes(old)) node.value=old;}
-    if(!el("fromCcy").value) el("fromCcy").value="USD"; if(!el("toCcy").value) el("toCcy").value="PEN";
-    const trendCodes=allCodes();
-    const allTrendOpts=trendCodes.map(c=>`<option value="${c}">${pair(c)}</option>`).join("");
-    const mobile=el("trendCcy"); if(mobile) mobile.innerHTML=allTrendOpts;
-    const others=trendCodes.filter(c=>!CORE.includes(c));
-    const other=el("trendOther"); if(other) other.innerHTML=`<option value="">Otros pares</option>`+others.map(c=>`<option value="${c}">${pair(c)}</option>`).join("");
-    const quick=el("trendQuick"); if(quick) quick.innerHTML=CORE.filter(c=>trendCodes.includes(c)).map(c=>`<button type="button" class="pair-btn" data-code="${c}">${pair(c)}</button>`).join("");
-    syncTrendControls();
-  }
-  function convert(amount,from,to){const rf=getRaw(from), rt=getRaw(to); return Number.isFinite(rf)&&Number.isFinite(rt)&&rt>0?amount*rf/rt:NaN;}
-  function renderConverter(){
-    const a=toNum(el("amount").value), from=el("fromCcy").value, to=el("toCcy").value, val=convert(a,from,to);
-    el("convResult").textContent=Number.isFinite(val)?`${fmt(val,4)} ${to}`:"—";
-    el("convSub").textContent=Number.isFinite(val)?`${fmt(a,4)} ${from} → vía PEN · ${fmt(getRaw(from),4)} / ${fmt(getRaw(to),4)}`:"No hay tasa suficiente";
-    renderQuickPairs();
-  }
-  function renderQuickPairs(){
-    const pairs=["USD","EUR","GBP","CNH","JPY"].filter(c=>Number.isFinite(shownRate(c)));
-    el("quickPairs").innerHTML=pairs.map(c=>{const v=shownRate(c), ch=prevChange(c); return `<div class="pair-card ${state.trend===c?"active":""}" data-code="${c}"><div class="c">${pair(c)}</div><div class="r">${fmt(v,digits(c,v))}</div><div class="d">${pct(ch)}</div></div>`;}).join("");
-    el("quickPairs").querySelectorAll(".pair-card").forEach(card=>card.addEventListener("click",()=>selectTrend(card.dataset.code)));
-  }
-  function renderTable(){
-    const q=normText(el("searchBox").value); const rows=allCodes().map(c=>({code:c,p:pair(c),name:state.rates.get(c)?.name||(c==="CNH"?state.rates.get("CNY")?.name:c),value:shownRate(c),calc:calc(c)})).filter(r=>!q||normText(`${r.p} ${r.code} ${r.name} ${r.calc}`).includes(q));
-    el("tableCount").textContent=`${rows.length} pares`;
-    el("ratesTable").innerHTML=rows.length?rows.map(r=>`<tr><td class="code">${r.p}</td><td>${r.name||"—"}</td><td class="num">${fmt(r.value,digits(r.code,r.value))}</td><td class="num">${r.calc}</td></tr>`).join(""):`<tr><td colspan="4">Sin resultados</td></tr>`;
-  }
-  function renderStats(){
-    const chart=ensureChart("statsChart");
-    const code=state.trend, s=seriesFor(code).slice(-state.range), vals=s.map(x=>x.value), last=vals.at(-1), ch=prevChange(code), t=themeColors();
-    const max=vals.length?Math.max(...vals):NaN, min=vals.length?Math.min(...vals):NaN, avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:NaN;
-    let vol=NaN;
-    if(vals.length>2){
-      const changes=[]; for(let i=1;i<vals.length;i++) if(vals[i-1]) changes.push((vals[i]/vals[i-1]-1)*100);
-      const mean=changes.reduce((a,b)=>a+b,0)/changes.length;
-      vol=Math.sqrt(changes.reduce((a,b)=>a+(b-mean)**2,0)/changes.length);
-    }
-    el("statsPair").textContent=`${pair(code)} · ${state.range}D`;
-    if(!chart) return;
-    if(!vals.length){chart.clear(); chart.setOption({title:{text:"Sin histórico",left:"center",top:"center",textStyle:{fontSize:13,color:t.muted}}}); return;}
-    const bars=[
-      {name:"Mín",value:min,color:t.muted},
-      {name:"Prom",value:avg,color:t.avg},
-      {name:"Últ",value:last,color:t.navy},
-      {name:"Máx",value:max,color:t.green}
-    ];
-    chart.setOption({
-      animationDuration:520,
-      grid:{left:52,right:16,top:28,bottom:54},
-      tooltip:{trigger:"axis",axisPointer:{type:"shadow"},backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff"},formatter:params=>{const arr=Array.isArray(params)?params:[params]; return arr.map(p=>`${marker(p.color)}${p.name} <b>${fmt(p.value,4)}</b>`).join("<br>");}},
-      toolbox:{right:4,iconStyle:{borderColor:t.muted},feature:{saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Estadisticas_${pair(code)}_${fileStamp()}`)}}},
-      xAxis:{type:"category",data:bars.map(x=>x.name),axisLabel:{color:t.muted,fontWeight:900},axisTick:{show:false},axisLine:{lineStyle:{color:t.line}}},
-      yAxis:{type:"value",scale:true,axisLabel:{color:t.muted,formatter:v=>fmt(v,4)},splitLine:{lineStyle:{color:t.grid}}},
-      graphic:[{type:"text",right:18,top:6,style:{text:`Var ${pct(ch)}  ·  Vol ${Number.isFinite(vol)?fmt(vol,4)+"%":"—"}`,fill:t.muted,font:"800 11px Manrope, Inter, sans-serif"}}],
-      series:[{name:"Estadística",type:"bar",data:bars.map(x=>({value:x.value,itemStyle:{color:x.color,borderRadius:[4,4,0,0]}})),barMaxWidth:34,label:{show:true,position:"top",fontWeight:900,color:t.ink,formatter:p=>fmt(p.value,4)}}]
-    },true);
-  }
-  async function loadMeta(){const m=await fetchJSON("./data/tc_contable_meta.json",{fresh:true,cache:"no-store"}); state.meta=m; el("vFecha").textContent=displayDate(m.fecha_publicada||m.fecha||m.date); return m;}
-  async function loadLatest(){
-    let payload;
-    try{ payload=await fetchAny("./data/tc_contable_latest.json",{fresh:true,cache:"no-store"}); }
-    catch(e){ payload=await fetchAny("./data/tc_contable_latest.csv",{fresh:true,cache:"no-store"}); }
-    const {map}=normalizeRates(payload);
-    state.rates=map;
-    log(`Latest OK · ${map.size-1} monedas · USD=${map.has("USD")?"Dólar de N.A.":"no detectado"}`);
-    if(!map.has("USD")) setStatus("USD no detectado","warn");
-  }
-  function on(id,event,handler){const node=el(id); if(node) node.addEventListener(event,handler);}
-  function bind(){
-    on("btnRefresh","click",()=>refresh(true));
-    on("btnReloadHistory","click",()=>loadHistory(true));
-    on("btnTheme","click",toggleTheme);
-    on("btnCopy","click",async()=>{const text=[`TC Contable SBS · ${el("vFecha")?.textContent||"—"}`,`USDPEN ${el("kUsd")?.textContent||"—"}`,`EURUSD ${el("kEur")?.textContent||"—"}`,`GBPUSD ${el("kGbp")?.textContent||"—"}`,`CNHUSD ${el("kCnh")?.textContent||"—"}`,`JPYUSD ${el("kJpy")?.textContent||"—"}`].join("\n"); try{await navigator.clipboard.writeText(text); log("Resumen copiado");}catch(e){log("No se pudo copiar","warn");}});
-    on("amount","input",renderConverter); on("fromCcy","change",renderConverter); on("toCcy","change",renderConverter);
-    on("swapBtn","click",()=>{const a=el("fromCcy"),b=el("toCcy"); if(a&&b){[a.value,b.value]=[b.value,a.value]; renderConverter();}});
-    on("trendCcy","change",e=>selectTrend(e.target.value));
-    on("trendOther","change",e=>selectTrend(e.target.value));
-    on("trendQuick","click",e=>{const btn=e.target.closest(".pair-btn"); if(btn) selectTrend(btn.dataset.code);});
-    on("searchBox","input",renderTable);
-    const rangeTabs=el("rangeTabs");
-    if(rangeTabs) rangeTabs.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{rangeTabs.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.range=Number(b.dataset.range); loadHistory(false);}));
-    on("btnZoomReset","click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
-    window.addEventListener("resize",()=>Object.values(state.charts).forEach(c=>c&&c.resize()));
-  }
-  function renderStatic(){renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
-  async function refresh(forceHistory=false){
-    setStatus("Consultando",""); perf("Leyendo latest…",5);
-    try{await loadMeta(); await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory);}catch(e){setStatus("Error","err"); log(`Error de carga: ${e.message||e}`,"error"); try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory);}catch(_e){}}
-  }
-  initTheme(); bind(); refresh(false);
-})();
-</script>
-</body>
-</html>
+  ]
+}
