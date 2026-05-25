@@ -1,10 +1,9 @@
-
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SBS TC Contable · Treasury Hub</title>
+  <title>SBS TC Contable · Treasury Hub USD Cross</title>
   <style>
     :root{
       --navy:#051c2c;
@@ -341,11 +340,11 @@
       </section>
 
       <section class="kpi-grid">
-        <article class="kpi"><span>USD/PEN</span><strong id="kUsd">—</strong><small id="kUsdSub">Dólar SBS</small></article>
-        <article class="kpi"><span>EUR/PEN</span><strong id="kEur">—</strong><small>Euro</small></article>
-        <article class="kpi"><span>GBP/PEN</span><strong id="kGbp">—</strong><small>Libra esterlina</small></article>
-        <article class="kpi"><span>CNH/PEN</span><strong id="kCnh">—</strong><small>Yuan offshore</small></article>
-        <article class="kpi"><span>JPY/PEN</span><strong id="kJpy">—</strong><small>Yen japonés</small></article>
+        <article class="kpi"><span>USDPEN</span><strong id="kUsd">—</strong><small id="kUsdSub">Dólar de N.A.</small></article>
+        <article class="kpi"><span>EURUSD</span><strong id="kEur">—</strong><small>EURPEN / USDPEN</small></article>
+        <article class="kpi"><span>GBPUSD</span><strong id="kGbp">—</strong><small>GBPPEN / USDPEN</small></article>
+        <article class="kpi"><span>CNHUSD</span><strong id="kCnh">—</strong><small>CNHPEN / USDPEN</small></article>
+        <article class="kpi"><span>JPYUSD</span><strong id="kJpy">—</strong><small>JPYPEN / USDPEN</small></article>
         <article class="kpi"><span>Cobertura</span><strong id="kCover">—</strong><small id="kCoverSub">monedas detectadas</small></article>
       </section>
 
@@ -371,7 +370,7 @@
 
           <article class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="bar-mark"></span><div><h2>Último corte: monedas principales</h2><p>comparativo PEN por moneda</p></div></div>
+              <div class="panel-title"><span class="bar-mark"></span><div><h2>Último corte: monedas principales</h2><p>cruces contra Dólar de N.A.</p></div></div>
               <div class="tabs" id="barTabs">
                 <button class="tab active" data-set="main">Core</button>
                 <button class="tab" data-set="top">Top</button>
@@ -384,16 +383,16 @@
 
           <article class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="bar-mark"></span><div><h2>Tabla de tipos de cambio</h2><p>busca moneda, código o descripción</p></div></div>
+              <div class="panel-title"><span class="bar-mark"></span><div><h2>Tabla de tipos de cambio</h2><p>USDPEN y cruces contra USD</p></div></div>
             </div>
             <div class="panel-body">
               <div class="table-tools">
-                <input id="searchBox" class="search" placeholder="Buscar: USD, euro, yen…" />
+                <input id="searchBox" class="search" placeholder="Buscar: USDPEN, EURUSD, euro, yen…" />
                 <span id="tableCount" class="chip">0 monedas</span>
               </div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Código</th><th>Moneda</th><th style="text-align:right">PEN</th><th style="text-align:right">Base</th></tr></thead>
+                  <thead><tr><th>Par</th><th>Moneda</th><th style="text-align:right">TC mostrado</th><th style="text-align:right">Cálculo</th></tr></thead>
                   <tbody id="ratesTable"><tr><td colspan="4">Cargando…</td></tr></tbody>
                 </table>
               </div>
@@ -404,7 +403,7 @@
         <aside class="stack">
           <article class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="bar-mark"></span><div><h2>Conversor</h2><p>PEN, USD, EUR, GBP, CNH, JPY</p></div></div>
+              <div class="panel-title"><span class="bar-mark"></span><div><h2>Conversor</h2><p>conversión vía PEN y cruces USD</p></div></div>
             </div>
             <div class="panel-body converter">
               <div class="conv-grid">
@@ -553,25 +552,43 @@
       return "";
     };
     const direct = pick("codigo","cod_moneda","codmon","currency","ccy","moneda_codigo","cod","iso","currency_code","sigla");
-    const all = normText(keys.map(k => row[k]).join(" "));
-    const source = normText(direct) + " " + all;
+    const upperDirect = normText(direct).replace(/[^A-Z]/g,"");
+    if(/^[A-Z]{3}$/.test(upperDirect)) return upperDirect;
+
+    const allRaw = keys.map(k => row[k]).join(" ");
+    const all = normText(allRaw);
+    const source = `${normText(direct)} ${all}`;
+    const compact = source.replace(/[^A-Z0-9]/g,"");
+
+    // Regla crítica: el USD contable de SBS debe ser la fila "Dólar de N.A.".
+    // No usar "dólar" genérico, porque puede confundir AUD/CAD/NZD con USD.
+    if(
+      /\bUSD\b/.test(source) ||
+      compact.includes("DOLARDENA") ||
+      compact.includes("DOLARESDENA") ||
+      compact.includes("DOLARNORTEAMERICANO") ||
+      compact.includes("DOLARESTADOUNIDENSE") ||
+      compact.includes("DOLARDELOSESTADOSUNIDOS") ||
+      compact.includes("USDOLLAR") ||
+      compact.includes("AMERICANDOLLAR") ||
+      compact.includes("UNITEDSTATESDOLLAR")
+    ) return "USD";
+
     const aliases = [
-      ["USD",/(^|\b)(USD|US\$|DOLAR|DOLARES|AMERICAN DOLLAR)(\b|$)/],
       ["EUR",/(^|\b)(EUR|EURO)(\b|$)/],
       ["GBP",/(^|\b)(GBP|LIBRA|POUND|STERLING)(\b|$)/],
       ["CNH",/(^|\b)(CNH|YUAN OFFSHORE|RENMINBI OFFSHORE)(\b|$)/],
       ["CNY",/(^|\b)(CNY|YUAN|RENMINBI|CHINA)(\b|$)/],
       ["JPY",/(^|\b)(JPY|YEN|JAPON)(\b|$)/],
       ["CHF",/(^|\b)(CHF|FRANCO SUIZO|SWISS)(\b|$)/],
-      ["CAD",/(^|\b)(CAD|CANADIENSE|CANADIAN)(\b|$)/],
-      ["AUD",/(^|\b)(AUD|AUSTRALIAN|AUSTRALIANO)(\b|$)/],
-      ["MXN",/(^|\b)(MXN|MEXICANO|MEXICAN)(\b|$)/],
+      ["CAD",/(^|\b)(CAD|DOLAR CANADIENSE|CANADIENSE|CANADIAN)(\b|$)/],
+      ["AUD",/(^|\b)(AUD|DOLAR AUSTRALIANO|AUSTRALIAN|AUSTRALIANO)(\b|$)/],
+      ["NZD",/(^|\b)(NZD|DOLAR NEOZELANDES|NEW ZEALAND)(\b|$)/],
+      ["MXN",/(^|\b)(MXN|PESO MEXICANO|MEXICANO|MEXICAN)(\b|$)/],
       ["BRL",/(^|\b)(BRL|REAL BRASIL|BRAZIL)(\b|$)/],
-      ["CLP",/(^|\b)(CLP|CHILE|CHILENO)(\b|$)/],
-      ["COP",/(^|\b)(COP|COLOMBIA|COLOMBIANO)(\b|$)/]
+      ["CLP",/(^|\b)(CLP|PESO CHILENO|CHILE|CHILENO)(\b|$)/],
+      ["COP",/(^|\b)(COP|PESO COLOMBIANO|COLOMBIA|COLOMBIANO)(\b|$)/]
     ];
-    const upperDirect = normText(direct).replace(/[^A-Z]/g,"");
-    if(/^[A-Z]{3}$/.test(upperDirect)) return upperDirect;
     for(const [code, re] of aliases){ if(re.test(source)) return code; }
     const isoLike = source.match(/\b[A-Z]{3}\b/);
     return isoLike ? isoLike[0] : "";
@@ -583,7 +600,7 @@
       const k = keys.find(x => normText(x).replace(/[^A-Z0-9]/g,"") === normText(nk).replace(/[^A-Z0-9]/g,""));
       if(k && row[k] != null && String(row[k]).trim() !== "") return String(row[k]).trim();
     }
-    const fallback = {PEN:"Sol peruano",USD:"Dólar estadounidense",EUR:"Euro",GBP:"Libra esterlina",CNH:"Yuan offshore",CNY:"Yuan chino",JPY:"Yen japonés"};
+    const fallback = {PEN:"Sol peruano",USD:"Dólar de N.A.",EUR:"Euro",GBP:"Libra esterlina",CNH:"Yuan offshore",CNY:"Yuan chino",JPY:"Yen japonés"};
     return fallback[code] || code || "Moneda";
   }
   function inferRate(row){
@@ -635,6 +652,29 @@
     if(code === "CNH" && !state.rates.has("CNH") && state.rates.has("CNY")) return state.rates.get("CNY").rate;
     return state.rates.get(code)?.rate ?? NaN;
   }
+  function getRawFromSnapshot(code, rates){
+    if(code === "PEN") return 1;
+    if(!rates || typeof rates !== "object") return NaN;
+    if(code === "CNH" && rates.CNH == null && rates.CNY != null) return toNum(rates.CNY);
+    return toNum(rates[code]);
+  }
+  function displayPair(code){
+    return code === "USD" ? "USDPEN" : `${code}USD`;
+  }
+  function displayRate(code, snapshotRates=null){
+    const usd = snapshotRates ? getRawFromSnapshot("USD", snapshotRates) : getRate("USD");
+    if(code === "USD") return usd;
+    const raw = snapshotRates ? getRawFromSnapshot(code, snapshotRates) : getRate(code);
+    if(!Number.isFinite(raw) || !Number.isFinite(usd) || usd <= 0) return NaN;
+    return raw / usd;
+  }
+  function displayDigits(code, value){
+    if(code === "JPY" || code === "CNH" || Math.abs(value) < 0.1) return 6;
+    return 4;
+  }
+  function displayCalc(code){
+    return code === "USD" ? "Dólar de N.A. en PEN" : `${code}PEN / USDPEN`;
+  }
   async function fetchJSON(url){
     const r = await fetch(url + (url.includes("?") ? "&" : "?") + "ts=" + Date.now(), {cache:"no-store"});
     if(!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -658,23 +698,28 @@
     return {rows,map};
   }
   function renderKpis(){
-    el("kUsd").textContent = fmtNumber(getRate("USD"));
-    el("kEur").textContent = fmtNumber(getRate("EUR"));
-    el("kGbp").textContent = fmtNumber(getRate("GBP"));
-    el("kCnh").textContent = fmtNumber(getRate("CNH"));
-    el("kJpy").textContent = fmtNumber(getRate("JPY"),6);
-    const valid = [...state.rates.values()].filter(x => x.code !== "PEN" && Number.isFinite(x.rate));
-    el("kCover").textContent = valid.length || "—";
-    el("kCoverSub").textContent = `${valid.length} monedas detectadas`;
-    el("kUsdSub").textContent = state.rates.has("USD") ? state.rates.get("USD").name : "Dólar SBS";
+    const usd = displayRate("USD");
+    el("kUsd").textContent = fmtNumber(usd);
+    el("kEur").textContent = fmtNumber(displayRate("EUR"), displayDigits("EUR", displayRate("EUR")));
+    el("kGbp").textContent = fmtNumber(displayRate("GBP"), displayDigits("GBP", displayRate("GBP")));
+    el("kCnh").textContent = fmtNumber(displayRate("CNH"), displayDigits("CNH", displayRate("CNH")));
+    el("kJpy").textContent = fmtNumber(displayRate("JPY"), displayDigits("JPY", displayRate("JPY")));
+    const validRaw = [...state.rates.values()].filter(x => x.code !== "PEN" && Number.isFinite(x.rate));
+    const validCross = validRaw
+      .filter(x => x.code !== "USD")
+      .map(x => ({...x, shown:displayRate(x.code)}))
+      .filter(x => Number.isFinite(x.shown));
+    el("kCover").textContent = validRaw.length || "—";
+    el("kCoverSub").textContent = `${validRaw.length} monedas · USD: ${state.rates.has("USD") ? "Dólar de N.A." : "no detectado"}`;
+    el("kUsdSub").textContent = state.rates.has("USD") ? state.rates.get("USD").name : "No detectado: Dólar de N.A.";
 
-    const rates = valid.map(x => x.rate).sort((a,b)=>a-b);
-    const max = valid.reduce((a,b)=> !a || b.rate>a.rate ? b : a, null);
-    const min = valid.reduce((a,b)=> !a || b.rate<a.rate ? b : a, null);
+    const rates = validCross.map(x => x.shown).sort((a,b)=>a-b);
+    const max = validCross.reduce((a,b)=> !a || b.shown>a.shown ? b : a, null);
+    const min = validCross.reduce((a,b)=> !a || b.shown<a.shown ? b : a, null);
     const avg = rates.length ? rates.reduce((a,b)=>a+b,0)/rates.length : NaN;
     const med = rates.length ? (rates[Math.floor((rates.length-1)/2)] + rates[Math.ceil((rates.length-1)/2)]) / 2 : NaN;
-    el("sMax").textContent = max ? `${max.code} ${fmtNumber(max.rate)}` : "—";
-    el("sMin").textContent = min ? `${min.code} ${fmtNumber(min.rate,6)}` : "—";
+    el("sMax").textContent = max ? `${displayPair(max.code)} ${fmtNumber(max.shown, displayDigits(max.code,max.shown))}` : "—";
+    el("sMin").textContent = min ? `${displayPair(min.code)} ${fmtNumber(min.shown, displayDigits(min.code,min.shown))}` : "—";
     el("sAvg").textContent = fmtNumber(avg);
     el("sMed").textContent = fmtNumber(med);
   }
@@ -685,10 +730,15 @@
     for(const id of ["fromCcy","toCcy","currencyTrend"]){
       const select = el(id);
       const prev = select.value;
-      select.innerHTML = finalCodes.map(c => `<option value="${c}">${c}</option>`).join("");
-      if(id === "fromCcy") select.value = prev || "USD";
-      if(id === "toCcy") select.value = prev || "PEN";
-      if(id === "currencyTrend") select.value = prev || (state.rates.has(TREND_DEFAULT) ? TREND_DEFAULT : finalCodes[1] || "PEN");
+      if(id === "currencyTrend"){
+        const trendCodes = finalCodes.filter(c => c !== "PEN");
+        select.innerHTML = trendCodes.map(c => `<option value="${c}">${displayPair(c)}</option>`).join("");
+        select.value = prev && trendCodes.includes(prev) ? prev : (state.rates.has(TREND_DEFAULT) ? TREND_DEFAULT : trendCodes[0] || "USD");
+      }else{
+        select.innerHTML = finalCodes.map(c => `<option value="${c}">${c}</option>`).join("");
+        if(id === "fromCcy") select.value = prev || "USD";
+        if(id === "toCcy") select.value = prev || "PEN";
+      }
     }
     state.selectedTrend = el("currencyTrend").value;
   }
@@ -729,15 +779,17 @@
     const q = normText(el("searchBox").value);
     const rows = [...state.rates.values()]
       .filter(x => x.code !== "PEN")
+      .map(x => ({...x, pair:displayPair(x.code), shown:displayRate(x.code)}))
+      .filter(x => Number.isFinite(x.shown))
       .sort((a,b) => CORE.indexOf(a.code) !== -1 && CORE.indexOf(b.code) === -1 ? -1 : CORE.indexOf(b.code) !== -1 && CORE.indexOf(a.code) === -1 ? 1 : a.code.localeCompare(b.code));
-    const filtered = rows.filter(x => !q || normText(`${x.code} ${x.name}`).includes(q));
-    el("tableCount").textContent = `${filtered.length} monedas`;
+    const filtered = rows.filter(x => !q || normText(`${x.pair} ${x.code} ${x.name}`).includes(q));
+    el("tableCount").textContent = `${filtered.length} pares`;
     el("ratesTable").innerHTML = filtered.length ? filtered.map(x => `
       <tr>
-        <td class="code">${x.code}</td>
+        <td class="code">${x.pair}</td>
         <td>${x.name}</td>
-        <td class="num">${fmtNumber(x.rate, x.rate<0.1?6:4)}</td>
-        <td class="num">${x.base || 1}</td>
+        <td class="num">${fmtNumber(x.shown, displayDigits(x.code,x.shown))}</td>
+        <td class="num">${displayCalc(x.code)}</td>
       </tr>`).join("") : `<tr><td colspan="4">Sin resultados</td></tr>`;
   }
   function chartScales(values, width, height, pad){
@@ -753,17 +805,18 @@
   function renderTrendChart(){
     const container = el("trendChart");
     const ccy = state.selectedTrend;
+    const pair = displayPair(ccy);
     const hist = state.history
-      .filter(x => x.rates && Number.isFinite(x.rates[ccy]))
+      .filter(x => x.rates && Number.isFinite(displayRate(ccy, x.rates)))
       .sort((a,b)=>dateKey(a.date).localeCompare(dateKey(b.date)))
       .slice(-state.range);
     el("sHist").textContent = state.history.length ? `${state.history.length} días` : "—";
     if(hist.length < 2){
-      container.innerHTML = `<div class="chart-empty">No hay histórico suficiente para ${ccy}. Carga manifest o archivos diarios en data/.</div>`;
+      container.innerHTML = `<div class="chart-empty">No hay histórico suficiente para ${pair}. Carga manifest o archivos diarios en data/.</div>`;
       el("sVar").textContent = "—";
       return;
     }
-    const values = hist.map(x => x.rates[ccy]);
+    const values = hist.map(x => displayRate(ccy, x.rates));
     const last = values[values.length-1], prev = values[values.length-2];
     const variation = ((last/prev)-1)*100;
     el("sVar").textContent = `${variation>=0?"+":""}${fmtNumber(variation,2)}%`;
@@ -773,35 +826,36 @@
     const area = `${pad.l},${H-pad.b} ${pts} ${xs[xs.length-1]},${H-pad.b}`;
     const ticks = [0,.25,.5,.75,1].map(p => min + (max-min)*p);
     const xLabels = hist.map((h,i)=>({i,date:dateKey(h.date)})).filter((_,i,arr)=> i===0 || i===arr.length-1 || i===Math.floor(arr.length/2));
-    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tendencia ${ccy}">
-      ${ticks.map(t => `<line class="gridline" x1="${pad.l}" x2="${W-pad.r}" y1="${y(t)}" y2="${y(t)}"></line><text class="tick" x="12" y="${y(t)+4}">${fmtNumber(t, ccy==="JPY"?6:4)}</text>`).join("")}
+    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tendencia ${pair}">
+      ${ticks.map(t => `<line class="gridline" x1="${pad.l}" x2="${W-pad.r}" y1="${y(t)}" y2="${y(t)}"></line><text class="tick" x="12" y="${y(t)+4}">${fmtNumber(t, displayDigits(ccy,t))}</text>`).join("")}
       <line class="chart-axis" x1="${pad.l}" x2="${W-pad.r}" y1="${H-pad.b}" y2="${H-pad.b}"></line>
       <polygon class="area-main" points="${area}"></polygon>
       <polyline class="line-main" points="${pts}"></polyline>
-      ${values.map((v,i)=> i===values.length-1 ? `<circle class="point" cx="${xs[i]}" cy="${y(v)}" r="4"></circle><text class="chart-label" x="${Math.max(pad.l, xs[i]-72)}" y="${Math.max(16,y(v)-12)}">${ccy} ${fmtNumber(v, ccy==="JPY"?6:4)}</text>` : "").join("")}
+      ${values.map((v,i)=> i===values.length-1 ? `<circle class="point" cx="${xs[i]}" cy="${y(v)}" r="4"></circle><text class="chart-label" x="${Math.max(pad.l, xs[i]-72)}" y="${Math.max(16,y(v)-12)}">${pair} ${fmtNumber(v, displayDigits(ccy,v))}</text>` : "").join("")}
       ${xLabels.map(x => `<text class="tick" text-anchor="middle" x="${xs[x.i]}" y="${H-13}">${x.date.slice(5)}</text>`).join("")}
     </svg>`;
   }
   function renderBarChart(){
     const container = el("barChart");
-    let rows = [...state.rates.values()].filter(x => x.code !== "PEN" && Number.isFinite(x.rate));
-    if(state.barSet === "main") rows = ["USD","EUR","GBP","CNH","JPY"].map(c => state.rates.get(c) || (c==="CNH"?state.rates.get("CNY"):null)).filter(Boolean);
-    else rows = rows.sort((a,b)=>b.rate-a.rate).slice(0,8);
-    if(!rows.length){ container.innerHTML = `<div class="chart-empty">Sin tasas disponibles</div>`; return; }
+    let rows = [...state.rates.values()].filter(x => x.code !== "PEN" && x.code !== "USD" && Number.isFinite(x.rate));
+    if(state.barSet === "main") rows = ["EUR","GBP","CNH","JPY"].map(c => state.rates.get(c) || (c==="CNH"?state.rates.get("CNY"):null)).filter(Boolean);
+    else rows = rows.map(x => ({...x, shown:displayRate(x.code)})).filter(x => Number.isFinite(x.shown)).sort((a,b)=>b.shown-a.shown).slice(0,8);
+    rows = rows.map(x => ({...x, pair:displayPair(x.code), shown:displayRate(x.code)})).filter(x => Number.isFinite(x.shown));
+    if(!rows.length){ container.innerHTML = `<div class="chart-empty">Sin cruces disponibles. Revisa que exista la fila Dólar de N.A.</div>`; return; }
     const W = 920, H = 244, pad = {l:48,r:20,t:18,b:44};
-    const max = Math.max(...rows.map(x=>x.rate))*1.12;
+    const max = Math.max(...rows.map(x=>x.shown))*1.12;
     const bw = (W-pad.l-pad.r)/rows.length*.62;
     const gap = (W-pad.l-pad.r)/rows.length;
     const y = v => pad.t + (max-v)/max*(H-pad.t-pad.b);
-    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Barras TC">
+    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Barras cruces USD">
       ${[0,.25,.5,.75,1].map(p => `<line class="gridline" x1="${pad.l}" x2="${W-pad.r}" y1="${y(max*p)}" y2="${y(max*p)}"></line>`).join("")}
       <line class="chart-axis" x1="${pad.l}" x2="${W-pad.r}" y1="${H-pad.b}" y2="${H-pad.b}"></line>
       ${rows.map((r,i)=>{
         const x = pad.l + i*gap + (gap-bw)/2;
-        const h = H-pad.b-y(r.rate);
-        return `<rect class="bar ${i%2?"alt":""}" x="${x}" y="${y(r.rate)}" width="${bw}" height="${h}" rx="3"></rect>
-          <text class="chart-label" text-anchor="middle" x="${x+bw/2}" y="${Math.max(13,y(r.rate)-6)}">${fmtNumber(r.rate,r.rate<0.1?5:3)}</text>
-          <text class="tick" text-anchor="middle" x="${x+bw/2}" y="${H-16}">${r.code}</text>`;
+        const h = H-pad.b-y(r.shown);
+        return `<rect class="bar ${i%2?"alt":""}" x="${x}" y="${y(r.shown)}" width="${bw}" height="${h}" rx="3"></rect>
+          <text class="chart-label" text-anchor="middle" x="${x+bw/2}" y="${Math.max(13,y(r.shown)-6)}">${fmtNumber(r.shown,displayDigits(r.code,r.shown))}</text>
+          <text class="tick" text-anchor="middle" x="${x+bw/2}" y="${H-16}">${r.pair}</text>`;
       }).join("")}
     </svg>`;
   }
@@ -953,11 +1007,11 @@
     el("btnCopy").addEventListener("click", async () => {
       const txt = [
         `TC Contable SBS · ${el("vFecha").textContent}`,
-        `USD/PEN: ${el("kUsd").textContent}`,
-        `EUR/PEN: ${el("kEur").textContent}`,
-        `GBP/PEN: ${el("kGbp").textContent}`,
-        `CNH/PEN: ${el("kCnh").textContent}`,
-        `JPY/PEN: ${el("kJpy").textContent}`,
+        `USDPEN: ${el("kUsd").textContent}`,
+        `EURUSD: ${el("kEur").textContent}`,
+        `GBPUSD: ${el("kGbp").textContent}`,
+        `CNHUSD: ${el("kCnh").textContent}`,
+        `JPYUSD: ${el("kJpy").textContent}`,
         `Cobertura: ${el("kCoverSub").textContent}`
       ].join("\n");
       try{ await navigator.clipboard.writeText(txt); log("Resumen copiado al portapapeles"); }catch(e){ log("No se pudo copiar el resumen", "warn"); }
@@ -978,7 +1032,7 @@
       log(`Meta OK · Fecha ${m.fecha_publicada || m.fecha || "n/d"}`);
       try{
         await loadLatest();
-        log(`Latest OK · ${state.rates.size-1} monedas detectadas`);
+        log(`Latest OK · ${state.rates.size-1} monedas detectadas · USD=${state.rates.has("USD") ? state.rates.get("USD").name : "no detectado"}`);
       }catch(e){
         log(`No se pudo leer latest JSON: ${e.message || e}`, "warn");
       }
