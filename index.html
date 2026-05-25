@@ -732,6 +732,12 @@
       .site-footer-inner{min-height:74px;padding:14px 12px}
     }
 
+
+
+    /* V37: autoactualización robusta */
+    #btnRefresh.is-loading i{animation:tcSpin .85s linear infinite}
+    @keyframes tcSpin{to{transform:rotate(360deg)}}
+
 </style>
 </head>
 <body>
@@ -1508,7 +1514,7 @@
   }
   function on(id,event,handler){const node=el(id); if(node) node.addEventListener(event,handler);}
   function bind(){
-    on("btnRefresh","click",async()=>{showToast("Actualizando datos…","info"); const ok=await refresh(true); showToast(ok?"Datos actualizados":"No se pudo actualizar",ok?"ok":"err");});
+    on("btnRefresh","click",()=>runRefresh({manual:true}));
     on("btnTheme","click",toggleTheme);
     on("datePicker","change",e=>selectDate(e.target.value));
     on("datePrev","click",()=>shiftSelectedDate(-1));
@@ -1540,7 +1546,60 @@
       try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(true); return true;}catch(_e){return false;}
     }
   }
-  initTheme(); bind(); refresh(false);
+  const AUTO_REFRESH_MS = 5 * 60 * 1000;
+  let refreshInFlight = false;
+  let lastRefreshAt = 0;
+  let autoTimer = null;
+
+  function localTimeStamp(){
+    return new Intl.DateTimeFormat("es-PE",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date());
+  }
+
+  async function runRefresh({manual=false, auto=false}={}){
+    if(refreshInFlight){
+      if(manual) showToast("Ya hay una actualización en curso", "info");
+      return false;
+    }
+    refreshInFlight = true;
+    const btn = el("btnRefresh");
+    if(btn){ btn.classList.add("is-loading"); btn.disabled = true; }
+    if(manual) showToast("Actualizando datos…", "info");
+    try{
+      const ok = await refresh(true);
+      lastRefreshAt = Date.now();
+      const stamp = localTimeStamp();
+      setStatus(ok ? `Actualizado ${stamp}` : "Error", ok ? "ok" : "err");
+      if(manual) showToast(ok ? `Datos actualizados · ${stamp}` : "No se pudo actualizar", ok ? "ok" : "err");
+      else log(`Autoactualización ${ok ? "OK" : "fallida"} · ${stamp}`, ok ? "info" : "warn");
+      return ok;
+    }catch(e){
+      const stamp = localTimeStamp();
+      setStatus("Error", "err");
+      log(`Autoactualización con error · ${stamp}: ${e.message || e}`, "error");
+      if(manual) showToast("No se pudo actualizar", "err");
+      return false;
+    }finally{
+      if(btn){ btn.classList.remove("is-loading"); btn.disabled = false; }
+      refreshInFlight = false;
+    }
+  }
+
+  function startAutoRefresh(){
+    if(autoTimer) clearInterval(autoTimer);
+    autoTimer = setInterval(()=>{
+      if(document.visibilityState === "visible") runRefresh({auto:true});
+    }, AUTO_REFRESH_MS);
+
+    const refreshIfStale = () => {
+      if(document.visibilityState !== "visible") return;
+      if(!lastRefreshAt || Date.now() - lastRefreshAt >= AUTO_REFRESH_MS) runRefresh({auto:true});
+    };
+
+    document.addEventListener("visibilitychange", refreshIfStale);
+    window.addEventListener("focus", refreshIfStale);
+  }
+
+  initTheme(); bind(); startAutoRefresh(); runRefresh({auto:true});
 })();
 </script>
 </body>
