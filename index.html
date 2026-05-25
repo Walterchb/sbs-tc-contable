@@ -638,7 +638,6 @@
         </div>
         <div class="top-actions">
           <div id="vStatus" class="status"><span class="dot"></span><span>Consultando</span></div>
-          <button id="btnReloadHistory" class="dark"><i class="fa-solid fa-clock-rotate-left"></i><span class="btn-label">Histórico</span></button>
           <button id="btnRefresh" class="light icon-only" title="Actualizar" aria-label="Actualizar"><i class="fa-solid fa-rotate-right"></i></button>
           <button id="btnTheme" class="dark icon-only" title="Cambiar tema" aria-label="Cambiar tema"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
         </div>
@@ -663,7 +662,7 @@
           </div>
         </article>
         <article class="download-card">
-          <button id="btnCsvHistory" class="btn" title="Descargar histórico armado" aria-label="Descargar histórico armado"><i class="fa-solid fa-file-csv"></i>CSV</button>
+          <a id="btnCsvHistory" class="btn" title="Descargar histórico consolidado" aria-label="Descargar histórico consolidado" href="./data/tc_contable_history.csv" download><i class="fa-solid fa-file-csv"></i>CSV</a>
           <a class="btn dark" href="./data/tc_contable_latest.json" download><i class="fa-solid fa-code"></i>JSON</a>
           <button id="btnCopy" class="soft icon-only" title="Copiar resumen" aria-label="Copiar resumen"><i class="fa-regular fa-clipboard"></i></button>
         </article>
@@ -723,31 +722,10 @@
 <script>
 (() => {
   const CORE = ["USD","EUR","GBP","CNH","JPY"];
-  const CACHE_KEY = "sbs_tc_history_v14_treasuryhub";
-  const HISTORY_START_DATE = "2026-02-13";
+  const CACHE_KEY = "sbs_tc_history_v22_consolidated";
+  const HISTORY_JSON_URL = "./data/tc_contable_history.json";
+  const HISTORY_CSV_URL = "./data/tc_contable_history.csv";
   const THEME_KEY = "sbs_tc_theme_treasuryhub";
-  const MANIFESTS = [
-    "./data/tc_contable_manifest.json",
-    "./data/tc_contable_history.json",
-    "./data/tc_contable_series.json",
-    "./data/tc_contable_index.json",
-    "./data/manifest.json",
-    "./data/index.json"
-  ];
-  const PATTERNS = [
-    d => `./data/tc_contable_${d.ymd}.json`,
-    d => `./data/tc_contable_${d.compact}.json`,
-    d => `./data/${d.ymd}.json`,
-    d => `./data/${d.compact}.json`,
-    d => `./data/sbs_tc_contable_${d.ymd}.json`,
-    d => `./data/sbs_tc_contable_${d.compact}.json`,
-    d => `./data/tc_contable_${d.ymd}.csv`,
-    d => `./data/tc_contable_${d.compact}.csv`,
-    d => `./data/${d.ymd}.csv`,
-    d => `./data/${d.compact}.csv`,
-    d => `./data/sbs_tc_contable_${d.ymd}.csv`,
-    d => `./data/sbs_tc_contable_${d.compact}.csv`
-  ];
   const el = id => document.getElementById(id);
   const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestRates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestDate:"",selectedDate:"",history:[],trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
 
@@ -1101,6 +1079,29 @@
     const dk=dateKey(payload?.fecha_publicada||payload?.fecha||payload?.date||payload?.generated_at||fallbackDate);
     return Object.keys(rates).length&&dk?{date:dk,rates}:null;
   }
+  function snapshotsFromConsolidatedHistory(payload){
+    if(!payload || !Array.isArray(payload.series)) return [];
+    const out=[];
+    for(const point of payload.series){
+      const dk=dateKey(point.fecha_iso||point.fecha_publicada||point.date||point.fecha);
+      const usd=toNum(point.USDPEN);
+      if(!dk || !Number.isFinite(usd) || usd<=0) continue;
+      const rates={USD:usd};
+      for(const [k,v] of Object.entries(point)){
+        if(!/^[A-Z]{3,6}$/.test(k)) continue;
+        const n=toNum(v);
+        if(!Number.isFinite(n) || n<=0) continue;
+        if(k==='USDPEN') { rates.USD=n; continue; }
+        if(k.endsWith('USD')){
+          const code=k.replace(/USD$/,'');
+          if(code && code!=='USD') rates[code]=n*usd;
+        }
+      }
+      out.push({date:dk,rates});
+    }
+    return out.sort((a,b)=>a.date.localeCompare(b.date));
+  }
+
   function manifestEntries(payload){
     const out=[]; const add=x=>{if(!x)return; if(typeof x==="string") out.push(x); else if(typeof x==="object"){const emb=snapshotFromPayload(x,x.date||x.fecha||x.fecha_publicada); if(emb) out.push({embedded:emb}); else out.push(x.url||x.path||x.file||x.filename||x.href||"");}};
     if(Array.isArray(payload)) payload.forEach(add); else if(payload&&typeof payload==="object"){["files","history","snapshots","items","data"].forEach(k=>Array.isArray(payload[k])&&payload[k].forEach(add)); const emb=snapshotFromPayload(payload); if(emb) out.push({embedded:emb});}
@@ -1123,7 +1124,7 @@
       if(c?.history?.length){
         state.history=mergeHistory(c.history);
         state.cacheAge=Date.now()-(c.savedAt||0);
-        el("historySource").textContent=`${state.history.length} cortes`;
+        el("historySource").textContent="histórico";
         setDatePickerBounds();
         renderCharts();
         return true;
@@ -1131,73 +1132,39 @@
     }catch(e){}
     return false;
   }
-  function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({savedAt:Date.now(),history:state.history.slice(-420)}));}catch(e){} }
-  async function loadHistoryManifest({fresh=false}={}){
-    for(const url of MANIFESTS){
-      try{
-        const payload=await fetchJSON(url,{fresh,cache:fresh?"no-store":"force-cache"}); const entries=manifestEntries(payload); if(!entries.length) continue;
-        const embedded=entries.filter(x=>typeof x==="object").map(x=>x.embedded); const urls=entries.filter(x=>typeof x==="string").slice(-420);
-        perf(`Manifest detectado: ${url.split('/').pop()} · ${urls.length+embedded.length} archivos`,50);
-        const fetched=await mapLimit(urls,12,async f=>snapshotFromPayload(await fetchAny(f,{fresh,cache:fresh?"no-store":"force-cache"}),f),(d,t)=>perf(`Leyendo manifest ${d}/${t}`,50+Math.round(d/t*40)));
-        const snaps=[...embedded,...fetched.filter(Boolean)]; if(snaps.length){state.historySource=`manifest ${url.split('/').pop()}`; return snaps;}
-      }catch(e){}
-    }
-    return [];
-  }
-  function dateParts(days){
-    const end=parseDate(state.meta?.fecha_publicada||state.meta?.fecha)||new Date();
-    const start=parseDate(HISTORY_START_DATE);
-    const arr=[];
-    let d=start?new Date(start):new Date(end);
-    if(!start && Number.isFinite(days)){ d.setDate(end.getDate()-days+1); }
-    while(d<=end){
-      const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
-      arr.push({ymd:`${y}-${m}-${day}`,compact:`${y}${m}${day}`});
-      d.setDate(d.getDate()+1);
-    }
-    return arr;
-  }
-  async function loadHistoryProbe(){
-    const dates=dateParts(); const found=new Map();
-    for(let p=0;p<PATTERNS.length;p++){
-      const missing=dates.filter(d=>!found.has(d.ymd)); if(!missing.length) break;
-      const tasks=missing.map(d=>({d,url:PATTERNS[p](d)})); perf(`Probando patrón ${p+1}/${PATTERNS.length}`,18+p*10);
-      const res=await mapLimit(tasks,14,async item=>({d:item.d,s:snapshotFromPayload(await fetchAny(item.url,{cache:"force-cache"}),item.d.ymd)}),(done,total)=>perf(`Histórico rápido ${done}/${total}`,20+p*10+Math.round(done/total*8)));
-      for(const r of res){if(r?.s) found.set(r.d.ymd,r.s);}
-    }
-    state.historySource="detección por fecha"; return [...found.values()];
+  function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({savedAt:Date.now(),history:state.history}));}catch(e){} }
+  async function loadHistoryConsolidated({fresh=false}={}){
+    const payload=await fetchJSON(HISTORY_JSON_URL,{fresh,cache:fresh?"no-store":"force-cache"});
+    const snaps=snapshotsFromConsolidatedHistory(payload);
+    if(!snaps.length) throw new Error("tc_contable_history.json sin serie válida");
+    state.historySource="histórico consolidado";
+    return snaps;
   }
   async function loadHistory(force=false){
-    setStatus("Histórico",""); perf("Iniciando carga histórica…",5);
-    const hasCache=!force && loadCache();
-    async function syncManifest(){
-      try{
-        const snaps=await loadHistoryManifest({fresh:true});
-        if(snaps.length){
-          state.history=mergeHistory(snaps); saveCache();
-          el("historySource").textContent=`${state.history.length} cortes`;
-          setDatePickerBounds();
-          if(state.selectedDate && state.selectedDate!==state.latestDate){ const snap=findSnapshotByDate(state.selectedDate); if(snap) state.rates=mapFromRatesObject(snap.rates); }
-          setStatus("Actualizado","ok"); renderStatic(); renderDeltas();
-          return true;
-        }
-      }catch(e){log(`Sync histórico: ${e.message||e}`,"warn");}
-      return false;
-    }
-    if(hasCache){
-      setStatus("Latest OK","ok");
-      setTimeout(syncManifest,0);
-      return;
-    }
-    let synced=await syncManifest();
-    if(!synced){
-      const snaps=await loadHistoryProbe();
-      state.history=mergeHistory(snaps); saveCache();
-      el("historySource").textContent=state.history.length?`${state.history.length} cortes`:"solo latest";
+    setStatus("Actualizando","");
+    perf("Leyendo histórico consolidado…",35);
+    try{
+      const snaps=await loadHistoryConsolidated({fresh:force});
+      state.history=mergeHistory(snaps);
+      saveCache();
+      el("historySource").textContent="histórico";
       setDatePickerBounds();
-      if(state.selectedDate && state.selectedDate!==state.latestDate){ const snap=findSnapshotByDate(state.selectedDate); if(snap) state.rates=mapFromRatesObject(snap.rates); }
-      setStatus(state.history.length?"Actualizado":"Sin histórico",state.history.length?"ok":"warn");
-      renderStatic(); renderDeltas();
+      if(state.selectedDate && state.selectedDate!==state.latestDate){
+        const snap=findSnapshotByDate(state.selectedDate);
+        if(snap) state.rates=mapFromRatesObject(snap.rates);
+      }
+      setStatus("Actualizado","ok");
+      renderStatic();
+      renderDeltas();
+      return true;
+    }catch(e){
+      log(`Histórico consolidado no disponible: ${e.message||e}`,"warn");
+      const usedCache=loadCache();
+      el("historySource").textContent=usedCache?"histórico":"histórico no disponible";
+      setStatus(usedCache?"Actualizado":"Sin histórico",usedCache?"ok":"warn");
+      renderStatic();
+      renderDeltas();
+      return usedCache;
     }
   }
   function ensureChart(id){
@@ -1370,9 +1337,7 @@
   function on(id,event,handler){const node=el(id); if(node) node.addEventListener(event,handler);}
   function bind(){
     on("btnRefresh","click",async()=>{showToast("Actualizando datos…","info"); const ok=await refresh(true); showToast(ok?"Datos actualizados":"No se pudo actualizar",ok?"ok":"err");});
-    on("btnReloadHistory","click",()=>loadHistory(true));
     on("btnTheme","click",toggleTheme);
-    on("btnCsvHistory","click",downloadHistoricalCsv);
     on("datePicker","change",e=>selectDate(e.target.value));
     on("datePrev","click",()=>shiftSelectedDate(-1));
     on("dateNext","click",()=>shiftSelectedDate(1));
@@ -1385,7 +1350,7 @@
     on("trendQuick","click",e=>{const btn=e.target.closest(".pair-btn"); if(btn) selectTrend(btn.dataset.code);});
     on("searchBox","input",renderTable);
     const rangeTabs=el("rangeTabs");
-    if(rangeTabs) rangeTabs.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{rangeTabs.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.range=Number(b.dataset.range); loadHistory(false);}));
+    if(rangeTabs) rangeTabs.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{rangeTabs.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.range=Number(b.dataset.range); renderCharts();}));
     on("btnZoomReset","click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
     window.addEventListener("resize",()=>{Object.values(state.charts).forEach(c=>c&&c.resize()); clearTimeout(window.__fxResizeTimer); window.__fxResizeTimer=setTimeout(renderCharts,160);});
   }
@@ -1393,10 +1358,10 @@
   async function refresh(forceHistory=false){
     setStatus("Consultando",""); perf("Leyendo latest…",5);
     try{
-      await loadMeta(); await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory); return true;
+      await loadMeta(); await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(true); return true;
     }catch(e){
       setStatus("Error","err"); log(`Error de carga: ${e.message||e}`,"error");
-      try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory); return true;}catch(_e){return false;}
+      try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(true); return true;}catch(_e){return false;}
     }
   }
   initTheme(); bind(); refresh(false);
