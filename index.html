@@ -904,6 +904,7 @@
   const HISTORY_CSV_URL = "./data/tc_contable_history.csv";
   const HISTORY_START_DATE = "2026-02-13";
   const THEME_KEY = "sbs_tc_theme_treasuryhub";
+  const NOTIFY_LAST_DATE_KEY = "sbs_tc_notify_last_seen_date";
   const el = id => document.getElementById(id);
   const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestRates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestDate:"",selectedDate:"",history:[],trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
 
@@ -940,6 +941,48 @@
     requestAnimationFrame(()=>node.classList.add("show"));
     setTimeout(()=>{node.classList.remove("show"); setTimeout(()=>node.remove(),220);},2800);
   }
+  function requestNotificationPermission(){
+    try{
+      if (!("Notification" in window)) return;
+      if (Notification.permission === "default") {
+        Notification.requestPermission().then(permission => {
+          if(permission === "granted") showToast("Notificaciones activadas", "ok");
+        }).catch(()=>{});
+      }
+    }catch(e){}
+  }
+  function notifyNewSbsDate(newDate, oldDate){
+    const msg = `Nuevo TC SBS disponible · ${displayDate(newDate)}`;
+    showToast(msg, "ok");
+    try{
+      if (("Notification" in window) && Notification.permission === "granted") {
+        new Notification("Nuevo TC SBS disponible", {
+          body: `Fecha SBS: ${displayDate(newDate)}${oldDate ? ` · antes ${displayDate(oldDate)}` : ""}`,
+          icon: "./favicon.svg",
+          tag: "sbs-tc-nuevo-dia",
+          renotify: true
+        });
+      }
+    }catch(e){ log(`No se pudo mostrar notificación del navegador: ${e.message || e}`, "warn"); }
+  }
+  function checkNewSbsDate(previousLatestDate){
+    const current = dateKey(state.latestDate);
+    if(!current) return;
+    let lastSeen = "";
+    try{ lastSeen = localStorage.getItem(NOTIFY_LAST_DATE_KEY) || ""; }catch(e){}
+    if(!lastSeen){
+      try{ localStorage.setItem(NOTIFY_LAST_DATE_KEY, current); }catch(e){}
+      return;
+    }
+    const previous = dateKey(previousLatestDate);
+    const isNewVsStorage = current !== lastSeen;
+    const isNewVsSession = previous && current !== previous;
+    if(isNewVsStorage && (isNewVsSession || current > lastSeen)){
+      notifyNewSbsDate(current, previous || lastSeen);
+    }
+    try{ localStorage.setItem(NOTIFY_LAST_DATE_KEY, current); }catch(e){}
+  }
+
   function setStatus(text,cls=""){
     const s = el("vStatus"); if(!s) return;
     s.className = `status ${cls}`.trim();
@@ -1601,7 +1644,7 @@
   }
   function on(id,event,handler){const node=el(id); if(node) node.addEventListener(event,handler);}
   function bind(){
-    on("btnRefresh","click",()=>runRefresh({manual:true}));
+    on("btnRefresh","click",()=>{requestNotificationPermission(); runRefresh({manual:true});});
     on("btnTheme","click",toggleTheme);
     on("datePicker","change",e=>selectDate(e.target.value));
     on("datePrev","click",()=>shiftSelectedDate(-1));
@@ -1643,6 +1686,7 @@
   }
 
   async function runRefresh({manual=false, auto=false}={}){
+    const previousLatestDate = state.latestDate;
     if(refreshInFlight){
       if(manual) showToast("Ya hay una actualización en curso", "info");
       return false;
@@ -1653,6 +1697,7 @@
     if(manual) showToast("Actualizando datos…", "info");
     try{
       const ok = await refresh(true);
+      if(ok) checkNewSbsDate(previousLatestDate);
       lastRefreshAt = Date.now();
       const stamp = localTimeStamp();
       setStatus(ok ? `Actualizado ${stamp}` : "Error", ok ? "ok" : "err");
