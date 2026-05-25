@@ -52,9 +52,10 @@
     .table-tools{display:flex;gap:9px;align-items:center;justify-content:space-between;margin-bottom:9px;flex-wrap:wrap}.search{min-width:240px;flex:1}.chip{border:1px solid var(--line);background:var(--soft);color:var(--muted);border-radius:var(--radius);padding:6px 8px;font-size:.74rem;font-weight:720;white-space:nowrap}.table-wrap{max-height:326px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius)}table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);font-size:.82rem}th,td{padding:9px 10px;border-bottom:1px solid var(--grid);white-space:nowrap;text-align:left}th{position:sticky;top:0;background:var(--soft);color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;z-index:2}td.code{font-weight:760;color:var(--navy3)}td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:720}tbody tr:hover{background:var(--soft)}
     :root[data-theme="dark"] td.code{color:#9ed8ef}
 
-    .panel-title h2{font-weight:680}.brand h1{font-weight:720}.brand p{font-weight:650}.date-value,.kpi strong,.pair-card .r,.result-box .big{font-weight:760}.status,.chip{font-weight:650}.kpi small,.pair-card .d,.result-box .sub{font-weight:560}.table-wrap{scrollbar-width:thin}.topbar{border-bottom-width:3px}.kpi{transition:border-color .15s ease, transform .15s ease}.kpi:hover{transform:translateY(-1px);border-color:var(--line2)}
+    .chart-legend{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 8px 0;min-height:31px}.legend-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:5px 9px;font-size:.72rem;font-weight:560;color:var(--muted);line-height:1;white-space:nowrap}.legend-pill strong{font-weight:680;color:var(--ink);font-variant-numeric:tabular-nums}.legend-dot{width:8px;height:8px;border-radius:50%;background:var(--navy3);box-shadow:0 0 0 2px rgba(255,255,255,.35)}:root[data-theme="dark"] .legend-dot{box-shadow:0 0 0 2px rgba(13,27,42,.8)}
+    .panel-title h2{font-weight:640}.brand h1{font-weight:650}.brand p{font-weight:560}.date-value,.kpi strong,.pair-card .r,.result-box .big{font-weight:650}.status,.chip{font-weight:600}.kpi span,.label,th{font-weight:650}.kpi small,.pair-card .d,.result-box .sub,.panel-title p{font-weight:520}.btn,button,.tab,.pair-btn,select,input{font-weight:620}.delta{font-weight:650}.table-wrap{scrollbar-width:thin}.topbar{border-bottom-width:3px}.kpi{transition:border-color .15s ease, transform .15s ease}.kpi:hover{transform:translateY(-1px);border-color:var(--line2)}
     @media(max-width:1260px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.chart-row,.content-row{grid-template-columns:1fr}.chart.side{height:290px}.chart.stats{height:250px}}
-    @media(max-width:760px){.topbar-inner{align-items:flex-start;flex-direction:column;padding:10px 12px}.top-actions{justify-content:flex-start;width:100%}.wrap{padding:12px}.snapshot{grid-template-columns:1fr}.date-card{align-items:flex-start;flex-direction:column}.download-card{justify-content:flex-start}.kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{min-height:90px;padding:10px}.kpi strong{font-size:1.18rem}.panel-head{align-items:flex-start;flex-direction:column}.tools{justify-content:flex-start;width:100%}.chart{height:286px}.chart.side{height:250px}.chart.stats{height:232px}.conv-grid{grid-template-columns:1fr}.quick-pairs{grid-template-columns:1fr}.search{min-width:100%}th,td{padding:8px}.trend-quick,.trend-other{display:none}.trend-mobile{display:block;width:100%}.tabs{width:100%}.tab{flex:1}}
+    @media(max-width:760px){.topbar-inner{align-items:flex-start;flex-direction:column;padding:10px 12px}.top-actions{justify-content:flex-start;width:100%}.wrap{padding:12px}.snapshot{grid-template-columns:1fr}.date-card{align-items:flex-start;flex-direction:column}.download-card{justify-content:flex-start}.kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{min-height:90px;padding:10px}.kpi strong{font-size:1.18rem}.panel-head{align-items:flex-start;flex-direction:column}.tools{justify-content:flex-start;width:100%}.chart{height:286px}.chart.side{height:250px}.chart.stats{height:232px}.conv-grid{grid-template-columns:1fr}.quick-pairs{grid-template-columns:1fr}.search{min-width:100%}th,td{padding:8px}.trend-quick,.trend-other{display:none}.trend-mobile{display:block;width:100%}.tabs{width:100%}.tab{flex:1}.chart-legend{gap:6px}.legend-pill{font-size:.68rem;padding:5px 7px}.top-actions .icon-only,.download-card .icon-only{width:34px;min-width:34px}}
   </style>
 </head>
 <body>
@@ -69,7 +70,7 @@
           <div id="vStatus" class="status"><span class="dot"></span><span>Consultando</span></div>
           <button id="btnRefresh" class="light"><i class="fa-solid fa-rotate-right"></i><span class="btn-label">Actualizar</span></button>
           <button id="btnReloadHistory" class="dark"><i class="fa-solid fa-clock-rotate-left"></i><span class="btn-label">Histórico</span></button>
-          <button id="btnTheme" class="dark"><i id="themeIcon" class="fa-solid fa-moon"></i><span id="themeText" class="btn-label">Modo oscuro</span></button>
+          <button id="btnTheme" class="dark icon-only" title="Cambiar tema" aria-label="Cambiar tema"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
         </div>
       </div>
     </header>
@@ -82,7 +83,7 @@
         <article class="download-card">
           <a class="btn" href="./data/tc_contable_latest.csv" download><i class="fa-solid fa-file-csv"></i>CSV</a>
           <a class="btn dark" href="./data/tc_contable_latest.json" download><i class="fa-solid fa-code"></i>JSON</a>
-          <button id="btnCopy" class="soft"><i class="fa-regular fa-clipboard"></i>Copiar resumen</button>
+          <button id="btnCopy" class="soft icon-only" title="Copiar resumen" aria-label="Copiar resumen"><i class="fa-regular fa-clipboard"></i></button>
         </article>
       </section>
 
@@ -101,7 +102,7 @@
             <div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia</h2><p id="historySource">histórico</p></div></div>
             <div class="tools"><div id="trendQuick" class="trend-quick"></div><select id="trendOther" class="trend-other"></select><select id="trendCcy" class="trend-mobile"></select><div class="tabs" id="rangeTabs"><button class="tab" data-range="15">15D</button><button class="tab active" data-range="30">30D</button><button class="tab" data-range="60">60D</button><button class="tab" data-range="120">120D</button></div></div>
           </div>
-          <div class="panel-body"><div id="trendChart" class="chart"></div></div>
+          <div class="panel-body"><div id="trendLegend" class="chart-legend"></div><div id="trendChart" class="chart"></div></div>
         </article>
         <article class="panel">
           <div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-column"></i></span><div><h2>Variación diaria</h2><p id="changeSource">—</p></div></div><button id="btnZoomReset" class="soft"><i class="fa-solid fa-magnifying-glass-minus"></i>Reset zoom</button></div>
@@ -237,6 +238,11 @@
     return new Intl.NumberFormat("es-PE",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(ceilTo(n,digits));
   }
   function pct(n){return Number.isFinite(n)?`${n>=0?"+":""}${fmt(n,4)}%`:"—";}
+  function fmtPctAxis(n){
+    if(!Number.isFinite(n)) return "—";
+    const v=ceilTo(n,2);
+    return new Intl.NumberFormat("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(v)+"%";
+  }
   function digits(code,v){return 4;}
   async function fetchText(url,{fresh=false,cache="default"}={}){
     const full=fresh ? url + (url.includes("?")?"&":"?") + "ts=" + Date.now() : url;
@@ -468,35 +474,41 @@
   function renderTrend(){
     const chart=ensureChart("trendChart"); if(!chart) return;
     const code=state.trend, data=seriesFor(code).slice(-state.range); const name=pair(code); const t=themeColors();
-    if(!data.length){chart.clear(); chart.setOption({title:{text:"Sin histórico disponible",left:"center",top:"center",textStyle:{fontSize:13,color:t.muted,fontWeight:600}}}); return;}
+    const legend=el("trendLegend");
+    if(!data.length){
+      if(legend) legend.innerHTML="";
+      chart.clear(); chart.setOption({title:{text:"Sin histórico disponible",left:"center",top:"center",textStyle:{fontSize:13,color:t.muted,fontWeight:560}}}); return;
+    }
     const values=data.map(x=>x.value); const last=values.at(-1); const avg=values.reduce((a,b)=>a+b,0)/values.length;
     const max=Math.max(...values), min=Math.min(...values);
-    const areaTop=rgba(t.cyan,.34), areaMid=rgba(t.cyan,.135), areaLow=rgba(t.cyan,.018);
-    const refLine = (label,value,color,type="dashed",width=1.15) => ({
+    const areaTop=rgba(t.cyan,.43), areaMid=rgba(t.cyan,.205), areaLow=rgba(t.cyan,.045);
+    const legendPill=(label,value,color)=>`<span class="legend-pill"><span class="legend-dot" style="background:${color}"></span>${label}<strong>${fmt(value,4)}</strong></span>`;
+    if(legend) legend.innerHTML=[legendPill("Hoy",last,t.navy),legendPill("Prom",avg,t.avg),legendPill("Máx",max,t.green),legendPill("Mín",min,t.amber)].join("");
+    const refLine = (label,value,color,type="dashed",width=1.05,opacity=.75) => ({
       name:label, yAxis:value, symbol:"none",
-      lineStyle:{color,type,width,opacity:label==="Hoy"?.92:.74},
-      label:{show:true,position:"end",distance:8,formatter:()=>`${label} ${fmt(value,4)}`,color,backgroundColor:t.panel,borderColor:t.line,borderWidth:1,borderRadius:4,padding:[3,6],fontWeight:650,fontSize:10}
+      lineStyle:{color,type,width,opacity},
+      label:{show:false}
     });
     chart.setOption({
       color:[t.navy], animationDuration:540,
-      grid:{left:18,right:96,top:26,bottom:58,containLabel:false},
+      grid:{left:14,right:12,top:18,bottom:58,containLabel:true},
       tooltip:{trigger:"axis",axisPointer:{type:"line",lineStyle:{color:t.muted,width:1,opacity:.55}},backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff",fontWeight:500},formatter:params=>{
         const arr=Array.isArray(params)?params:[params];
         const p=arr.find(x=>x.seriesName===name)||arr[0];
         const val=Array.isArray(p.value)?p.value[1]:p.value;
-        return `<div style="font-weight:650;margin-bottom:5px">${p.axisValue||""}</div>${marker(t.navy)}<span style="display:inline-block;min-width:74px">${name}</span><b>${fmt(val,4)}</b><br>${marker(t.avg)}<span style="display:inline-block;min-width:74px">Promedio</span><b>${fmt(avg,4)}</b>`;
+        return `<div style="font-weight:650;margin-bottom:5px">${p.axisValue||""}</div>${marker(t.navy)}<span style="display:inline-block;min-width:72px">${name}</span><b>${fmt(val,4)}</b><br>${marker(t.avg)}<span style="display:inline-block;min-width:72px">Prom</span><b>${fmt(avg,4)}</b><br>${marker(t.green)}<span style="display:inline-block;min-width:72px">Máx</span><b>${fmt(max,4)}</b><br>${marker(t.amber)}<span style="display:inline-block;min-width:72px">Mín</span><b>${fmt(min,4)}</b>`;
       }},
       toolbox:{right:8,top:0,iconStyle:{borderColor:t.muted},emphasis:{iconStyle:{borderColor:t.ink}},feature:{dataZoom:{yAxisIndex:"none",title:{zoom:"Zoom",back:"Atrás"}},restore:{title:"Restaurar"},saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Tendencia_${name}_${fileStamp()}`)}}},
-      dataZoom:[{type:"inside",throttle:60},{type:"slider",height:22,bottom:18,borderColor:t.line,fillerColor:rgba(t.cyan,.16),handleStyle:{color:t.navy},textStyle:{color:t.muted,fontWeight:500},backgroundColor:t.soft}],
+      dataZoom:[{type:"inside",throttle:60},{type:"slider",height:22,bottom:18,borderColor:t.line,fillerColor:rgba(t.cyan,.20),handleStyle:{color:t.navy},textStyle:{color:t.muted,fontWeight:500},backgroundColor:t.soft}],
       xAxis:{type:"category",data:data.map(x=>x.date),boundaryGap:false,axisLabel:{color:t.muted,fontWeight:500},axisLine:{lineStyle:{color:t.line}},axisTick:{show:false}},
-      yAxis:{type:"value",position:"right",scale:true,axisLabel:{color:t.muted,formatter:v=>fmt(v,4),fontWeight:500},axisLine:{show:false},axisTick:{show:false},splitLine:{lineStyle:{color:t.grid}}},
+      yAxis:{type:"value",position:"right",scale:true,axisLabel:{color:t.muted,formatter:v=>fmt(v,4),fontWeight:500,margin:8,hideOverlap:true},axisLine:{show:false},axisTick:{show:false},splitLine:{lineStyle:{color:t.grid}}},
       series:[{
         name,type:"line",data:values,smooth:true,showSymbol:false,symbol:"circle",symbolSize:6,
-        lineStyle:{width:1.35,color:t.navy,shadowBlur:2,shadowColor:rgba(t.navy,.12)},
-        areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:areaTop},{offset:.55,color:areaMid},{offset:1,color:areaLow}])},
-        emphasis:{focus:"series",scale:1.08,lineStyle:{width:1.75},itemStyle:{color:t.panel,borderColor:t.navy,borderWidth:2.2,shadowBlur:7,shadowColor:rgba(t.navy,.32)}},
-        markLine:{silent:true,symbol:"none",precision:4,data:[refLine("Hoy",last,t.navy,"solid",1.25),refLine("Prom",avg,t.avg,"dashed",1.15),refLine("Máx",max,t.green,"dotted",1.1),refLine("Mín",min,t.amber,"dotted",1.1)]},
-        markPoint:{symbol:"circle",symbolSize:9,itemStyle:{color:t.panel,borderColor:t.navy,borderWidth:2,shadowBlur:5,shadowColor:rgba(t.navy,.30)},label:{show:true,position:"top",distance:7,color:t.ink,backgroundColor:t.panel,borderColor:t.line,borderWidth:1,borderRadius:4,padding:[3,6],fontSize:10,fontWeight:650,formatter:p=>`${p.name} ${fmt(p.value,4)}`},data:[{type:"max",name:"Máx"},{type:"min",name:"Mín"}]}
+        lineStyle:{width:1.25,color:t.navy,shadowBlur:2,shadowColor:rgba(t.navy,.12)},
+        areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:areaTop},{offset:.56,color:areaMid},{offset:1,color:areaLow}])},
+        emphasis:{focus:"series",scale:1.04,lineStyle:{width:1.65},itemStyle:{color:t.panel,borderColor:t.navy,borderWidth:2,shadowBlur:8,shadowColor:rgba(t.navy,.28)}},
+        markLine:{silent:true,symbol:"none",precision:4,data:[refLine("Hoy",last,t.navy,"solid",1.2,.86),refLine("Prom",avg,t.avg,"dashed",1.05,.74),refLine("Máx",max,t.green,"dotted",1,.62),refLine("Mín",min,t.amber,"dotted",1,.62)]},
+        markPoint:{symbol:"circle",symbolSize:8,label:{show:false},itemStyle:{color:t.panel,borderColor:t.navy,borderWidth:2,shadowBlur:6,shadowColor:rgba(t.navy,.24)},emphasis:{scale:1.35,label:{show:true,position:"top",distance:7,color:t.ink,backgroundColor:t.panel,borderColor:t.line,borderWidth:1,borderRadius:4,padding:[3,6],fontSize:10,fontWeight:560,formatter:p=>`${p.name} ${fmt(p.value,4)}`}},data:[{type:"max",name:"Máx",itemStyle:{borderColor:t.green}},{type:"min",name:"Mín",itemStyle:{borderColor:t.amber}}]}
       }]
     },true);
   }
@@ -507,12 +519,12 @@
     el("changeSource").textContent=`${pair(code)} · % diario`;
     if(!changes.length){chart.clear(); chart.setOption({title:{text:"Sin variaciones suficientes",left:"center",top:"center",textStyle:{fontSize:13,color:t.muted}}}); return;}
     chart.setOption({
-      animationDuration:520, grid:{left:54,right:18,top:24,bottom:46},
+      animationDuration:520, grid:{left:10,right:12,top:28,bottom:46,containLabel:true},
       tooltip:{trigger:"axis",backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff"},formatter:params=>{const p=Array.isArray(params)?params[0]:params; const val=Array.isArray(p.value)?p.value[1]:p.value; return `<div style="font-weight:720;margin-bottom:5px">${p.axisValue||""}</div>${marker(val>=0?t.green:t.red)}Var. diaria <b>${pct(val)}</b>`;}},
       toolbox:{right:6,iconStyle:{borderColor:t.muted},feature:{saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Variacion_diaria_${pair(code)}_${fileStamp()}`)}}},
       dataZoom:[{type:"inside",throttle:60}],
       xAxis:{type:"category",data:changes.map(x=>x.date),axisLabel:{color:t.muted,fontWeight:600},axisTick:{show:false},axisLine:{lineStyle:{color:t.line}}},
-      yAxis:{type:"value",axisLabel:{color:t.muted,formatter:v=>`${fmt(v,4)}%`},splitLine:{lineStyle:{color:t.grid}}},
+      yAxis:{type:"value",axisLabel:{color:t.muted,formatter:v=>fmtPctAxis(v),fontWeight:500,margin:8,hideOverlap:true},axisTick:{show:false},axisLine:{show:false},splitLine:{lineStyle:{color:t.grid}}},
       series:[{name:"Var. diaria",type:"bar",data:changes.map(x=>({value:x.value,itemStyle:{color:x.value>=0?t.green:t.red,borderRadius:[3,3,0,0]}})),barMaxWidth:20,markLine:{symbol:"none",data:[{yAxis:0}],lineStyle:{color:t.muted,type:"dashed"}}}]
     },true);
   }
