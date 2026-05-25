@@ -738,6 +738,14 @@
     #btnRefresh.is-loading i{animation:tcSpin .85s linear infinite}
     @keyframes tcSpin{to{transform:rotate(360deg)}}
 
+
+
+    /* V38: status completo en móvil, sin recorte de hora */
+    .top-actions .status{min-width:166px;justify-content:flex-start}
+    .top-actions .status span:last-child{max-width:none!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important}
+    @media(max-width:760px){.top-actions .status{min-width:172px!important;flex:0 0 auto!important}.top-actions{scrollbar-width:thin}}
+    @media(max-width:380px){.top-actions .status{min-width:166px!important;font-size:.74rem!important;padding-inline:8px!important}}
+
 </style>
 </head>
 <body>
@@ -790,7 +798,7 @@
       <section class="chart-row">
         <article class="panel">
           <div class="panel-head">
-            <div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia <span class="sep">|</span> <span class="history-word">Histórico</span></h2><p id="historySource">histórico</p></div></div>
+            <div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia</h2><p id="historySource">Histórico desde —</p></div></div>
             <div class="tools"><div id="trendQuick" class="trend-quick"></div><select id="trendOther" class="trend-other"></select><select id="trendCcy" class="trend-mobile"></select><div class="tabs" id="rangeTabs"><button class="tab" data-range="15">15D</button><button class="tab active" data-range="30">30D</button><button class="tab" data-range="60">60D</button><button class="tab" data-range="120">120D</button></div></div>
           </div>
           <div class="panel-body"><div id="trendLegend" class="chart-legend"></div><div id="trendChart" class="chart"></div></div>
@@ -913,6 +921,14 @@
     const vf=el("vFecha"); if(vf) vf.textContent=selected && selected!==latest ? `Vista: ${displayDate(selected)}` : "Última disponible";
     const dp=el("datePicker"); if(dp && selected) dp.value=selected;
     const dpl=el("datePickerLabel"); if(dpl) dpl.textContent=selected?displayDate(selected):"Seleccionar fecha";
+  }
+  function historyStartLabel(){
+    const dates = state.history.map(s=>dateKey(s.date)).filter(Boolean).sort();
+    return dates.length ? `Histórico desde ${displayDate(dates[0])}` : "Histórico desde —";
+  }
+  function updateHistorySubtitle(){
+    const node = el("historySource");
+    if(node) node.textContent = historyStartLabel();
   }
   function setDatePickerBounds(){
     const dp=el("datePicker"); if(!dp) return;
@@ -1269,7 +1285,7 @@
       if(c?.history?.length){
         state.history=mergeHistory(c.history);
         state.cacheAge=Date.now()-(c.savedAt||0);
-        el("historySource").textContent="histórico";
+        updateHistorySubtitle();
         setDatePickerBounds();
         renderCharts();
         return true;
@@ -1292,7 +1308,7 @@
       const snaps=await loadHistoryConsolidated({fresh:force});
       state.history=mergeHistory(snaps);
       saveCache();
-      el("historySource").textContent="histórico";
+      updateHistorySubtitle();
       setDatePickerBounds();
       if(state.selectedDate && state.selectedDate!==state.latestDate){
         const snap=findSnapshotByDate(state.selectedDate);
@@ -1305,7 +1321,7 @@
     }catch(e){
       log(`Histórico consolidado no disponible: ${e.message||e}`,"warn");
       const usedCache=loadCache();
-      el("historySource").textContent=usedCache?"histórico":"histórico no disponible";
+      updateHistorySubtitle();
       setStatus(usedCache?"Actualizado":"Sin histórico",usedCache?"ok":"warn");
       renderStatic();
       renderDeltas();
@@ -1445,15 +1461,30 @@
     if(!Number.isFinite(n)) return "";
     return new Intl.NumberFormat("en-US",{minimumFractionDigits:0,maximumFractionDigits:2}).format(n);
   }
+  function parseAmountInput(v){
+    if(typeof v === "number") return Number.isFinite(v) ? v : NaN;
+    let s = String(v ?? "").trim();
+    if(!s) return NaN;
+    s = s.replace(/[^0-9.,-]/g, "");
+    // El conversor usa coma como separador de miles y punto como decimal.
+    // Ej.: 2,954 -> 2954; 25,000.50 -> 25000.50.
+    s = s.replace(/,/g, "");
+    const firstDot = s.indexOf(".");
+    if(firstDot !== -1){
+      s = s.slice(0, firstDot + 1) + s.slice(firstDot + 1).replace(/\./g, "");
+    }
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  }
   function formatAmountField({force=false}={}){
     const node=el("amount"); if(!node) return;
     const raw=node.value;
     if(!force && /[.,]$/.test(raw)) return;
-    const n=toNum(raw);
+    const n=parseAmountInput(raw);
     if(Number.isFinite(n)) node.value=fmtInputAmount(n);
   }
   function renderConverter(){
-    const a=toNum(el("amount").value), from=el("fromCcy").value, to=el("toCcy").value, val=convert(a,from,to);
+    const a=parseAmountInput(el("amount").value), from=el("fromCcy").value, to=el("toCcy").value, val=convert(a,from,to);
     el("convResult").textContent=Number.isFinite(val)?`${fmt(val,2)} ${to}`:"—";
     el("convSub").textContent=Number.isFinite(val)?`${fmt(a,2)} ${from} → Vía USD · ${fmt(getRaw(from),4)} / ${fmt(getRaw(to),4)}`:"No hay tasa suficiente";
     renderQuickPairs();
@@ -1536,7 +1567,7 @@
     on("btnZoomReset","click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
     window.addEventListener("resize",()=>{Object.values(state.charts).forEach(c=>c&&c.resize()); clearTimeout(window.__fxResizeTimer); window.__fxResizeTimer=setTimeout(renderCharts,160);});
   }
-  function renderStatic(){setDateLabels(); setDatePickerBounds(); renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
+  function renderStatic(){setDateLabels(); setDatePickerBounds(); updateHistorySubtitle(); renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
   async function refresh(forceHistory=false){
     setStatus("Consultando",""); perf("Leyendo latest…",5);
     try{
