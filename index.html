@@ -598,6 +598,31 @@
       .date-today{font-size:.68rem!important;padding:0 5px!important}
     }
 
+
+    /* V20: últimos retoques UX */
+    .panel-title h2 .sep{color:var(--muted);font-weight:520;margin:0 2px}
+    .change-panel .panel-head{gap:10px}
+    #btnZoomReset{border-radius:5px!important;white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+    .search-wrap{position:relative;display:block;min-width:min(360px,100%);flex:1}
+    .search-wrap .search{width:100%;padding-right:36px!important;font-size:16px!important}
+    .search-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.86rem;pointer-events:none}
+    .table-tools{align-items:center}
+    @media(max-width:760px){
+      .change-panel .panel-head{flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}
+      .change-panel .panel-title{min-width:0;flex:1;flex-direction:row!important;align-items:center!important}
+      .change-panel .panel-title h2{font-size:.96rem;white-space:nowrap}
+      .change-panel .panel-title p{font-size:.68rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+      #btnZoomReset{height:32px!important;min-height:32px!important;padding:0 9px!important;font-size:.72rem!important;flex:0 0 auto}
+      #btnZoomReset span{display:inline!important}
+      .search-wrap{min-width:100%;width:100%}
+      .search-wrap .search{min-width:0!important;width:100%!important;font-size:16px!important}
+    }
+    @media(max-width:380px){
+      #btnZoomReset span{display:none!important}
+      #btnZoomReset{width:34px!important;min-width:34px!important;padding:0!important;justify-content:center}
+      .change-panel .panel-title p{max-width:96px}
+    }
+
   </style>
 </head>
 <body>
@@ -653,13 +678,13 @@
       <section class="chart-row">
         <article class="panel">
           <div class="panel-head">
-            <div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia <span class="history-word">histórico</span></h2><p id="historySource">histórico</p></div></div>
+            <div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia <span class="sep">|</span> <span class="history-word">Histórico</span></h2><p id="historySource">histórico</p></div></div>
             <div class="tools"><div id="trendQuick" class="trend-quick"></div><select id="trendOther" class="trend-other"></select><select id="trendCcy" class="trend-mobile"></select><div class="tabs" id="rangeTabs"><button class="tab" data-range="15">15D</button><button class="tab active" data-range="30">30D</button><button class="tab" data-range="60">60D</button><button class="tab" data-range="120">120D</button></div></div>
           </div>
           <div class="panel-body"><div id="trendLegend" class="chart-legend"></div><div id="trendChart" class="chart"></div></div>
         </article>
-        <article class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-column"></i></span><div><h2>Variación diaria</h2><p id="changeSource">—</p></div></div><button id="btnZoomReset" class="soft"><i class="fa-solid fa-magnifying-glass-minus"></i>Reset zoom</button></div>
+        <article class="panel change-panel">
+          <div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-column"></i></span><div><h2>Variación diaria</h2><p id="changeSource">—</p></div></div><button id="btnZoomReset" class="soft"><i class="fa-solid fa-magnifying-glass-minus"></i><span>Reset zoom</span></button></div>
           <div class="panel-body"><div id="changeChart" class="chart side"></div></div>
         </article>
       </section>
@@ -671,7 +696,7 @@
         </article>
 
         <article class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-right-left"></i></span><div><h2>Conversor</h2><p>vía PEN</p></div></div></div>
+          <div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-right-left"></i></span><div><h2>Conversor</h2><p>Vía USD</p></div></div></div>
           <div class="panel-body converter">
             <div class="conv-grid"><input id="amount" type="number" inputmode="decimal" value="1000" min="0" step="0.01"><select id="fromCcy"></select></div>
             <div class="swapline"><button id="swapBtn" class="dark icon-only" title="Invertir monedas"><i class="fa-solid fa-right-left"></i></button><select id="toCcy"></select></div>
@@ -681,9 +706,9 @@
         </article>
 
         <article class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-table-list"></i></span><div><h2>Tabla FX</h2><p>USDPEN directo; demás cruces contra USD</p></div></div></div>
+          <div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-table-list"></i></span><div><h2>Tabla FX</h2><p>Cruces USD</p></div></div></div>
           <div class="panel-body">
-            <div class="table-tools"><input id="searchBox" class="search" placeholder="Buscar: USDPEN, EURUSD, Dólar de N.A., yen…"><span id="tableCount" class="chip"><i class="fa-solid fa-filter"></i> 0 pares</span></div>
+            <div class="table-tools"><div class="search-wrap"><input id="searchBox" class="search" placeholder="Buscar:"><i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i></div><span id="tableCount" class="chip"><i class="fa-solid fa-filter"></i> 0 pares</span></div>
             <div class="table-wrap"><table><thead><tr><th>Par</th><th>Moneda SBS</th><th style="text-align:right">TC</th><th style="text-align:right">Cálculo</th></tr></thead><tbody id="ratesTable"><tr><td colspan="4">Cargando…</td></tr></tbody></table></div>
           </div>
         </article>
@@ -852,15 +877,42 @@
       log(`No se encontró archivo histórico para ${dk}`,"warn");
     }
   }
-  function shiftSelectedDate(days){
-    const base=parseDate(state.selectedDate || state.latestDate || new Date());
-    if(!base){showToast("No hay fecha seleccionada","warn"); return;}
-    base.setDate(base.getDate()+days);
-    const dk=dateKey(base);
+  function availableDates(){
+    const set=new Set();
+    for(const snap of state.history||[]){const dk=dateKey(snap.date); if(dk) set.add(dk);}
+    if(state.latestDate) set.add(state.latestDate);
+    if(state.selectedDate && findSnapshotByDate(state.selectedDate)) set.add(state.selectedDate);
+    return [...set].sort();
+  }
+  async function shiftSelectedDate(days){
+    const step = days >= 0 ? 1 : -1;
+    const current = dateKey(state.selectedDate || state.latestDate || new Date());
+    if(!current){showToast("No hay fecha seleccionada","warn"); return;}
+
+    const dates = availableDates();
+    let target = "";
+    if(dates.length){
+      if(step > 0) target = dates.find(d => d > current) || "";
+      else target = [...dates].reverse().find(d => d < current) || "";
+    }
+    if(target){ await selectDate(target); return; }
+
     const dp=el("datePicker");
-    if(dp?.min && dk < dp.min){showToast("No hay fecha anterior disponible","warn"); return;}
-    if(dp?.max && dk > dp.max){showToast("Ya estás en la última fecha","warn"); return;}
-    selectDate(dk);
+    const min=dp?.min || HISTORY_START_DATE;
+    const max=dp?.max || state.latestDate || dateKey(new Date());
+    const base=parseDate(current);
+    for(let i=0;i<45;i++){
+      base.setDate(base.getDate()+step);
+      const dk=dateKey(base);
+      if(step<0 && min && dk < min) break;
+      if(step>0 && max && dk > max) break;
+      const snap=await fetchSnapshotForDate(dk);
+      if(snap){
+        if(!findSnapshotByDate(dk)){state.history=mergeHistory([...state.history,snap]); saveCache(); setDatePickerBounds();}
+        applySnapshot(snap); setStatus("Fecha OK","ok"); return;
+      }
+    }
+    showToast(step>0?"No hay fecha posterior disponible":"No hay fecha anterior disponible","warn");
   }
   function goLatestDate(){
     const target=state.latestDate || el("datePicker")?.max || dateKey(new Date());
@@ -1181,7 +1233,7 @@
     });
     chart.setOption({
       color:[t.navy], animationDuration:540,
-      grid:{left:isMobile?10:14,right:isMobile?10:18,top:52,bottom:58,containLabel:true},
+      grid:{left:isMobile?10:14,right:isMobile?10:18,top:52,bottom:66,containLabel:true},
       tooltip:{trigger:"axis",axisPointer:{type:"line",lineStyle:{color:t.muted,width:1,opacity:.55}},backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff",fontWeight:500},formatter:params=>{
         const arr=Array.isArray(params)?params:[params];
         const p=arr.find(x=>x.seriesName===name)||arr[0];
@@ -1190,7 +1242,7 @@
       }},
       toolbox:{right:12,top:7,itemSize:14,itemGap:9,iconStyle:{borderColor:t.muted},emphasis:{iconStyle:{borderColor:t.ink}},feature:{dataZoom:{yAxisIndex:"none",title:{zoom:"Zoom",back:"Atrás"}},restore:{title:"Restaurar"},saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Tendencia_${name}_${fileStamp()}`)}}},
       dataZoom:[{type:"inside",throttle:60},{type:"slider",height:22,bottom:18,borderColor:t.line,fillerColor:rgba(t.cyan,.20),handleStyle:{color:t.navy},textStyle:{color:t.muted,fontWeight:500,fontSize:10},backgroundColor:t.soft}],
-      xAxis:{type:"category",data:data.map(x=>x.date),boundaryGap:false,axisLabel:{color:t.muted,fontWeight:500},axisLine:{lineStyle:{color:t.line}},axisTick:{show:false}},
+      xAxis:{type:"category",data:data.map(x=>x.date),boundaryGap:false,axisLabel:{color:t.muted,fontWeight:500,margin:13},axisLine:{lineStyle:{color:t.line}},axisTick:{show:false}},
       yAxis:{type:"value",position:isMobile?"left":"right",scale:true,axisLabel:{color:t.muted,formatter:v=>fmt(v,4),fontWeight:500,fontSize:10,margin:isMobile?6:8,hideOverlap:true},axisLine:{show:false},axisTick:{show:false},splitLine:{lineStyle:{color:t.grid}}},
       series:[{
         name,type:"line",data:values,smooth:true,showSymbol:false,symbol:"circle",symbolSize:6,
@@ -1209,11 +1261,11 @@
     el("changeSource").textContent=`${pair(code)} · % diario`;
     if(!changes.length){chart.clear(); chart.setOption({title:{text:"Sin variaciones suficientes",left:"center",top:"center",textStyle:{fontSize:13,color:t.muted}}}); return;}
     chart.setOption({
-      animationDuration:520, grid:{left:8,right:18,top:50,bottom:46,containLabel:true},
+      animationDuration:520, grid:{left:8,right:18,top:50,bottom:58,containLabel:true},
       tooltip:{trigger:"axis",backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff"},formatter:params=>{const p=Array.isArray(params)?params[0]:params; const val=Array.isArray(p.value)?p.value[1]:p.value; return `<div style="font-weight:720;margin-bottom:5px">${p.axisValue||""}</div>${marker(val>=0?t.green:t.red)}Var. diaria <b>${pct(val)}</b>`;}},
       toolbox:{right:12,top:7,itemSize:14,itemGap:9,iconStyle:{borderColor:t.muted},emphasis:{iconStyle:{borderColor:t.ink}},feature:{saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Variacion_diaria_${pair(code)}_${fileStamp()}`)}}},
       dataZoom:[{type:"inside",throttle:60}],
-      xAxis:{type:"category",data:changes.map(x=>x.date),axisLabel:{color:t.muted,fontWeight:600},axisTick:{show:false},axisLine:{lineStyle:{color:t.line}}},
+      xAxis:{type:"category",data:changes.map(x=>x.date),axisLabel:{color:t.muted,fontWeight:600,margin:15},axisTick:{show:false},axisLine:{lineStyle:{color:t.line}}},
       yAxis:{type:"value",axisLabel:{color:t.muted,formatter:v=>fmtPctAxis(v),fontWeight:500,fontSize:10,margin:6,hideOverlap:true},axisTick:{show:false},axisLine:{show:false},splitLine:{lineStyle:{color:t.grid}}},
       series:[{name:"Var. diaria",type:"bar",data:changes.map(x=>({value:x.value,itemStyle:{color:x.value>=0?t.green:t.red,borderRadius:[3,3,0,0]}})),barMaxWidth:20,markLine:{symbol:"none",data:[{yAxis:0}],lineStyle:{color:t.muted,type:"dashed"}}}]
     },true);
@@ -1237,8 +1289,12 @@
   function populateSelectors(){
     const codes=["PEN",...allCodes()];
     const opts=codes.map(c=>`<option value="${c}">${c}${c==="USD"?" · Dólar de N.A.":""}</option>`).join("");
-    for(const id of ["fromCcy","toCcy"]){const node=el(id); const old=node.value; node.innerHTML=opts; if(codes.includes(old)) node.value=old;}
-    if(!el("fromCcy").value) el("fromCcy").value="USD"; if(!el("toCcy").value) el("toCcy").value="PEN";
+    for(const id of ["fromCcy","toCcy"]){
+      const node=el(id); const previous=node.value;
+      node.innerHTML=opts;
+      if(codes.includes(previous)) node.value=previous;
+      else node.value = id === "fromCcy" ? "USD" : "PEN";
+    }
     const trendCodes=allCodes();
     const allTrendOpts=trendCodes.map(c=>`<option value="${c}">${pair(c)}</option>`).join("");
     const mobile=el("trendCcy"); if(mobile) mobile.innerHTML=allTrendOpts;
@@ -1251,7 +1307,7 @@
   function renderConverter(){
     const a=toNum(el("amount").value), from=el("fromCcy").value, to=el("toCcy").value, val=convert(a,from,to);
     el("convResult").textContent=Number.isFinite(val)?`${fmt(val,2)} ${to}`:"—";
-    el("convSub").textContent=Number.isFinite(val)?`${fmt(a,2)} ${from} → vía PEN · ${fmt(getRaw(from),4)} / ${fmt(getRaw(to),4)}`:"No hay tasa suficiente";
+    el("convSub").textContent=Number.isFinite(val)?`${fmt(a,2)} ${from} → Vía USD · ${fmt(getRaw(from),4)} / ${fmt(getRaw(to),4)}`:"No hay tasa suficiente";
     renderQuickPairs();
   }
   function renderQuickPairs(){
@@ -1290,7 +1346,7 @@
       toolbox:{right:12,top:7,itemSize:14,itemGap:9,iconStyle:{borderColor:t.muted},emphasis:{iconStyle:{borderColor:t.ink}},feature:{saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Estadisticas_${pair(code)}_${fileStamp()}`)}}},
       xAxis:{type:"category",data:bars.map(x=>x.name),axisLabel:{color:t.muted,fontWeight:720},axisTick:{show:false},axisLine:{lineStyle:{color:t.line}}},
       yAxis:{type:"value",scale:true,axisLabel:{color:t.muted,formatter:v=>fmt(v,4)},splitLine:{lineStyle:{color:t.grid}}},
-      graphic:[{type:"text",right:18,top:6,style:{text:`Var ${pct(ch)}  ·  Vol ${Number.isFinite(vol)?fmt(vol,4)+"%":"—"}`,fill:t.muted,font:"640 11px Manrope, Inter, sans-serif"}}],
+      graphic:[{type:"text",left:18,top:6,style:{text:`Var ${pct(ch)}  ·  Vol ${Number.isFinite(vol)?fmt(vol,4)+"%":"—"}`,fill:t.muted,font:"640 11px Manrope, Inter, sans-serif"}}],
       series:[{name:"Estadística",type:"bar",data:bars.map(x=>({value:x.value,itemStyle:{color:x.color,borderRadius:[4,4,0,0]}})),barMaxWidth:34,label:{show:true,position:"top",fontWeight:720,color:t.ink,formatter:p=>fmt(p.value,4)}}]
     },true);
   }
