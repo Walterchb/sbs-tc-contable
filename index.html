@@ -643,6 +643,13 @@
     .top-actions .btn,.top-actions button{height:34px!important;min-height:34px!important;width:34px!important;min-width:34px!important;padding:0!important;border-radius:var(--radius)!important;display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px}
     .top-actions .status{height:34px;flex:0 0 auto}
     @media(max-width:760px){.top-actions{gap:6px}.top-actions .btn,.top-actions button{width:34px!important;min-width:34px!important}.top-actions .status span:last-child{max-width:96px;overflow:hidden;text-overflow:ellipsis}}
+
+    /* V26: Fecha SBS ocupa todo el ancho disponible */
+    .snapshot{grid-template-columns:1fr!important;width:100%!important}
+    .snapshot .date-card{width:100%!important;grid-column:1/-1!important}
+    /* V26: input de conversor con separador de miles */
+    #amount{text-align:left;font-variant-numeric:tabular-nums}
+
 </style>
 </head>
 <body>
@@ -689,7 +696,7 @@
         <article class="kpi green"><div class="kpi-top"><span><i class="fa-solid fa-sterling-sign"></i>GBPUSD</span><b id="dGbp" class="delta flat">—</b></div><strong id="kGbp">—</strong><small>GBPPEN / USDPEN</small></article>
         <article class="kpi purple"><div class="kpi-top"><span><i class="fa-solid fa-yen-sign"></i>CNHUSD</span><b id="dCnh" class="delta flat">—</b></div><strong id="kCnh">—</strong><small>CNHPEN / USDPEN</small></article>
         <article class="kpi amber"><div class="kpi-top"><span><i class="fa-solid fa-yen-sign"></i>JPYUSD</span><b id="dJpy" class="delta flat">—</b></div><strong id="kJpy">—</strong><small>JPYPEN / USDPEN</small></article>
-        <article class="kpi"><div class="kpi-top"><span><i class="fa-solid fa-layer-group"></i>Cobertura</span><b id="dCover" class="delta flat">SBS</b></div><strong id="kCover">—</strong><small id="kCoverSub">monedas</small></article>
+        <article class="kpi"><div class="kpi-top"><span><i class="fa-solid fa-coins"></i>CHFUSD</span><b id="dCover" class="delta flat">—</b></div><strong id="kCover">—</strong><small id="kCoverSub">CHFPEN / USDPEN</small></article>
       </section>
 
       <section class="chart-row">
@@ -715,7 +722,7 @@
         <article class="panel">
           <div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-right-left"></i></span><div><h2>Conversor</h2><p>Vía USD</p></div></div></div>
           <div class="panel-body converter">
-            <div class="conv-grid"><input id="amount" type="number" inputmode="decimal" value="1000" min="0" step="0.01"><select id="fromCcy"></select></div>
+            <div class="conv-grid"><input id="amount" type="text" inputmode="decimal" value="1,000" autocomplete="off"><select id="fromCcy"></select></div>
             <div class="swapline"><button id="swapBtn" class="dark icon-only" title="Invertir monedas"><i class="fa-solid fa-right-left"></i></button><select id="toCcy"></select></div>
             <div class="result-box"><div id="convResult" class="big">—</div><div id="convSub" class="sub">—</div></div>
             <div id="quickPairs" class="quick-pairs"></div>
@@ -1214,7 +1221,7 @@
     const s=seriesFor(code); if(s.length<2) return NaN; const a=s.at(-2).value,b=s.at(-1).value; return a?((b/a)-1)*100:NaN;
   }
   function renderDeltas(){
-    for(const [code,id] of [["USD","dUsd"],["EUR","dEur"],["GBP","dGbp"],["CNH","dCnh"],["JPY","dJpy"]]){
+    for(const [code,id] of [["USD","dUsd"],["EUR","dEur"],["GBP","dGbp"],["CNH","dCnh"],["JPY","dJpy"],["CHF","dCover"]]){
       const v=prevChange(code), node=el(id); node.textContent=pct(v); node.className=`delta ${!Number.isFinite(v)||Math.abs(v)<0.005?"flat":v>0?"pos":"neg"}`;
     }
   }
@@ -1279,9 +1286,9 @@
   function renderBar(){}
   function renderCharts(){renderTrend(); renderChange(); renderStats(); renderDeltas();}
   function renderKpis(){
-    const values={USD:shownRate("USD"),EUR:shownRate("EUR"),GBP:shownRate("GBP"),CNH:shownRate("CNH"),JPY:shownRate("JPY")};
+    const values={USD:shownRate("USD"),EUR:shownRate("EUR"),GBP:shownRate("GBP"),CNH:shownRate("CNH"),JPY:shownRate("JPY"),CHF:shownRate("CHF")};
     el("kUsd").textContent=fmt(values.USD,digits("USD",values.USD)); el("kEur").textContent=fmt(values.EUR,digits("EUR",values.EUR)); el("kGbp").textContent=fmt(values.GBP,digits("GBP",values.GBP)); el("kCnh").textContent=fmt(values.CNH,digits("CNH",values.CNH)); el("kJpy").textContent=fmt(values.JPY,digits("JPY",values.JPY));
-    const codes=allCodes(); el("kCover").textContent=codes.length||"—"; el("kCoverSub").textContent=`${codes.length} pares · USD ${state.rates.has("USD")?"OK":"no detectado"}`;
+    el("kCover").textContent=fmt(values.CHF,digits("CHF",values.CHF)); el("kCoverSub").textContent="CHFPEN / USDPEN";
   }
   function syncTrendControls(){
     const all=allCodes();
@@ -1310,6 +1317,17 @@
     syncTrendControls();
   }
   function convert(amount,from,to){const rf=getRaw(from), rt=getRaw(to); return Number.isFinite(rf)&&Number.isFinite(rt)&&rt>0?amount*rf/rt:NaN;}
+  function fmtInputAmount(n){
+    if(!Number.isFinite(n)) return "";
+    return new Intl.NumberFormat("en-US",{minimumFractionDigits:0,maximumFractionDigits:2}).format(n);
+  }
+  function formatAmountField({force=false}={}){
+    const node=el("amount"); if(!node) return;
+    const raw=node.value;
+    if(!force && /[.,]$/.test(raw)) return;
+    const n=toNum(raw);
+    if(Number.isFinite(n)) node.value=fmtInputAmount(n);
+  }
   function renderConverter(){
     const a=toNum(el("amount").value), from=el("fromCcy").value, to=el("toCcy").value, val=convert(a,from,to);
     el("convResult").textContent=Number.isFinite(val)?`${fmt(val,2)} ${to}`:"—";
@@ -1379,7 +1397,7 @@
     on("dateNext","click",()=>shiftSelectedDate(1));
     on("dateToday","click",()=>goLatestDate());
     on("btnCopy","click",async()=>{const text=[`TC Contable SBS · ${state.selectedDate||el("vFecha")?.textContent||"—"}`,`USDPEN ${el("kUsd")?.textContent||"—"}`,`EURUSD ${el("kEur")?.textContent||"—"}`,`GBPUSD ${el("kGbp")?.textContent||"—"}`,`CNHUSD ${el("kCnh")?.textContent||"—"}`,`JPYUSD ${el("kJpy")?.textContent||"—"}`].join("\n"); try{await navigator.clipboard.writeText(text); log("Resumen copiado"); showToast("Resumen copiado","ok");}catch(e){log("No se pudo copiar","warn"); showToast("No se pudo copiar","warn");}});
-    on("amount","input",renderConverter); on("fromCcy","change",renderConverter); on("toCcy","change",renderConverter);
+    on("amount","input",()=>{formatAmountField(); renderConverter();}); on("amount","blur",()=>{formatAmountField({force:true}); renderConverter();}); on("fromCcy","change",renderConverter); on("toCcy","change",renderConverter);
     on("swapBtn","click",()=>{const a=el("fromCcy"),b=el("toCcy"); if(a&&b){[a.value,b.value]=[b.value,a.value]; renderConverter();}});
     on("trendCcy","change",e=>selectTrend(e.target.value));
     on("trendOther","change",e=>selectTrend(e.target.value));
