@@ -54,7 +54,7 @@
     .table-tools{display:flex;gap:9px;align-items:center;justify-content:space-between;margin-bottom:9px;flex-wrap:wrap}.search{min-width:240px;flex:1}.chip{border:1px solid var(--line);background:var(--soft);color:var(--muted);border-radius:var(--radius);padding:6px 8px;font-size:.74rem;font-weight:720;white-space:nowrap}.table-wrap{max-height:326px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius)}table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);font-size:.82rem}th,td{padding:9px 10px;border-bottom:1px solid var(--grid);white-space:nowrap;text-align:left}th{position:sticky;top:0;background:var(--soft);color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;z-index:2}td.code{font-weight:760;color:var(--navy3)}td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:720}tbody tr:hover{background:var(--soft)}
     :root[data-theme="dark"] td.code{color:#9ed8ef}
 
-    .chart-legend{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 8px 0;min-height:31px}.legend-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:5px 9px;font-size:.72rem;font-weight:560;color:var(--muted);line-height:1;white-space:nowrap}.legend-pill strong{font-weight:680;color:var(--ink);font-variant-numeric:tabular-nums}.legend-dot{width:8px;height:8px;border-radius:50%;background:var(--navy3);box-shadow:0 0 0 2px rgba(255,255,255,.35)}:root[data-theme="dark"] .legend-dot{box-shadow:0 0 0 2px rgba(13,27,42,.8)}
+    .chart-legend{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 8px 0;min-height:31px}.legend-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--soft);border-radius:5px;padding:5px 9px;font-size:.72rem;font-weight:560;color:var(--muted);line-height:1;white-space:nowrap}.legend-pill strong{font-weight:680;color:var(--ink);font-variant-numeric:tabular-nums}.legend-dot{width:8px;height:8px;border-radius:50%;background:var(--navy3);box-shadow:0 0 0 2px rgba(255,255,255,.35)}:root[data-theme="dark"] .legend-dot{box-shadow:0 0 0 2px rgba(13,27,42,.8)}
     .panel-title h2{font-weight:640}.brand h1{font-weight:650}.brand p{font-weight:560}.date-value,.kpi strong,.pair-card .r,.result-box .big{font-weight:650}.status,.chip{font-weight:600}.kpi span,.label,th{font-weight:650}.kpi small,.pair-card .d,.result-box .sub,.panel-title p{font-weight:520}.btn,button,.tab,.pair-btn,select,input{font-weight:620}.delta{font-weight:650}.table-wrap{scrollbar-width:thin}.topbar{border-bottom-width:3px}.kpi{transition:border-color .15s ease, transform .15s ease}.kpi:hover{transform:translateY(-1px);border-color:var(--line2)}
     @media(max-width:1260px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.chart-row,.content-row{grid-template-columns:1fr}.chart.side{height:290px}.chart.stats{height:250px}}
     @media(max-width:760px){.topbar-inner{align-items:flex-start;flex-direction:column;padding:10px 12px}.top-actions{justify-content:flex-start;width:100%}.wrap{padding:12px}.snapshot{grid-template-columns:1fr}.date-card{align-items:flex-start;flex-direction:column}.download-card{justify-content:flex-start}.kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{min-height:90px;padding:10px}.kpi strong{font-size:1.18rem}.panel-head{align-items:flex-start;flex-direction:column}.tools{justify-content:flex-start;width:100%}.chart{height:286px}.chart.side{height:250px}.chart.stats{height:232px}.conv-grid{grid-template-columns:1fr}.quick-pairs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.pair-card{padding:7px 5px}.pair-card .c{font-size:.58rem}.pair-card .r{font-size:.78rem}.pair-card .d{font-size:.58rem}.search{min-width:100%}th,td{padding:8px}.trend-quick,.trend-other{display:none}.trend-mobile{display:block;width:100%}.tabs{width:100%}.tab{flex:1}.chart-legend{gap:6px}.legend-pill{font-size:.68rem;padding:5px 7px}.top-actions .icon-only,.download-card .icon-only{width:34px;min-width:34px}}
@@ -626,7 +626,24 @@
       .change-panel .panel-title p{max-width:96px}
     }
 
-  </style>
+
+    /* V24: acciones compactas, toast invertido por tema y leyenda con radio 5px */
+    .download-card{align-self:center;min-height:56px;display:flex;align-items:center;justify-content:flex-end}
+    .download-card .btn,.download-card button{height:34px!important;min-height:34px!important;width:34px!important;min-width:34px!important;padding:0!important;border-radius:var(--radius)!important}
+    .top-actions button,.top-actions .icon-only{height:34px!important;min-height:34px!important;width:34px!important;min-width:34px!important;padding:0!important}
+    .legend-pill{border-radius:5px!important}
+    .toast{background:#061d2d!important;color:#eef7fc!important;border-color:#1d597f!important;box-shadow:0 14px 34px rgba(5,28,44,.34)!important}
+    :root[data-theme="dark"] .toast{background:#f8fbfd!important;color:#092033!important;border-color:#c5d5e0!important;box-shadow:0 14px 34px rgba(0,0,0,.35)!important}
+    .toast.ok i{color:#2dc48a!important}.toast.warn i{color:#f0a92f!important}.toast.err i{color:#ff6b61!important}.toast.info i{color:#58c8e1!important}
+    :root[data-theme="dark"] .toast.ok i{color:#13966b!important}:root[data-theme="dark"] .toast.warn i{color:#b66d0c!important}:root[data-theme="dark"] .toast.err i{color:#bd2c22!important}:root[data-theme="dark"] .toast.info i{color:#0b6680!important}
+    @media(max-width:760px){.download-card{min-height:0;justify-content:flex-start}.download-card .btn,.download-card button{flex:0 0 34px}.snapshot{align-items:start}}
+
+  
+    /* V25: acciones del topbar compactas y alineadas */
+    .top-actions .btn,.top-actions button{height:34px!important;min-height:34px!important;width:34px!important;min-width:34px!important;padding:0!important;border-radius:var(--radius)!important;display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px}
+    .top-actions .status{height:34px;flex:0 0 auto}
+    @media(max-width:760px){.top-actions{gap:6px}.top-actions .btn,.top-actions button{width:34px!important;min-width:34px!important}.top-actions .status span:last-child{max-width:96px;overflow:hidden;text-overflow:ellipsis}}
+</style>
 </head>
 <body>
   <main class="app">
@@ -640,6 +657,8 @@
           <div id="vStatus" class="status"><span class="dot"></span><span>Consultando</span></div>
           <button id="btnRefresh" class="light icon-only" title="Actualizar" aria-label="Actualizar"><i class="fa-solid fa-rotate-right"></i></button>
           <button id="btnTheme" class="dark icon-only" title="Cambiar tema" aria-label="Cambiar tema"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
+          <a id="btnCsvHistory" class="btn light icon-only" title="Descargar CSV histórico" aria-label="Descargar CSV histórico" href="./data/tc_contable_history.csv" download><i class="fa-solid fa-download"></i></a>
+          <button id="btnCopy" class="soft icon-only" title="Copiar resumen" aria-label="Copiar resumen"><i class="fa-regular fa-clipboard"></i></button>
         </div>
       </div>
     </header>
@@ -661,11 +680,7 @@
             <span id="vFecha" class="date-value">—</span>
           </div>
         </article>
-        <article class="download-card">
-          <a id="btnCsvHistory" class="btn" title="Descargar histórico consolidado" aria-label="Descargar histórico consolidado" href="./data/tc_contable_history.csv" download><i class="fa-solid fa-file-csv"></i>CSV</a>
-          <a class="btn dark" href="./data/tc_contable_latest.json" download><i class="fa-solid fa-code"></i>JSON</a>
-          <button id="btnCopy" class="soft icon-only" title="Copiar resumen" aria-label="Copiar resumen"><i class="fa-regular fa-clipboard"></i></button>
-        </article>
+
       </section>
 
       <section class="kpi-grid">
