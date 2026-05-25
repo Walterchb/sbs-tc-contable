@@ -141,7 +141,6 @@
   const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),history:[],trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
 
   function log(msg,type="info"){
-    // La UI ya no muestra monitor técnico; dejamos el rastro solo en consola para no romper la carga.
     try{ console[type==="error"?"error":type==="warn"?"warn":"log"](`[TC SBS] ${msg}`); }catch(e){}
   }
   function setStatus(text,cls=""){
@@ -150,7 +149,6 @@
     const label=s.querySelector("span:last-child"); if(label) label.textContent = text;
   }
   function perf(text,pct=0){
-    // Sin monitor visible: mantenemos la función como no-op seguro para preservar el flujo.
   }
   function normText(v){return String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().trim();}
   function toNum(v){
@@ -174,11 +172,18 @@
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   }
   function displayDate(v){const d=parseDate(v); return d?new Intl.DateTimeFormat("es-PE",{year:"numeric",month:"short",day:"2-digit"}).format(d):(v||"—");}
-  function compactHash(h){return h?String(h).slice(0,12):"—";}
+
+  function fileStamp(){
+    const d=new Date(), pad=n=>String(n).padStart(2,"0");
+    return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  }
+  function safeName(v){
+    return String(v||"grafico").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_-]+/g,"_").replace(/^_+|_+$/g,"").slice(0,120) || "grafico";
+  }
   function ceilTo(n,d=4){
     if(!Number.isFinite(n)) return NaN;
     const p=10**Math.min(4,Math.max(0,d));
-    return Math.ceil((n + Number.EPSILON) * p) / p;
+    return Math.ceil((n * p) - 1e-9) / p;
   }
   function fmt(n,d=4){
     if(!Number.isFinite(n)) return "—";
@@ -226,24 +231,43 @@
     });
   }
   function rowsFromPayload(payload){
-    if(Array.isArray(payload)) return payload;
+    if(typeof payload==="string") return rowsFromCsv(payload);
+    if(Array.isArray(payload)){
+      if(!payload.length) return [];
+      if(Array.isArray(payload[0])){
+        const headers=payload[0].map((h,i)=>String(h||`col_${i+1}`));
+        return payload.slice(1).map(arr=>{const row={}; headers.forEach((h,i)=>row[h]=arr[i]); return row;});
+      }
+      return payload.filter(x=>x && typeof x==="object");
+    }
     if(!payload || typeof payload!=="object") return [];
-    for(const k of ["rows","data","items","tasas","rates","tipos_cambio","monedas","records","latest"]){ if(Array.isArray(payload[k])) return payload[k]; }
+    const rowKeys=["rows","data","items","tasas","tipos_cambio","monedas","records","latest","result","values"];
+    for(const k of rowKeys){ if(Array.isArray(payload[k])) return rowsFromPayload(payload[k]); }
+    const csvKeys=["csv","content","text"];
+    for(const k of csvKeys){ if(typeof payload[k]==="string" && /[;,]/.test(payload[k])) return rowsFromCsv(payload[k]); }
     if(payload.data && typeof payload.data==="object") return rowsFromPayload(payload.data);
-    const entries=Object.entries(payload).filter(([k,v])=>v && typeof v==="object" && !Array.isArray(v));
-    if(entries.length && entries.some(([k])=>/^[A-Z]{3}$/.test(k))) return entries.map(([code,obj])=>({codigo:code,...obj}));
+    if(payload.rates && typeof payload.rates==="object" && !Array.isArray(payload.rates)){
+      return Object.entries(payload.rates).map(([code,val])=>{
+        if(val && typeof val==="object") return {codigo:code,...val};
+        return {codigo:code,tipo_cambio:val};
+      });
+    }
+    const objEntries=Object.entries(payload).filter(([k,v])=>/^[A-Z]{3}$/i.test(k) && v && typeof v==="object" && !Array.isArray(v));
+    if(objEntries.length) return objEntries.map(([code,obj])=>({codigo:code,...obj}));
+    const numEntries=Object.entries(payload).filter(([k,v])=>/^[A-Z]{3}$/i.test(k) && Number.isFinite(toNum(v)));
+    if(numEntries.length) return numEntries.map(([code,val])=>({codigo:code,tipo_cambio:val}));
     return [];
   }
   function inferCode(row){
     const keys=Object.keys(row||{});
     const pick=(...names)=>{for(const n of names){const k=keys.find(x=>normText(x).replace(/[^A-Z0-9]/g,"")===normText(n).replace(/[^A-Z0-9]/g,"")); if(k && row[k]!=null && String(row[k]).trim()!=="") return String(row[k]).trim();} return "";};
     const direct=pick("codigo","cod_moneda","codmon","currency","ccy","moneda_codigo","cod","iso","currency_code","sigla");
-    const upper=normText(direct).replace(/[^A-Z]/g,""); if(/^[A-Z]{3}$/.test(upper)) return upper;
+    const upper=normText(direct).replace(/[^A-Z]/g,""); if(/^[A-Z]{3}$/.test(upper)) return upper==="CNY"?"CNH":upper;
     const source=`${normText(direct)} ${normText(keys.map(k=>row[k]).join(" "))}`;
     const compact=source.replace(/[^A-Z0-9]/g,"");
     if(/\bUSD\b/.test(source)||compact.includes("DOLARDENA")||compact.includes("DOLARESDENA")||compact.includes("DOLARNORTEAMERICANO")||compact.includes("DOLARESTADOUNIDENSE")||compact.includes("DOLARDELOSESTADOSUNIDOS")||compact.includes("UNITEDSTATESDOLLAR")||compact.includes("USDOLLAR")) return "USD";
     const aliases=[
-      ["EUR",/(^|\b)(EUR|EURO)(\b|$)/],["GBP",/(^|\b)(GBP|LIBRA|POUND|STERLING)(\b|$)/],["CNH",/(^|\b)(CNH|YUAN OFFSHORE|RENMINBI OFFSHORE)(\b|$)/],["CNY",/(^|\b)(CNY|YUAN|RENMINBI|CHINA)(\b|$)/],["JPY",/(^|\b)(JPY|YEN|JAPON)(\b|$)/],["CHF",/(^|\b)(CHF|FRANCO SUIZO|SWISS)(\b|$)/],["CAD",/(^|\b)(CAD|DOLAR CANADIENSE|CANADIAN|CANADIENSE)(\b|$)/],["AUD",/(^|\b)(AUD|DOLAR AUSTRALIANO|AUSTRALIAN|AUSTRALIANO)(\b|$)/],["NZD",/(^|\b)(NZD|DOLAR NEOZELANDES|NEW ZEALAND)(\b|$)/],["MXN",/(^|\b)(MXN|PESO MEXICANO|MEXICANO)(\b|$)/],["BRL",/(^|\b)(BRL|REAL BRASIL|BRAZIL)(\b|$)/],["CLP",/(^|\b)(CLP|PESO CHILENO|CHILE|CHILENO)(\b|$)/],["COP",/(^|\b)(COP|PESO COLOMBIANO|COLOMBIA|COLOMBIANO)(\b|$)/]
+      ["EUR",/(^|\b)(EUR|EURO)(\b|$)/],["GBP",/(^|\b)(GBP|LIBRA|POUND|STERLING)(\b|$)/],["CNH",/(^|\b)(CNH|YUAN OFFSHORE|RENMINBI OFFSHORE)(\b|$)/],["CNH",/(^|\b)(CNY|YUAN|RENMINBI|CHINA|YUAN CHINO)(\b|$)/],["JPY",/(^|\b)(JPY|YEN|JAPON)(\b|$)/],["CHF",/(^|\b)(CHF|FRANCO SUIZO|SWISS)(\b|$)/],["CAD",/(^|\b)(CAD|DOLAR CANADIENSE|CANADIAN|CANADIENSE)(\b|$)/],["AUD",/(^|\b)(AUD|DOLAR AUSTRALIANO|AUSTRALIAN|AUSTRALIANO)(\b|$)/],["NZD",/(^|\b)(NZD|DOLAR NEOZELANDES|NEW ZEALAND)(\b|$)/],["MXN",/(^|\b)(MXN|PESO MEXICANO|MEXICANO)(\b|$)/],["BRL",/(^|\b)(BRL|REAL BRASIL|BRAZIL)(\b|$)/],["CLP",/(^|\b)(CLP|PESO CHILENO|CHILE|CHILENO)(\b|$)/],["COP",/(^|\b)(COP|PESO COLOMBIANO|COLOMBIA|COLOMBIANO)(\b|$)/]
     ];
     for(const [code,re] of aliases){if(re.test(source)) return code;}
     const iso=source.match(/\b[A-Z]{3}\b/); return iso?iso[0]:"";
@@ -493,8 +517,7 @@
   function bind(){
     on("btnRefresh","click",()=>refresh(true));
     on("btnReloadHistory","click",()=>loadHistory(true));
-    on("btnCopy","click",async()=>{const text=[`TC Contable SBS · ${el("vFecha")?.textContent||"—"}`,`USDPEN ${el("kUsd")?.textContent||"—"}`,`EURUSD ${el("kEur")?.textContent||"—"}`,`GBPUSD ${el("kGbp")?.textContent||"—"}`,`CNHUSD ${el("kCnh")?.textContent||"—"}`,`JPYUSD ${el("kJpy")?.textContent||"—"}`].join("
-"); try{await navigator.clipboard.writeText(text); log("Resumen copiado");}catch(e){log("No se pudo copiar","warn");}});
+    on("btnCopy","click",async()=>{const text=[`TC Contable SBS · ${el("vFecha")?.textContent||"—"}`,`USDPEN ${el("kUsd")?.textContent||"—"}`,`EURUSD ${el("kEur")?.textContent||"—"}`,`GBPUSD ${el("kGbp")?.textContent||"—"}`,`CNHUSD ${el("kCnh")?.textContent||"—"}`,`JPYUSD ${el("kJpy")?.textContent||"—"}`].join("\n"); try{await navigator.clipboard.writeText(text); log("Resumen copiado");}catch(e){log("No se pudo copiar","warn");}});
     on("amount","input",renderConverter); on("fromCcy","change",renderConverter); on("toCcy","change",renderConverter);
     on("swapBtn","click",()=>{const a=el("fromCcy"),b=el("toCcy"); if(a&&b){[a.value,b.value]=[b.value,a.value]; renderConverter();}});
     on("trendCcy","change",e=>{state.trend=e.target.value; renderCharts(); renderQuickPairs();});
