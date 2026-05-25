@@ -1,122 +1,1002 @@
+
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SBS TC Contable - Descarga</title>
+  <title>SBS TC Contable · Treasury Hub</title>
   <style>
     :root{
-      --bg:#0b1220; --card:#121a2b; --line:#243657; --text:#eaf0ff; --muted:#8fa3c7;
-      --pri:#4f8cff; --pri2:#6a5cff; --ok:#2ecc71; --err:#e74c3c;
+      --navy:#051c2c;
+      --navy-2:#08263a;
+      --navy-3:#0b314b;
+      --ink:#0f172a;
+      --bg:#f4f7fb;
+      --panel:#ffffff;
+      --panel-2:#f8fafc;
+      --line:#dbe4ef;
+      --line-2:#c8d5e3;
+      --text:#102033;
+      --muted:#66788f;
+      --soft:#eef3f8;
+      --blue:#1f5eff;
+      --green:#168b5f;
+      --amber:#b7791f;
+      --red:#b42318;
+      --radius:5px;
+      --shadow:0 16px 34px rgba(5,28,44,.10);
     }
     *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
     body{
-      margin:0; font-family: Inter,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
-      background:linear-gradient(180deg,#0b1220,#0e1628 40%,#0b1220 100%);
-      min-height:100vh; display:grid; place-items:center; padding:20px;
+      margin:0;
+      min-height:100vh;
+      font-family:Manrope,Inter,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:var(--bg);
     }
-    .app{
-      width:min(920px,100%); background:var(--card); border:1px solid var(--line);
-      border-radius:18px; overflow:hidden; box-shadow:0 18px 52px rgba(0,0,0,.35);
+    button,input,select{font:inherit}
+    a{color:inherit;text-decoration:none}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+    .topbar{
+      background:var(--navy);
+      color:#fff;
+      border-bottom:4px solid #123d5c;
+      padding:13px 20px;
+      position:sticky;
+      top:0;
+      z-index:20;
     }
-    .head{padding:20px 22px; border-bottom:1px solid var(--line)}
-    h1{margin:0; font-size:1.2rem}
-    .sub{margin-top:8px; color:var(--muted); line-height:1.45}
-    .main{padding:18px 22px 24px; display:grid; gap:14px}
-    .card{
-      border:1px solid var(--line); border-radius:14px; padding:14px; background:rgba(255,255,255,.01);
+    .topbar-inner{
+      width:min(1440px,100%);
+      margin:0 auto;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
     }
-    .row{display:flex; gap:10px; flex-wrap:wrap}
-    button,a.btn{
-      border:0; border-radius:10px; padding:11px 14px; cursor:pointer; text-decoration:none;
-      color:#fff; font-weight:600; background:linear-gradient(135deg,var(--pri),var(--pri2));
-      box-shadow:0 8px 20px rgba(79,140,255,.33);
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .logo{
+      width:38px;height:38px;border-radius:var(--radius);
+      background:#fff;color:var(--navy);
+      display:grid;place-items:center;
+      font-weight:900;letter-spacing:-.06em;
+      box-shadow:inset 0 -4px 0 rgba(5,28,44,.12);
     }
-    button.secondary, a.btn.secondary{background:#1b2742; border:1px solid #30456d; box-shadow:none}
-    .kvs{display:grid; grid-template-columns:200px 1fr; gap:8px 10px; font-size:.95rem}
-    .k{color:var(--muted)}
+    .brand h1{margin:0;font-size:1.02rem;line-height:1.05;letter-spacing:-.02em}
+    .brand p{margin:3px 0 0;color:#9db6ca;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .status{
+      display:flex;align-items:center;gap:7px;
+      min-height:34px;padding:7px 10px;border-radius:var(--radius);
+      background:#092235;border:1px solid #17415f;color:#cfe7f8;
+      font-size:.82rem;font-weight:800;white-space:nowrap;
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:#8aa0b5}
+    .status.ok .dot{background:var(--green)}
+    .status.err .dot{background:var(--red)}
+    .btn,button{
+      min-height:34px;
+      border:1px solid transparent;
+      border-radius:var(--radius);
+      background:var(--blue);
+      color:#fff;
+      padding:8px 10px;
+      font-weight:800;
+      cursor:pointer;
+      display:inline-flex;align-items:center;justify-content:center;gap:7px;
+      transition:transform .12s ease,opacity .12s ease,background .12s ease;
+    }
+    .btn:hover,button:hover{transform:translateY(-1px)}
+    .btn:active,button:active{transform:translateY(0)}
+    .btn.secondary,button.secondary{background:#0d2e47;border-color:#1e506f;color:#e8f5ff}
+    .btn.light,button.light{background:#fff;color:var(--navy);border-color:#bfd0df}
+    .btn.ghost,button.ghost{background:transparent;color:#d5e6f5;border-color:#32536b}
+    .wrap{width:min(1440px,100%);margin:0 auto;padding:18px 20px 28px}
+    .control-strip{
+      display:grid;
+      grid-template-columns:minmax(280px,1fr) auto;
+      gap:12px;
+      align-items:stretch;
+      margin-bottom:14px;
+    }
+    .date-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-left:5px solid var(--navy);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:13px 14px;
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+    }
+    .date-main{display:grid;gap:2px;min-width:0}
+    .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:900}
+    .value{font-size:1.15rem;font-weight:900;letter-spacing:-.03em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .date-meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .chip{
+      border:1px solid var(--line);
+      background:var(--soft);
+      color:#375068;
+      border-radius:var(--radius);
+      padding:6px 8px;
+      font-size:.78rem;
+      font-weight:800;
+      white-space:nowrap;
+    }
+    .download-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:12px;
+      display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;
+    }
+    .kpi-grid{
+      display:grid;
+      grid-template-columns:repeat(6,minmax(0,1fr));
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .kpi{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:0 10px 22px rgba(5,28,44,.06);
+      padding:12px;
+      min-height:104px;
+      display:grid;
+      align-content:space-between;
+      position:relative;
+      overflow:hidden;
+    }
+    .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--navy)}
+    .kpi strong{font-size:1.58rem;letter-spacing:-.05em;line-height:1;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .kpi span{font-size:.76rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .kpi small{color:#50667d;font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dashboard{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 390px;
+      gap:14px;
+      align-items:start;
+    }
+    .stack{display:grid;gap:14px}
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panel-head{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      background:#fbfdff;
+    }
+    .panel-title{display:flex;align-items:center;gap:10px;min-width:0}
+    .bar-mark{width:5px;height:28px;background:var(--navy);border-radius:2px;flex:0 0 auto}
+    .panel h2{margin:0;font-size:.94rem;letter-spacing:-.01em;color:var(--text)}
+    .panel p{margin:2px 0 0;color:var(--muted);font-size:.78rem;font-weight:700}
+    .panel-body{padding:14px}
+    .chart-wrap{height:306px;position:relative;border:1px solid var(--line);background:#fff;border-radius:var(--radius);overflow:hidden}
+    .chart-wrap.compact{height:244px}
+    .chart-empty{
+      position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+      color:var(--muted);font-weight:800;font-size:.86rem;padding:20px;
+    }
+    svg{display:block;width:100%;height:100%}
+    .chart-axis{stroke:#d8e2ec;stroke-width:1}
+    .gridline{stroke:#edf2f7;stroke-width:1}
+    .line-main{fill:none;stroke:#051c2c;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+    .area-main{fill:#e8eff6}
+    .bar{fill:#0c314a}
+    .bar.alt{fill:#2f5f7d}
+    .point{fill:#051c2c;stroke:#fff;stroke-width:2}
+    .tick{fill:#6a7d90;font-size:10px;font-weight:700}
+    .chart-label{fill:#293d51;font-size:11px;font-weight:800}
+    .tabs{display:flex;gap:6px;flex-wrap:wrap}
+    .tab{
+      min-height:30px;padding:6px 8px;border-radius:var(--radius);
+      border:1px solid var(--line);background:#fff;color:#496177;
+      font-size:.78rem;font-weight:900;box-shadow:none;
+    }
+    .tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .tool-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+    select,input{
+      border:1px solid var(--line-2);
+      background:#fff;
+      border-radius:var(--radius);
+      color:var(--text);
+      padding:8px 9px;
+      min-height:34px;
+      outline:none;
+      font-weight:750;
+    }
+    input:focus,select:focus{border-color:#7599b8;box-shadow:0 0 0 3px rgba(5,28,44,.08)}
+    .converter{
+      display:grid;gap:10px;
+    }
+    .conv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .conv-grid input,.conv-grid select{width:100%}
+    .swapline{display:flex;gap:8px;align-items:center}
+    .swapline input{flex:1;width:100%}
+    .result-box{
+      border:1px solid var(--line);
+      border-left:4px solid var(--navy);
+      border-radius:var(--radius);
+      background:var(--panel-2);
+      padding:12px;
+    }
+    .result-box .big{font-size:1.55rem;font-weight:950;letter-spacing:-.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .result-box .sub{margin-top:4px;color:var(--muted);font-size:.8rem;font-weight:800}
+    .mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .mini{
+      border:1px solid var(--line);
+      background:var(--panel-2);
+      border-radius:var(--radius);
+      padding:10px;
+      min-height:72px;
+    }
+    .mini .m-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:900}
+    .mini .m-value{margin-top:6px;font-size:1.04rem;font-weight:950;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .table-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+    .search{min-width:240px;flex:1}
+    .table-wrap{max-height:370px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius)}
+    table{width:100%;border-collapse:separate;border-spacing:0;font-size:.86rem;background:#fff}
+    th,td{padding:10px 11px;text-align:left;border-bottom:1px solid #edf2f7;white-space:nowrap}
+    th{position:sticky;top:0;background:#f7fafc;color:#52687d;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;z-index:2}
+    td.code{font-weight:950;color:var(--navy)}
+    td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:850}
+    tbody tr:hover{background:#f8fbff}
+    .currency-pills{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .pill-card{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#fff;
+      padding:10px;
+      cursor:pointer;
+      transition:background .12s ease,border-color .12s ease;
+    }
+    .pill-card:hover{background:#f8fbff;border-color:#9db4c7}
+    .pill-card.active{background:#f0f5fa;border-color:#173e5b}
+    .pill-code{font-size:.78rem;color:var(--muted);font-weight:950;letter-spacing:.08em}
+    .pill-rate{margin-top:5px;font-size:1.02rem;font-weight:950;letter-spacing:-.03em}
     .log{
-      min-height:100px; max-height:260px; overflow:auto; white-space:pre-wrap;
-      border-radius:10px; border:1px dashed #315083; background:#0c1427;
-      padding:10px; font-family:ui-monospace,Consolas,monospace; font-size:.84rem;
+      font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+      font-size:.76rem;
+      color:#516a82;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:10px;
+      max-height:126px;
+      overflow:auto;
+      white-space:pre-wrap;
     }
-    .ok{color:var(--ok)} .err{color:var(--err)}
-    .small{font-size:.86rem;color:var(--muted)}
-    code{background:#0c1427;padding:1px 6px;border-radius:6px}
-    @media(max-width:800px){ .kvs{grid-template-columns:1fr} }
+    .footline{margin-top:14px;color:#6b7f93;font-size:.78rem;text-align:right;font-weight:750}
+    .hidden{display:none!important}
+    @media(max-width:1180px){
+      .kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .dashboard{grid-template-columns:1fr}
+    }
+    @media(max-width:760px){
+      .topbar{padding:10px 12px}
+      .topbar-inner{align-items:flex-start;flex-direction:column}
+      .top-actions{width:100%;justify-content:flex-start}
+      .wrap{padding:12px}
+      .control-strip{grid-template-columns:1fr}
+      .date-card{align-items:flex-start;flex-direction:column}
+      .date-meta{justify-content:flex-start}
+      .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .kpi{min-height:94px;padding:10px}
+      .kpi strong{font-size:1.25rem}
+      .panel-head{align-items:flex-start;flex-direction:column}
+      .tool-row{justify-content:flex-start;width:100%}
+      .chart-wrap{height:260px}
+      .chart-wrap.compact{height:220px}
+      .currency-pills{grid-template-columns:repeat(2,1fr)}
+      .conv-grid{grid-template-columns:1fr}
+      .download-card{justify-content:flex-start}
+      th,td{padding:8px}
+    }
   </style>
 </head>
 <body>
   <main class="app">
-    <section class="head">
-      <h1>SBS Tipo de Cambio Contable - Descargador estable (GitHub Actions)</h1>
-      <p class="sub">
-        Esta página no scrapea SBS desde tu navegador (evita CORS).
-        Lee archivos actualizados automáticamente por GitHub Actions en <code>data/</code>.
-      </p>
-    </section>
-    <section class="main">
-      <article class="card">
-        <div class="row">
-          <button id="btnRefresh">Actualizar estado</button>
-          <a id="btnCsv" class="btn" href="./data/tc_contable_latest.csv" download>Descargar CSV latest</a>
-          <a id="btnJson" class="btn secondary" href="./data/tc_contable_latest.json" download>Descargar JSON latest</a>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="logo">BIF</div>
+          <div>
+            <h1>TC Contable SBS</h1>
+            <p>Mercado de Capitales & Control de Gestión</p>
+          </div>
         </div>
-        <p class="small" style="margin-top:10px">
-          Si abres este HTML desde <code>file://</code>, el fetch puede fallar.
-          Úsalo en GitHub Pages.
-        </p>
-      </article>
+        <div class="top-actions">
+          <div id="vStatus" class="status"><span class="dot"></span><span>Consultando</span></div>
+          <button id="btnRefresh" class="light">Actualizar</button>
+          <button id="btnHistory" class="ghost">Histórico</button>
+        </div>
+      </div>
+    </header>
 
-      <article class="card">
-        <div class="kvs">
-          <div class="k">Fecha publicada SBS</div><div id="vFecha">—</div>
-          <div class="k">Generado (UTC)</div><div id="vGen">—</div>
-          <div class="k">Filas</div><div id="vRows">—</div>
-          <div class="k">Hash</div><div id="vHash">—</div>
-          <div class="k">Estado</div><div id="vStatus">—</div>
+    <section class="wrap">
+      <section class="control-strip">
+        <article class="date-card">
+          <div class="date-main">
+            <div class="label">Fecha SBS</div>
+            <div id="vFecha" class="value">—</div>
+          </div>
+          <div class="date-meta">
+            <span id="vGen" class="chip">UTC —</span>
+            <span id="vRows" class="chip">0 filas</span>
+            <span id="vHash" class="chip">hash —</span>
+          </div>
+        </article>
+        <article class="download-card">
+          <a id="btnCsv" class="btn" href="./data/tc_contable_latest.csv" download>CSV latest</a>
+          <a id="btnJson" class="btn secondary" href="./data/tc_contable_latest.json" download>JSON latest</a>
+          <button id="btnCopy" class="light">Copiar resumen</button>
+        </article>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="kpi"><span>USD/PEN</span><strong id="kUsd">—</strong><small id="kUsdSub">Dólar SBS</small></article>
+        <article class="kpi"><span>EUR/PEN</span><strong id="kEur">—</strong><small>Euro</small></article>
+        <article class="kpi"><span>GBP/PEN</span><strong id="kGbp">—</strong><small>Libra esterlina</small></article>
+        <article class="kpi"><span>CNH/PEN</span><strong id="kCnh">—</strong><small>Yuan offshore</small></article>
+        <article class="kpi"><span>JPY/PEN</span><strong id="kJpy">—</strong><small>Yen japonés</small></article>
+        <article class="kpi"><span>Cobertura</span><strong id="kCover">—</strong><small id="kCoverSub">monedas detectadas</small></article>
+      </section>
+
+      <section class="dashboard">
+        <div class="stack">
+          <article class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="bar-mark"></span><div><h2>Tendencia histórica</h2><p id="historySource">últimos archivos diarios detectados</p></div></div>
+              <div class="tool-row">
+                <select id="currencyTrend"></select>
+                <div class="tabs" id="rangeTabs">
+                  <button class="tab active" data-range="15">15D</button>
+                  <button class="tab" data-range="30">30D</button>
+                  <button class="tab" data-range="60">60D</button>
+                  <button class="tab" data-range="120">120D</button>
+                </div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="chart-wrap" id="trendChart"><div class="chart-empty">Cargando histórico…</div></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="bar-mark"></span><div><h2>Último corte: monedas principales</h2><p>comparativo PEN por moneda</p></div></div>
+              <div class="tabs" id="barTabs">
+                <button class="tab active" data-set="main">Core</button>
+                <button class="tab" data-set="top">Top</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="chart-wrap compact" id="barChart"><div class="chart-empty">Sin data latest</div></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="bar-mark"></span><div><h2>Tabla de tipos de cambio</h2><p>busca moneda, código o descripción</p></div></div>
+            </div>
+            <div class="panel-body">
+              <div class="table-tools">
+                <input id="searchBox" class="search" placeholder="Buscar: USD, euro, yen…" />
+                <span id="tableCount" class="chip">0 monedas</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Código</th><th>Moneda</th><th style="text-align:right">PEN</th><th style="text-align:right">Base</th></tr></thead>
+                  <tbody id="ratesTable"><tr><td colspan="4">Cargando…</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </article>
         </div>
-        <div id="log" class="log"></div>
-      </article>
+
+        <aside class="stack">
+          <article class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="bar-mark"></span><div><h2>Conversor</h2><p>PEN, USD, EUR, GBP, CNH, JPY</p></div></div>
+            </div>
+            <div class="panel-body converter">
+              <div class="conv-grid">
+                <input id="amount" type="number" inputmode="decimal" value="1000" min="0" step="0.01" />
+                <select id="fromCcy"></select>
+              </div>
+              <div class="swapline">
+                <button id="swapBtn" class="secondary" title="Invertir">⇄</button>
+                <select id="toCcy"></select>
+              </div>
+              <div class="result-box">
+                <div id="convResult" class="big">—</div>
+                <div id="convSub" class="sub">—</div>
+              </div>
+              <div class="currency-pills" id="currencyPills"></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="bar-mark"></span><div><h2>Estadísticas</h2><p>último corte y dispersión</p></div></div>
+            </div>
+            <div class="panel-body">
+              <div class="mini-stats">
+                <div class="mini"><div class="m-label">Mayor TC</div><div id="sMax" class="m-value">—</div></div>
+                <div class="mini"><div class="m-label">Menor TC</div><div id="sMin" class="m-value">—</div></div>
+                <div class="mini"><div class="m-label">Promedio</div><div id="sAvg" class="m-value">—</div></div>
+                <div class="mini"><div class="m-label">Mediana</div><div id="sMed" class="m-value">—</div></div>
+                <div class="mini"><div class="m-label">Histórico</div><div id="sHist" class="m-value">—</div></div>
+                <div class="mini"><div class="m-label">Última var.</div><div id="sVar" class="m-value">—</div></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="bar-mark"></span><div><h2>Monitor</h2><p>lectura de archivos</p></div></div>
+            </div>
+            <div class="panel-body">
+              <div id="log" class="log"></div>
+            </div>
+          </article>
+        </aside>
+      </section>
+      <div class="footline">Fuente local: <strong>./data/</strong> · Visualización no modifica el workflow</div>
     </section>
   </main>
 
 <script>
 (() => {
-  const logEl = document.getElementById("log");
-  const vFecha = document.getElementById("vFecha");
-  const vGen = document.getElementById("vGen");
-  const vRows = document.getElementById("vRows");
-  const vHash = document.getElementById("vHash");
-  const vStatus = document.getElementById("vStatus");
-  const btnRefresh = document.getElementById("btnRefresh");
+  const CORE = ["PEN","USD","EUR","GBP","CNH","CNY","JPY"];
+  const TREND_DEFAULT = "USD";
+  const CANDIDATE_MANIFESTS = [
+    "./data/tc_contable_history.json",
+    "./data/tc_contable_series.json",
+    "./data/tc_contable_index.json",
+    "./data/manifest.json",
+    "./data/index.json"
+  ];
+  const DAILY_PATTERNS = [
+    d => `./data/tc_contable_${d.ymd}.json`,
+    d => `./data/tc_contable_${d.compact}.json`,
+    d => `./data/${d.ymd}.json`,
+    d => `./data/${d.compact}.json`,
+    d => `./data/${d.ymd}/tc_contable.json`,
+    d => `./data/sbs_tc_contable_${d.ymd}.json`,
+    d => `./data/sbs_tc_contable_${d.compact}.json`
+  ];
 
-  function log(msg, isErr=false){
-    const t = new Date().toLocaleString("es-PE");
-    logEl.textContent = `[${t}] ${msg}\n` + logEl.textContent;
-    vStatus.innerHTML = isErr ? '<span class="err">❌ Error</span>' : '<span class="ok">✅ OK</span>';
+  const el = id => document.getElementById(id);
+  const state = {
+    meta:null,
+    latestRows:[],
+    rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),
+    history:[],
+    selectedTrend:TREND_DEFAULT,
+    range:15,
+    barSet:"main"
+  };
+
+  function setStatus(text, cls=""){
+    const box = el("vStatus");
+    box.className = `status ${cls}`.trim();
+    box.querySelector("span:last-child").textContent = text;
+  }
+  function log(msg, type="info"){
+    const t = new Date().toLocaleString("es-PE", {hour12:false});
+    el("log").textContent = `[${t}] ${type.toUpperCase()} · ${msg}\n` + el("log").textContent;
+  }
+  function fmtNumber(n, d=4){
+    if(!Number.isFinite(n)) return "—";
+    const abs = Math.abs(n);
+    const digits = abs >= 100 ? 3 : abs >= 10 ? 4 : d;
+    return new Intl.NumberFormat("es-PE",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(n);
+  }
+  function fmtMoney(n, ccy){
+    if(!Number.isFinite(n)) return "—";
+    return `${new Intl.NumberFormat("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)} ${ccy}`;
+  }
+  function compactHash(h){ return h ? String(h).slice(0,12) : "—"; }
+  function parseDate(value){
+    if(!value) return null;
+    if(value instanceof Date && !Number.isNaN(value.getTime())) return value;
+    const s = String(value).trim();
+    const iso = s.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+    if(iso) return new Date(+iso[1], +iso[2]-1, +iso[3]);
+    const latam = s.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+    if(latam) return new Date(+latam[3], +latam[2]-1, +latam[1]);
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  function dateKey(value){
+    const d = parseDate(value);
+    if(!d) return "";
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
+  }
+  function displayDate(value){
+    const d = parseDate(value);
+    if(!d) return value || "—";
+    return new Intl.DateTimeFormat("es-PE",{year:"numeric",month:"short",day:"2-digit"}).format(d);
+  }
+  function toNum(v){
+    if(typeof v === "number") return Number.isFinite(v) ? v : NaN;
+    if(v == null) return NaN;
+    let s = String(v).trim();
+    if(!s || s === "—") return NaN;
+    s = s.replace(/\s/g,"").replace(/[A-Za-z$€£¥]/g,"");
+    const comma = s.lastIndexOf(",");
+    const dot = s.lastIndexOf(".");
+    if(comma > dot){ s = s.replace(/\./g,"").replace(",","."); }
+    else { s = s.replace(/,/g,""); }
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  }
+  function normText(v){ return String(v ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().trim(); }
+  function inferCode(row){
+    const keys = Object.keys(row || {});
+    const pick = (...names) => {
+      for(const n of names){
+        const k = keys.find(x => normText(x).replace(/[^A-Z0-9]/g,"") === normText(n).replace(/[^A-Z0-9]/g,""));
+        if(k && row[k] != null && String(row[k]).trim() !== "") return String(row[k]).trim();
+      }
+      return "";
+    };
+    const direct = pick("codigo","cod_moneda","codmon","currency","ccy","moneda_codigo","cod","iso","currency_code","sigla");
+    const all = normText(keys.map(k => row[k]).join(" "));
+    const source = normText(direct) + " " + all;
+    const aliases = [
+      ["USD",/(^|\b)(USD|US\$|DOLAR|DOLARES|AMERICAN DOLLAR)(\b|$)/],
+      ["EUR",/(^|\b)(EUR|EURO)(\b|$)/],
+      ["GBP",/(^|\b)(GBP|LIBRA|POUND|STERLING)(\b|$)/],
+      ["CNH",/(^|\b)(CNH|YUAN OFFSHORE|RENMINBI OFFSHORE)(\b|$)/],
+      ["CNY",/(^|\b)(CNY|YUAN|RENMINBI|CHINA)(\b|$)/],
+      ["JPY",/(^|\b)(JPY|YEN|JAPON)(\b|$)/],
+      ["CHF",/(^|\b)(CHF|FRANCO SUIZO|SWISS)(\b|$)/],
+      ["CAD",/(^|\b)(CAD|CANADIENSE|CANADIAN)(\b|$)/],
+      ["AUD",/(^|\b)(AUD|AUSTRALIAN|AUSTRALIANO)(\b|$)/],
+      ["MXN",/(^|\b)(MXN|MEXICANO|MEXICAN)(\b|$)/],
+      ["BRL",/(^|\b)(BRL|REAL BRASIL|BRAZIL)(\b|$)/],
+      ["CLP",/(^|\b)(CLP|CHILE|CHILENO)(\b|$)/],
+      ["COP",/(^|\b)(COP|COLOMBIA|COLOMBIANO)(\b|$)/]
+    ];
+    const upperDirect = normText(direct).replace(/[^A-Z]/g,"");
+    if(/^[A-Z]{3}$/.test(upperDirect)) return upperDirect;
+    for(const [code, re] of aliases){ if(re.test(source)) return code; }
+    const isoLike = source.match(/\b[A-Z]{3}\b/);
+    return isoLike ? isoLike[0] : "";
+  }
+  function inferName(row, code){
+    const keys = Object.keys(row || {});
+    const nameKeys = ["moneda","descripcion","desc_moneda","nombre","currency_name","divisa","pais"];
+    for(const nk of nameKeys){
+      const k = keys.find(x => normText(x).replace(/[^A-Z0-9]/g,"") === normText(nk).replace(/[^A-Z0-9]/g,""));
+      if(k && row[k] != null && String(row[k]).trim() !== "") return String(row[k]).trim();
+    }
+    const fallback = {PEN:"Sol peruano",USD:"Dólar estadounidense",EUR:"Euro",GBP:"Libra esterlina",CNH:"Yuan offshore",CNY:"Yuan chino",JPY:"Yen japonés"};
+    return fallback[code] || code || "Moneda";
+  }
+  function inferRate(row){
+    const keys = Object.keys(row || {});
+    const exactNames = ["tipo_cambio","tc","t_c","t.c.","t.c. contable","tc_contable","tipo de cambio","tipo cambio contable","valor","rate","exchange_rate","venta","promedio","equivalencia","pen","soles"];
+    for(const name of exactNames){
+      const k = keys.find(x => normText(x).replace(/[^A-Z0-9]/g,"") === normText(name).replace(/[^A-Z0-9]/g,""));
+      if(k){ const n = toNum(row[k]); if(Number.isFinite(n) && n > 0) return n; }
+    }
+    const numericCandidates = keys
+      .map(k => [k, toNum(row[k])])
+      .filter(([k,n]) => Number.isFinite(n) && n > 0 && n < 100000)
+      .filter(([k]) => !/(fecha|date|codigo|cod|fila|row|id)/i.test(k));
+    if(!numericCandidates.length) return NaN;
+    numericCandidates.sort((a,b) => {
+      const score = k => /(cambio|contable|venta|rate|valor|equiv|tc)/i.test(k) ? 0 : 1;
+      return score(a[0]) - score(b[0]);
+    });
+    return numericCandidates[0][1];
+  }
+  function rowsFromPayload(payload){
+    if(Array.isArray(payload)) return payload;
+    if(!payload || typeof payload !== "object") return [];
+    const possible = ["rows","data","items","tasas","rates","tipos_cambio","monedas","records","latest"];
+    for(const k of possible){ if(Array.isArray(payload[k])) return payload[k]; }
+    if(payload.data && typeof payload.data === "object") return rowsFromPayload(payload.data);
+    const entries = Object.entries(payload).filter(([k,v]) => v && typeof v === "object" && !Array.isArray(v));
+    if(entries.length && entries.some(([k]) => /^[A-Z]{3}$/.test(k))){
+      return entries.map(([code,obj]) => ({codigo:code, ...obj}));
+    }
+    return [];
+  }
+  function normalizeRates(payload){
+    const rows = rowsFromPayload(payload);
+    const map = new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]);
+    for(const row of rows){
+      if(!row || typeof row !== "object") continue;
+      const code = inferCode(row);
+      const rate = inferRate(row);
+      if(!code || !Number.isFinite(rate) || rate <= 0) continue;
+      const baseRaw = row.base || row.unidad || row.factor || row.cantidad || row.units || 1;
+      const base = Number.isFinite(toNum(baseRaw)) && toNum(baseRaw)>0 ? toNum(baseRaw) : 1;
+      map.set(code, {code, name:inferName(row, code), rate:rate/base, base, raw:row});
+    }
+    return {rows, map};
+  }
+  function getRate(code){
+    if(code === "PEN") return 1;
+    if(code === "CNH" && !state.rates.has("CNH") && state.rates.has("CNY")) return state.rates.get("CNY").rate;
+    return state.rates.get(code)?.rate ?? NaN;
+  }
+  async function fetchJSON(url){
+    const r = await fetch(url + (url.includes("?") ? "&" : "?") + "ts=" + Date.now(), {cache:"no-store"});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
   }
 
-  async function refresh(){
-    vStatus.textContent = "Consultando...";
-    try{
-      const r = await fetch("./data/tc_contable_meta.json?ts=" + Date.now(), {cache: "no-store"});
-      if(!r.ok) throw new Error("HTTP " + r.status);
-      const m = await r.json();
+  async function loadMeta(){
+    const m = await fetchJSON("./data/tc_contable_meta.json");
+    state.meta = m;
+    el("vFecha").textContent = displayDate(m.fecha_publicada || m.fecha || m.date);
+    el("vGen").textContent = "UTC " + (m.generado_utc || m.generated_utc || "—");
+    el("vRows").textContent = `${Number.isFinite(m.rows) ? m.rows : "—"} filas`;
+    el("vHash").textContent = `hash ${compactHash(m.hash)}`;
+    return m;
+  }
+  async function loadLatest(){
+    const payload = await fetchJSON("./data/tc_contable_latest.json");
+    const {rows,map} = normalizeRates(payload);
+    state.latestRows = rows;
+    state.rates = map;
+    return {rows,map};
+  }
+  function renderKpis(){
+    el("kUsd").textContent = fmtNumber(getRate("USD"));
+    el("kEur").textContent = fmtNumber(getRate("EUR"));
+    el("kGbp").textContent = fmtNumber(getRate("GBP"));
+    el("kCnh").textContent = fmtNumber(getRate("CNH"));
+    el("kJpy").textContent = fmtNumber(getRate("JPY"),6);
+    const valid = [...state.rates.values()].filter(x => x.code !== "PEN" && Number.isFinite(x.rate));
+    el("kCover").textContent = valid.length || "—";
+    el("kCoverSub").textContent = `${valid.length} monedas detectadas`;
+    el("kUsdSub").textContent = state.rates.has("USD") ? state.rates.get("USD").name : "Dólar SBS";
 
-      vFecha.textContent = m.fecha_publicada || "—";
-      vGen.textContent = m.generado_utc || "—";
-      vRows.textContent = Number.isFinite(m.rows) ? String(m.rows) : "—";
-      vHash.textContent = m.hash || "—";
-      log(`Meta cargada. Fecha SBS: ${m.fecha_publicada || "n/d"} | Filas: ${m.rows ?? "n/d"}`);
+    const rates = valid.map(x => x.rate).sort((a,b)=>a-b);
+    const max = valid.reduce((a,b)=> !a || b.rate>a.rate ? b : a, null);
+    const min = valid.reduce((a,b)=> !a || b.rate<a.rate ? b : a, null);
+    const avg = rates.length ? rates.reduce((a,b)=>a+b,0)/rates.length : NaN;
+    const med = rates.length ? (rates[Math.floor((rates.length-1)/2)] + rates[Math.ceil((rates.length-1)/2)]) / 2 : NaN;
+    el("sMax").textContent = max ? `${max.code} ${fmtNumber(max.rate)}` : "—";
+    el("sMin").textContent = min ? `${min.code} ${fmtNumber(min.rate,6)}` : "—";
+    el("sAvg").textContent = fmtNumber(avg);
+    el("sMed").textContent = fmtNumber(med);
+  }
+  function populateSelectors(){
+    const codes = ["PEN", ...CORE.filter(c => c !== "PEN" && (state.rates.has(c) || (c === "CNH" && state.rates.has("CNY"))))];
+    const all = [...state.rates.keys()].filter(c => !codes.includes(c)).sort();
+    const finalCodes = [...codes, ...all];
+    for(const id of ["fromCcy","toCcy","currencyTrend"]){
+      const select = el(id);
+      const prev = select.value;
+      select.innerHTML = finalCodes.map(c => `<option value="${c}">${c}</option>`).join("");
+      if(id === "fromCcy") select.value = prev || "USD";
+      if(id === "toCcy") select.value = prev || "PEN";
+      if(id === "currencyTrend") select.value = prev || (state.rates.has(TREND_DEFAULT) ? TREND_DEFAULT : finalCodes[1] || "PEN");
+    }
+    state.selectedTrend = el("currencyTrend").value;
+  }
+  function renderConverter(){
+    const amt = toNum(el("amount").value);
+    const from = el("fromCcy").value;
+    const to = el("toCcy").value;
+    const rf = getRate(from);
+    const rt = getRate(to);
+    if(!Number.isFinite(amt) || !Number.isFinite(rf) || !Number.isFinite(rt)){
+      el("convResult").textContent = "—";
+      el("convSub").textContent = "Falta tasa para una de las monedas";
+      return;
+    }
+    const pen = amt * rf;
+    const converted = pen / rt;
+    el("convResult").textContent = fmtMoney(converted, to);
+    el("convSub").textContent = `${fmtMoney(amt, from)} · PEN base ${fmtNumber(pen,2)}`;
+    renderPills();
+  }
+  function renderPills(){
+    const target = el("toCcy").value || "PEN";
+    const amt = toNum(el("amount").value) || 1;
+    const from = el("fromCcy").value || "USD";
+    const rf = getRate(from);
+    const html = ["PEN","USD","EUR","GBP","CNH","JPY"].map(code => {
+      const r = getRate(code);
+      const val = Number.isFinite(rf) && Number.isFinite(r) ? (amt*rf)/r : NaN;
+      return `<div class="pill-card ${code===target?"active":""}" data-code="${code}"><div class="pill-code">${code}</div><div class="pill-rate">${fmtNumber(val, code==="JPY"?2:2)}</div></div>`;
+    }).join("");
+    el("currencyPills").innerHTML = html;
+    el("currencyPills").querySelectorAll(".pill-card").forEach(card => card.addEventListener("click", () => {
+      el("toCcy").value = card.dataset.code;
+      renderConverter();
+    }));
+  }
+  function renderTable(){
+    const q = normText(el("searchBox").value);
+    const rows = [...state.rates.values()]
+      .filter(x => x.code !== "PEN")
+      .sort((a,b) => CORE.indexOf(a.code) !== -1 && CORE.indexOf(b.code) === -1 ? -1 : CORE.indexOf(b.code) !== -1 && CORE.indexOf(a.code) === -1 ? 1 : a.code.localeCompare(b.code));
+    const filtered = rows.filter(x => !q || normText(`${x.code} ${x.name}`).includes(q));
+    el("tableCount").textContent = `${filtered.length} monedas`;
+    el("ratesTable").innerHTML = filtered.length ? filtered.map(x => `
+      <tr>
+        <td class="code">${x.code}</td>
+        <td>${x.name}</td>
+        <td class="num">${fmtNumber(x.rate, x.rate<0.1?6:4)}</td>
+        <td class="num">${x.base || 1}</td>
+      </tr>`).join("") : `<tr><td colspan="4">Sin resultados</td></tr>`;
+  }
+  function chartScales(values, width, height, pad){
+    const xs = values.map((_,i) => values.length === 1 ? pad.l + (width-pad.l-pad.r)/2 : pad.l + i*((width-pad.l-pad.r)/(values.length-1)));
+    let min = Math.min(...values), max = Math.max(...values);
+    if(!Number.isFinite(min) || !Number.isFinite(max)){ min=0; max=1; }
+    if(min === max){ min = min * .995; max = max * 1.005; if(min===max){min-=1;max+=1;} }
+    const span = max-min;
+    min -= span*.08; max += span*.08;
+    const y = v => pad.t + (max-v)/(max-min)*(height-pad.t-pad.b);
+    return {xs,y,min,max};
+  }
+  function renderTrendChart(){
+    const container = el("trendChart");
+    const ccy = state.selectedTrend;
+    const hist = state.history
+      .filter(x => x.rates && Number.isFinite(x.rates[ccy]))
+      .sort((a,b)=>dateKey(a.date).localeCompare(dateKey(b.date)))
+      .slice(-state.range);
+    el("sHist").textContent = state.history.length ? `${state.history.length} días` : "—";
+    if(hist.length < 2){
+      container.innerHTML = `<div class="chart-empty">No hay histórico suficiente para ${ccy}. Carga manifest o archivos diarios en data/.</div>`;
+      el("sVar").textContent = "—";
+      return;
+    }
+    const values = hist.map(x => x.rates[ccy]);
+    const last = values[values.length-1], prev = values[values.length-2];
+    const variation = ((last/prev)-1)*100;
+    el("sVar").textContent = `${variation>=0?"+":""}${fmtNumber(variation,2)}%`;
+    const W = 920, H = 300, pad = {l:58,r:20,t:24,b:38};
+    const {xs,y,min,max} = chartScales(values,W,H,pad);
+    const pts = values.map((v,i)=>`${xs[i]},${y(v)}`).join(" ");
+    const area = `${pad.l},${H-pad.b} ${pts} ${xs[xs.length-1]},${H-pad.b}`;
+    const ticks = [0,.25,.5,.75,1].map(p => min + (max-min)*p);
+    const xLabels = hist.map((h,i)=>({i,date:dateKey(h.date)})).filter((_,i,arr)=> i===0 || i===arr.length-1 || i===Math.floor(arr.length/2));
+    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tendencia ${ccy}">
+      ${ticks.map(t => `<line class="gridline" x1="${pad.l}" x2="${W-pad.r}" y1="${y(t)}" y2="${y(t)}"></line><text class="tick" x="12" y="${y(t)+4}">${fmtNumber(t, ccy==="JPY"?6:4)}</text>`).join("")}
+      <line class="chart-axis" x1="${pad.l}" x2="${W-pad.r}" y1="${H-pad.b}" y2="${H-pad.b}"></line>
+      <polygon class="area-main" points="${area}"></polygon>
+      <polyline class="line-main" points="${pts}"></polyline>
+      ${values.map((v,i)=> i===values.length-1 ? `<circle class="point" cx="${xs[i]}" cy="${y(v)}" r="4"></circle><text class="chart-label" x="${Math.max(pad.l, xs[i]-72)}" y="${Math.max(16,y(v)-12)}">${ccy} ${fmtNumber(v, ccy==="JPY"?6:4)}</text>` : "").join("")}
+      ${xLabels.map(x => `<text class="tick" text-anchor="middle" x="${xs[x.i]}" y="${H-13}">${x.date.slice(5)}</text>`).join("")}
+    </svg>`;
+  }
+  function renderBarChart(){
+    const container = el("barChart");
+    let rows = [...state.rates.values()].filter(x => x.code !== "PEN" && Number.isFinite(x.rate));
+    if(state.barSet === "main") rows = ["USD","EUR","GBP","CNH","JPY"].map(c => state.rates.get(c) || (c==="CNH"?state.rates.get("CNY"):null)).filter(Boolean);
+    else rows = rows.sort((a,b)=>b.rate-a.rate).slice(0,8);
+    if(!rows.length){ container.innerHTML = `<div class="chart-empty">Sin tasas disponibles</div>`; return; }
+    const W = 920, H = 244, pad = {l:48,r:20,t:18,b:44};
+    const max = Math.max(...rows.map(x=>x.rate))*1.12;
+    const bw = (W-pad.l-pad.r)/rows.length*.62;
+    const gap = (W-pad.l-pad.r)/rows.length;
+    const y = v => pad.t + (max-v)/max*(H-pad.t-pad.b);
+    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Barras TC">
+      ${[0,.25,.5,.75,1].map(p => `<line class="gridline" x1="${pad.l}" x2="${W-pad.r}" y1="${y(max*p)}" y2="${y(max*p)}"></line>`).join("")}
+      <line class="chart-axis" x1="${pad.l}" x2="${W-pad.r}" y1="${H-pad.b}" y2="${H-pad.b}"></line>
+      ${rows.map((r,i)=>{
+        const x = pad.l + i*gap + (gap-bw)/2;
+        const h = H-pad.b-y(r.rate);
+        return `<rect class="bar ${i%2?"alt":""}" x="${x}" y="${y(r.rate)}" width="${bw}" height="${h}" rx="3"></rect>
+          <text class="chart-label" text-anchor="middle" x="${x+bw/2}" y="${Math.max(13,y(r.rate)-6)}">${fmtNumber(r.rate,r.rate<0.1?5:3)}</text>
+          <text class="tick" text-anchor="middle" x="${x+bw/2}" y="${H-16}">${r.code}</text>`;
+      }).join("")}
+    </svg>`;
+  }
+  function extractSnapshot(payload, fallbackDate){
+    const {map} = normalizeRates(payload);
+    const rates = {};
+    for(const [code,obj] of map) if(code !== "PEN") rates[code] = obj.rate;
+    const date = payload?.fecha_publicada || payload?.fecha || payload?.date || payload?.generated_at || fallbackDate;
+    return Object.keys(rates).length ? {date:dateKey(date) || fallbackDate, rates} : null;
+  }
+  function snapshotFromEmbedded(item){
+    if(!item || typeof item !== "object") return null;
+    if(item.rates && typeof item.rates === "object"){
+      const rates = {};
+      for(const [k,v] of Object.entries(item.rates)){ const n = toNum(v?.rate ?? v); if(Number.isFinite(n)) rates[k.toUpperCase()] = n; }
+      return Object.keys(rates).length ? {date:dateKey(item.date || item.fecha || item.fecha_publicada), rates} : null;
+    }
+    const snap = extractSnapshot(item, item.date || item.fecha || item.fecha_publicada);
+    return snap;
+  }
+  function urlsFromManifest(payload){
+    const files = [];
+    const add = x => {
+      if(!x) return;
+      if(typeof x === "string") files.push(x);
+      else if(typeof x === "object"){
+        const embedded = snapshotFromEmbedded(x);
+        if(embedded && embedded.date) files.push({embedded});
+        else files.push(x.url || x.path || x.file || x.filename || x.href || "");
+      }
+    };
+    if(Array.isArray(payload)) payload.forEach(add);
+    else if(payload && typeof payload === "object"){
+      ["files","history","snapshots","items","data"].forEach(k => Array.isArray(payload[k]) && payload[k].forEach(add));
+      const embedded = snapshotFromEmbedded(payload);
+      if(embedded && embedded.date) files.push({embedded});
+    }
+    return files.filter(Boolean).map(f => {
+      if(typeof f === "object" && f.embedded) return f;
+      const s = String(f);
+      if(/^https?:\/\//i.test(s) || s.startsWith("./")) return s;
+      return "./data/" + s.replace(/^data\//,"");
+    });
+  }
+  async function loadHistoryFromManifest(){
+    for(const url of CANDIDATE_MANIFESTS){
+      try{
+        const payload = await fetchJSON(url);
+        const files = urlsFromManifest(payload);
+        const embedded = files.filter(x => typeof x === "object" && x.embedded).map(x => x.embedded);
+        const urls = files.filter(x => typeof x === "string");
+        const snaps = [...embedded];
+        const picked = urls.slice(-160);
+        for(const f of picked){
+          try{
+            const p = await fetchJSON(f);
+            const snap = extractSnapshot(p, dateKey(f));
+            if(snap) snaps.push(snap);
+          }catch(_e){}
+        }
+        if(snaps.length){
+          log(`Histórico cargado desde ${url}: ${snaps.length} cortes`);
+          el("historySource").textContent = `${snaps.length} archivos detectados vía manifest`;
+          return snaps;
+        }
+      }catch(_e){}
+    }
+    return [];
+  }
+  function datePartsFrom(baseDate, daysBack){
+    const base = parseDate(baseDate) || new Date();
+    const arr = [];
+    for(let i=0;i<daysBack;i++){
+      const d = new Date(base);
+      d.setDate(base.getDate()-i);
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      arr.push({ymd:`${y}-${m}-${day}`, compact:`${y}${m}${day}`});
+    }
+    return arr.reverse();
+  }
+  async function loadHistoryByDateProbe(){
+    const base = state.meta?.fecha_publicada || state.meta?.fecha || new Date();
+    const dates = datePartsFrom(base, 75);
+    const snaps = [];
+    for(const d of dates){
+      for(const pat of DAILY_PATTERNS){
+        const url = pat(d);
+        try{
+          const p = await fetchJSON(url);
+          const snap = extractSnapshot(p, d.ymd);
+          if(snap){ snaps.push(snap); break; }
+        }catch(_e){}
+      }
+    }
+    if(snaps.length){
+      log(`Histórico detectado por fecha: ${snaps.length} cortes`);
+      el("historySource").textContent = `${snaps.length} archivos diarios detectados`;
+    }
+    return snaps;
+  }
+  function mergeHistory(snaps){
+    const byDate = new Map();
+    for(const s of snaps){
+      const dk = dateKey(s.date);
+      if(!dk) continue;
+      byDate.set(dk, {...s, date:dk});
+    }
+    const latestDate = dateKey(state.meta?.fecha_publicada || state.meta?.fecha || new Date());
+    const latestRates = {};
+    for(const [code,obj] of state.rates) if(code !== "PEN") latestRates[code] = obj.rate;
+    if(Object.keys(latestRates).length) byDate.set(latestDate, {date:latestDate, rates:latestRates});
+    return [...byDate.values()].sort((a,b)=>a.date.localeCompare(b.date));
+  }
+  async function loadHistory(){
+    setStatus("Cargando histórico", "");
+    let snaps = await loadHistoryFromManifest();
+    if(!snaps.length) snaps = await loadHistoryByDateProbe();
+    state.history = mergeHistory(snaps);
+    if(!state.history.length) log("No se encontraron archivos históricos. Se mostrará solo latest.", "warn");
+    renderTrendChart();
+  }
+  function bindEvents(){
+    el("btnRefresh").addEventListener("click", refresh);
+    el("btnHistory").addEventListener("click", loadHistory);
+    el("amount").addEventListener("input", renderConverter);
+    el("fromCcy").addEventListener("change", renderConverter);
+    el("toCcy").addEventListener("change", renderConverter);
+    el("currencyTrend").addEventListener("change", e => {state.selectedTrend=e.target.value; renderTrendChart();});
+    el("swapBtn").addEventListener("click", () => {
+      const a = el("fromCcy"), b = el("toCcy");
+      [a.value,b.value] = [b.value,a.value];
+      renderConverter();
+    });
+    el("searchBox").addEventListener("input", renderTable);
+    el("rangeTabs").querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
+      el("rangeTabs").querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      state.range = Number(btn.dataset.range);
+      renderTrendChart();
+    }));
+    el("barTabs").querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
+      el("barTabs").querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      state.barSet = btn.dataset.set;
+      renderBarChart();
+    }));
+    el("btnCopy").addEventListener("click", async () => {
+      const txt = [
+        `TC Contable SBS · ${el("vFecha").textContent}`,
+        `USD/PEN: ${el("kUsd").textContent}`,
+        `EUR/PEN: ${el("kEur").textContent}`,
+        `GBP/PEN: ${el("kGbp").textContent}`,
+        `CNH/PEN: ${el("kCnh").textContent}`,
+        `JPY/PEN: ${el("kJpy").textContent}`,
+        `Cobertura: ${el("kCoverSub").textContent}`
+      ].join("\n");
+      try{ await navigator.clipboard.writeText(txt); log("Resumen copiado al portapapeles"); }catch(e){ log("No se pudo copiar el resumen", "warn"); }
+    });
+  }
+  function renderAll(){
+    renderKpis();
+    populateSelectors();
+    renderConverter();
+    renderTable();
+    renderBarChart();
+    renderTrendChart();
+  }
+  async function refresh(){
+    setStatus("Consultando", "");
+    try{
+      const m = await loadMeta();
+      log(`Meta OK · Fecha ${m.fecha_publicada || m.fecha || "n/d"}`);
+      try{
+        await loadLatest();
+        log(`Latest OK · ${state.rates.size-1} monedas detectadas`);
+      }catch(e){
+        log(`No se pudo leer latest JSON: ${e.message || e}`, "warn");
+      }
+      renderAll();
+      setStatus("Actualizado", "ok");
+      loadHistory();
     }catch(e){
-      vStatus.innerHTML = '<span class="err">❌ Error</span>';
-      log("No se pudo leer ./data/tc_contable_meta.json. Verifica que Actions ya ejecutó al menos una vez.", true);
-      log("Detalle: " + (e.message || e), true);
+      setStatus("Error", "err");
+      log(`No se pudo leer ./data/tc_contable_meta.json · ${e.message || e}`, "error");
+      try{
+        await loadLatest();
+        renderAll();
+        setStatus("Latest cargado", "ok");
+      }catch(_e){}
     }
   }
 
-  btnRefresh.addEventListener("click", refresh);
+  bindEvents();
   refresh();
 })();
 </script>
