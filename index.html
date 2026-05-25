@@ -664,20 +664,132 @@
     @media(max-width:380px){.fx-card{min-height:96px}.fx-card .kpi-inner{min-height:96px}.fx-card .kpi-back{padding:13px 7px 6px;gap:4px}.flip-rates{gap:3px}.flip-row{font-size:.44rem;min-height:26px;padding:3px}.flip-row b{font-size:.52rem}.flip-title{font-size:.48rem;margin-bottom:3px}}
 
 
-    /* V39: CHF en conversor y Formas TC 2 columnas en móvil sin cambiar altura */
+    /* V36: botones estandarizados + footer visual */
+    .top-actions .btn,
+    .top-actions button{
+      background:#0b324e!important;
+      color:#eaf7ff!important;
+      border-color:#1e5a80!important;
+      box-shadow:none!important;
+    }
+    .top-actions .btn:hover,
+    .top-actions button:hover{
+      background:#0f3e5f!important;
+      border-color:#2b6e98!important;
+      filter:none!important;
+    }
+    .top-actions .btn:active,
+    .top-actions button:active{
+      background:#08283f!important;
+    }
+    :root[data-theme="dark"] .top-actions .btn,
+    :root[data-theme="dark"] .top-actions button{
+      background:#102f47!important;
+      color:#eaf7ff!important;
+      border-color:#2b5570!important;
+    }
+    :root[data-theme="dark"] .top-actions .btn:hover,
+    :root[data-theme="dark"] .top-actions button:hover{
+      background:#163c59!important;
+      border-color:#3b7192!important;
+    }
+    .date-nav,
+    .date-today,
+    #swapBtn,
+    #btnZoomReset{
+      background:var(--panel2)!important;
+      color:var(--ink)!important;
+      border-color:var(--line2)!important;
+      box-shadow:none!important;
+    }
+    .date-nav:hover,
+    .date-today:hover,
+    #swapBtn:hover,
+    #btnZoomReset:hover{
+      background:var(--soft)!important;
+      border-color:#9fb8cb!important;
+      filter:none!important;
+    }
+    .site-footer{
+      min-height:82px;
+      margin-top:16px;
+      background:var(--navy);
+      border-top:4px solid #125078;
+      box-shadow:0 -10px 24px rgba(5,28,44,.06);
+    }
+    :root[data-theme="dark"] .site-footer{
+      border-top-color:#1f5b7e;
+      box-shadow:0 -10px 24px rgba(0,0,0,.22);
+    }
+    .site-footer-inner{
+      width:min(1500px,100%);
+      min-height:82px;
+      margin:0 auto;
+      padding:18px;
+    }
     @media(max-width:760px){
-      .fx-card .kpi-back{padding-top:13px!important;}
-      .flip-rates{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:3px!important;}
-      .flip-row{min-height:25px!important;padding:3px 4px!important;}
-      .flip-row span{font-size:.50rem!important;letter-spacing:.025em!important;}
-      .flip-row b{font-size:.56rem!important;}
+      .site-footer{min-height:74px;margin-top:12px;border-top-width:3px}
+      .site-footer-inner{min-height:74px;padding:14px 12px}
+    }
+
+
+
+    /* V37: autoactualización robusta */
+    #btnRefresh.is-loading i{animation:tcSpin .85s linear infinite}
+    @keyframes tcSpin{to{transform:rotate(360deg)}}
+
+
+
+    /* V38: status completo en móvil, sin recorte de hora */
+    .top-actions .status{min-width:166px;justify-content:flex-start}
+    .top-actions .status span:last-child{max-width:none!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important}
+    @media(max-width:760px){.top-actions .status{min-width:172px!important;flex:0 0 auto!important}.top-actions{scrollbar-width:thin}}
+    @media(max-width:380px){.top-actions .status{min-width:166px!important;font-size:.74rem!important;padding-inline:8px!important}}
+
+
+    /* V38 patch: CHF en conversor + FORMAS TC 2 por fila en móvil sin cambiar alto */
+    @media(max-width:760px){
+      .fx-card .kpi-back{
+        padding:13px 8px 6px!important;
+        gap:3px!important;
+      }
+      .flip-rates{
+        grid-template-columns:repeat(2,minmax(0,1fr))!important;
+        gap:3px!important;
+      }
+      .flip-row{
+        min-height:23px!important;
+        padding:2px 4px!important;
+        font-size:.50rem!important;
+        line-height:1!important;
+      }
+      .flip-row span{
+        font-size:.50rem!important;
+        letter-spacing:.025em!important;
+      }
+      .flip-row b{
+        font-size:.55rem!important;
+      }
+      .flip-title{
+        margin-bottom:3px!important;
+      }
     }
     @media(max-width:380px){
-      .flip-rates{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
-      .flip-row{min-height:24px!important;padding:3px!important;}
-      .flip-row span{font-size:.48rem!important;}
-      .flip-row b{font-size:.52rem!important;}
+      .fx-card .kpi-back{
+        padding:12px 7px 5px!important;
+      }
+      .flip-row{
+        min-height:22px!important;
+        padding:2px 3px!important;
+      }
+      .flip-row span{
+        font-size:.48rem!important;
+      }
+      .flip-row b{
+        font-size:.52rem!important;
+      }
     }
+
 </style>
 </head>
 <body>
@@ -730,7 +842,7 @@
       <section class="chart-row">
         <article class="panel">
           <div class="panel-head">
-            <div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia <span class="sep">|</span> <span class="history-word">Histórico</span></h2><p id="historySource">histórico</p></div></div>
+            <div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia</h2><p id="historySource">Histórico desde —</p></div></div>
             <div class="tools"><div id="trendQuick" class="trend-quick"></div><select id="trendOther" class="trend-other"></select><select id="trendCcy" class="trend-mobile"></select><div class="tabs" id="rangeTabs"><button class="tab" data-range="15">15D</button><button class="tab active" data-range="30">30D</button><button class="tab" data-range="60">60D</button><button class="tab" data-range="120">120D</button></div></div>
           </div>
           <div class="panel-body"><div id="trendLegend" class="chart-legend"></div><div id="trendChart" class="chart"></div></div>
@@ -766,12 +878,15 @@
         </article>
       </section>
     </section>
+    <footer class="site-footer" aria-label="Footer">
+      <div class="site-footer-inner"></div>
+    </footer>
     <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
   </main>
 
 <script>
 (() => {
-  const CORE = ["USD","EUR","GBP","CNH","JPY","CHF"];
+  const CORE = ["USD","EUR","GBP","CNH","JPY"];
   const CACHE_KEY = "sbs_tc_history_v27_conventions";
   const HISTORY_JSON_URL = "./data/tc_contable_history.json";
   const HISTORY_CSV_URL = "./data/tc_contable_history.csv";
@@ -850,6 +965,14 @@
     const vf=el("vFecha"); if(vf) vf.textContent=selected && selected!==latest ? `Vista: ${displayDate(selected)}` : "Última disponible";
     const dp=el("datePicker"); if(dp && selected) dp.value=selected;
     const dpl=el("datePickerLabel"); if(dpl) dpl.textContent=selected?displayDate(selected):"Seleccionar fecha";
+  }
+  function historyStartLabel(){
+    const dates = state.history.map(s=>dateKey(s.date)).filter(Boolean).sort();
+    return dates.length ? `Histórico desde ${displayDate(dates[0])}` : "Histórico desde —";
+  }
+  function updateHistorySubtitle(){
+    const node = el("historySource");
+    if(node) node.textContent = historyStartLabel();
   }
   function setDatePickerBounds(){
     const dp=el("datePicker"); if(!dp) return;
@@ -1206,7 +1329,7 @@
       if(c?.history?.length){
         state.history=mergeHistory(c.history);
         state.cacheAge=Date.now()-(c.savedAt||0);
-        el("historySource").textContent="histórico";
+        updateHistorySubtitle();
         setDatePickerBounds();
         renderCharts();
         return true;
@@ -1229,7 +1352,7 @@
       const snaps=await loadHistoryConsolidated({fresh:force});
       state.history=mergeHistory(snaps);
       saveCache();
-      el("historySource").textContent="histórico";
+      updateHistorySubtitle();
       setDatePickerBounds();
       if(state.selectedDate && state.selectedDate!==state.latestDate){
         const snap=findSnapshotByDate(state.selectedDate);
@@ -1242,7 +1365,7 @@
     }catch(e){
       log(`Histórico consolidado no disponible: ${e.message||e}`,"warn");
       const usedCache=loadCache();
-      el("historySource").textContent=usedCache?"histórico":"histórico no disponible";
+      updateHistorySubtitle();
       setStatus(usedCache?"Actualizado":"Sin histórico",usedCache?"ok":"warn");
       renderStatic();
       renderDeltas();
@@ -1382,15 +1505,30 @@
     if(!Number.isFinite(n)) return "";
     return new Intl.NumberFormat("en-US",{minimumFractionDigits:0,maximumFractionDigits:2}).format(n);
   }
+  function parseAmountInput(v){
+    if(typeof v === "number") return Number.isFinite(v) ? v : NaN;
+    let s = String(v ?? "").trim();
+    if(!s) return NaN;
+    s = s.replace(/[^0-9.,-]/g, "");
+    // El conversor usa coma como separador de miles y punto como decimal.
+    // Ej.: 2,954 -> 2954; 25,000.50 -> 25000.50.
+    s = s.replace(/,/g, "");
+    const firstDot = s.indexOf(".");
+    if(firstDot !== -1){
+      s = s.slice(0, firstDot + 1) + s.slice(firstDot + 1).replace(/\./g, "");
+    }
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  }
   function formatAmountField({force=false}={}){
     const node=el("amount"); if(!node) return;
     const raw=node.value;
     if(!force && /[.,]$/.test(raw)) return;
-    const n=toNum(raw);
+    const n=parseAmountInput(raw);
     if(Number.isFinite(n)) node.value=fmtInputAmount(n);
   }
   function renderConverter(){
-    const a=toNum(el("amount").value), from=el("fromCcy").value, to=el("toCcy").value, val=convert(a,from,to);
+    const a=parseAmountInput(el("amount").value), from=el("fromCcy").value, to=el("toCcy").value, val=convert(a,from,to);
     el("convResult").textContent=Number.isFinite(val)?`${fmt(val,2)} ${to}`:"—";
     el("convSub").textContent=Number.isFinite(val)?`${fmt(a,2)} ${from} → Vía USD · ${fmt(getRaw(from),4)} / ${fmt(getRaw(to),4)}`:"No hay tasa suficiente";
     renderQuickPairs();
@@ -1451,7 +1589,7 @@
   }
   function on(id,event,handler){const node=el(id); if(node) node.addEventListener(event,handler);}
   function bind(){
-    on("btnRefresh","click",async()=>{showToast("Actualizando datos…","info"); const ok=await refresh(true); showToast(ok?"Datos actualizados":"No se pudo actualizar",ok?"ok":"err");});
+    on("btnRefresh","click",()=>runRefresh({manual:true}));
     on("btnTheme","click",toggleTheme);
     on("datePicker","change",e=>selectDate(e.target.value));
     on("datePrev","click",()=>shiftSelectedDate(-1));
@@ -1473,7 +1611,7 @@
     on("btnZoomReset","click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
     window.addEventListener("resize",()=>{Object.values(state.charts).forEach(c=>c&&c.resize()); clearTimeout(window.__fxResizeTimer); window.__fxResizeTimer=setTimeout(renderCharts,160);});
   }
-  function renderStatic(){setDateLabels(); setDatePickerBounds(); renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
+  function renderStatic(){setDateLabels(); setDatePickerBounds(); updateHistorySubtitle(); renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
   async function refresh(forceHistory=false){
     setStatus("Consultando",""); perf("Leyendo latest…",5);
     try{
@@ -1483,7 +1621,60 @@
       try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(true); return true;}catch(_e){return false;}
     }
   }
-  initTheme(); bind(); refresh(false);
+  const AUTO_REFRESH_MS = 5 * 60 * 1000;
+  let refreshInFlight = false;
+  let lastRefreshAt = 0;
+  let autoTimer = null;
+
+  function localTimeStamp(){
+    return new Intl.DateTimeFormat("es-PE",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date());
+  }
+
+  async function runRefresh({manual=false, auto=false}={}){
+    if(refreshInFlight){
+      if(manual) showToast("Ya hay una actualización en curso", "info");
+      return false;
+    }
+    refreshInFlight = true;
+    const btn = el("btnRefresh");
+    if(btn){ btn.classList.add("is-loading"); btn.disabled = true; }
+    if(manual) showToast("Actualizando datos…", "info");
+    try{
+      const ok = await refresh(true);
+      lastRefreshAt = Date.now();
+      const stamp = localTimeStamp();
+      setStatus(ok ? `Actualizado ${stamp}` : "Error", ok ? "ok" : "err");
+      if(manual) showToast(ok ? `Datos actualizados · ${stamp}` : "No se pudo actualizar", ok ? "ok" : "err");
+      else log(`Autoactualización ${ok ? "OK" : "fallida"} · ${stamp}`, ok ? "info" : "warn");
+      return ok;
+    }catch(e){
+      const stamp = localTimeStamp();
+      setStatus("Error", "err");
+      log(`Autoactualización con error · ${stamp}: ${e.message || e}`, "error");
+      if(manual) showToast("No se pudo actualizar", "err");
+      return false;
+    }finally{
+      if(btn){ btn.classList.remove("is-loading"); btn.disabled = false; }
+      refreshInFlight = false;
+    }
+  }
+
+  function startAutoRefresh(){
+    if(autoTimer) clearInterval(autoTimer);
+    autoTimer = setInterval(()=>{
+      if(document.visibilityState === "visible") runRefresh({auto:true});
+    }, AUTO_REFRESH_MS);
+
+    const refreshIfStale = () => {
+      if(document.visibilityState !== "visible") return;
+      if(!lastRefreshAt || Date.now() - lastRefreshAt >= AUTO_REFRESH_MS) runRefresh({auto:true});
+    };
+
+    document.addEventListener("visibilitychange", refreshIfStale);
+    window.addEventListener("focus", refreshIfStale);
+  }
+
+  initTheme(); bind(); startAutoRefresh(); runRefresh({auto:true});
 })();
 </script>
 </body>
