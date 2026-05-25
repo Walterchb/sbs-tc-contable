@@ -725,6 +725,7 @@
   const CACHE_KEY = "sbs_tc_history_v22_consolidated";
   const HISTORY_JSON_URL = "./data/tc_contable_history.json";
   const HISTORY_CSV_URL = "./data/tc_contable_history.csv";
+  const HISTORY_START_DATE = "2026-02-13";
   const THEME_KEY = "sbs_tc_theme_treasuryhub";
   const el = id => document.getElementById(id);
   const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestRates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestDate:"",selectedDate:"",history:[],trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
@@ -831,12 +832,16 @@
     return {ymd:`${y}-${m}-${day}`,compact:`${y}${m}${day}`};
   }
   async function fetchSnapshotForDate(dateStr){
-    const parts=dateObjectParts(dateStr); if(!parts) return null;
-    for(const pattern of PATTERNS){
-      const url=pattern(parts);
-      try{ const snap=snapshotFromPayload(await fetchAny(url,{fresh:true,cache:"no-store"}),parts.ymd); if(snap) return snap; }catch(e){}
+    // Con el nuevo workflow, el histórico debe venir consolidado en tc_contable_history.json.
+    // No buscamos archivo por archivo para evitar lentitud y errores de rutas.
+    const dk=dateKey(dateStr);
+    if(!dk) return null;
+    try{
+      if(!state.history.length) await loadHistoryConsolidated({fresh:true}).then(snaps=>{state.history=mergeHistory(snaps); saveCache();});
+      return findSnapshotByDate(dk);
+    }catch(e){
+      return null;
     }
-    return null;
   }
   function applySnapshot(snapshot){
     if(!snapshot?.rates) return false;
@@ -1080,7 +1085,23 @@
     return Object.keys(rates).length&&dk?{date:dk,rates}:null;
   }
   function snapshotsFromConsolidatedHistory(payload){
-    if(!payload || !Array.isArray(payload.series)) return [];
+    if(!payload) return [];
+    if(!Array.isArray(payload.series) && Array.isArray(payload.observations)){
+      const by = new Map();
+      for(const ob of payload.observations){
+        const dk=dateKey(ob.fecha_iso||ob.fecha_publicada||ob.date||ob.fecha);
+        const pair=String(ob.pair||"").toUpperCase();
+        const tcPen=toNum(ob.tc_pen);
+        const tcUsd=toNum(ob.tc_usd);
+        if(!dk) continue;
+        if(!by.has(dk)) by.set(dk,{fecha_iso:dk});
+        const p=by.get(dk);
+        if(pair==='USDPEN' && Number.isFinite(tcPen)) p.USDPEN=tcPen;
+        else if(pair.endsWith('USD') && Number.isFinite(tcUsd)) p[pair]=tcUsd;
+      }
+      payload = {...payload, series:[...by.values()]};
+    }
+    if(!Array.isArray(payload.series)) return [];
     const out=[];
     for(const point of payload.series){
       const dk=dateKey(point.fecha_iso||point.fecha_publicada||point.date||point.fecha);
