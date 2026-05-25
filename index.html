@@ -650,6 +650,17 @@
     /* V26: input de conversor con separador de miles */
     #amount{text-align:left;font-variant-numeric:tabular-nums}
 
+
+    .fx-card{padding:0!important;min-height:104px;perspective:900px;cursor:pointer;overflow:hidden}
+    .fx-card .kpi-inner{position:relative;width:100%;min-height:104px;transition:transform .42s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+    .fx-card.flipped .kpi-inner{transform:rotateY(180deg)}
+    .fx-card .kpi-face{position:absolute;inset:0;padding:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center}
+    .fx-card .kpi-back{transform:rotateY(180deg);background:linear-gradient(180deg,var(--soft),var(--panel));border-radius:inherit;justify-content:flex-start;gap:6px}
+    .flip-title{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:650;display:flex;gap:6px;align-items:center}
+    .flip-rates{display:grid;gap:4px;margin-top:2px}
+    .flip-row{display:flex;align-items:center;justify-content:space-between;gap:6px;border:1px solid var(--line);border-radius:5px;padding:4px 6px;background:var(--panel);font-size:.67rem;line-height:1.1}
+    .flip-row span{color:var(--muted);font-weight:620}.flip-row b{color:var(--ink);font-weight:650;font-variant-numeric:tabular-nums}
+    @media(max-width:760px){.fx-card{min-height:98px}.fx-card .kpi-inner{min-height:98px}.fx-card .kpi-face{padding:10px}.flip-row{font-size:.6rem;padding:4px 5px}}
 </style>
 </head>
 <body>
@@ -691,12 +702,12 @@
       </section>
 
       <section class="kpi-grid">
-        <article class="kpi"><div class="kpi-top"><span><i class="fa-solid fa-dollar-sign"></i>USDPEN</span><b id="dUsd" class="delta flat">—</b></div><strong id="kUsd">—</strong><small>Dólar de N.A.</small></article>
-        <article class="kpi accent"><div class="kpi-top"><span><i class="fa-solid fa-euro-sign"></i>EURUSD</span><b id="dEur" class="delta flat">—</b></div><strong id="kEur">—</strong><small>EURPEN / USDPEN</small></article>
-        <article class="kpi green"><div class="kpi-top"><span><i class="fa-solid fa-sterling-sign"></i>GBPUSD</span><b id="dGbp" class="delta flat">—</b></div><strong id="kGbp">—</strong><small>GBPPEN / USDPEN</small></article>
-        <article class="kpi purple"><div class="kpi-top"><span><i class="fa-solid fa-yen-sign"></i>CNHUSD</span><b id="dCnh" class="delta flat">—</b></div><strong id="kCnh">—</strong><small>CNHPEN / USDPEN</small></article>
-        <article class="kpi amber"><div class="kpi-top"><span><i class="fa-solid fa-yen-sign"></i>JPYUSD</span><b id="dJpy" class="delta flat">—</b></div><strong id="kJpy">—</strong><small>JPYPEN / USDPEN</small></article>
-        <article class="kpi"><div class="kpi-top"><span><i class="fa-solid fa-coins"></i>CHFUSD</span><b id="dCover" class="delta flat">—</b></div><strong id="kCover">—</strong><small id="kCoverSub">CHFPEN / USDPEN</small></article>
+        <article class="kpi fx-card" data-code="USD"><div class="kpi-inner"><div class="kpi-face kpi-front"><div class="kpi-top"><span><i class="fa-solid fa-dollar-sign"></i><span id="lblUsd">USDPEN</span></span><b id="dUsd" class="delta flat">—</b></div><strong id="kUsd">—</strong><small>Dólar de N.A.</small></div><div class="kpi-face kpi-back"><div class="flip-title"><i class="fa-solid fa-repeat"></i> Formas TC</div><div id="bUsd" class="flip-rates">—</div></div></div></article>
+        <article class="kpi fx-card accent" data-code="EUR"><div class="kpi-inner"><div class="kpi-face kpi-front"><div class="kpi-top"><span><i class="fa-solid fa-euro-sign"></i><span id="lblEur">EURUSD</span></span><b id="dEur" class="delta flat">—</b></div><strong id="kEur">—</strong><small id="sEur">EURPEN / USDPEN</small></div><div class="kpi-face kpi-back"><div class="flip-title"><i class="fa-solid fa-repeat"></i> Formas TC</div><div id="bEur" class="flip-rates">—</div></div></div></article>
+        <article class="kpi fx-card green" data-code="GBP"><div class="kpi-inner"><div class="kpi-face kpi-front"><div class="kpi-top"><span><i class="fa-solid fa-sterling-sign"></i><span id="lblGbp">GBPUSD</span></span><b id="dGbp" class="delta flat">—</b></div><strong id="kGbp">—</strong><small id="sGbp">GBPPEN / USDPEN</small></div><div class="kpi-face kpi-back"><div class="flip-title"><i class="fa-solid fa-repeat"></i> Formas TC</div><div id="bGbp" class="flip-rates">—</div></div></div></article>
+        <article class="kpi fx-card purple" data-code="CNH"><div class="kpi-inner"><div class="kpi-face kpi-front"><div class="kpi-top"><span><i class="fa-solid fa-yen-sign"></i><span id="lblCnh">USDCNH</span></span><b id="dCnh" class="delta flat">—</b></div><strong id="kCnh">—</strong><small id="sCnh">USDPEN / CNHPEN</small></div><div class="kpi-face kpi-back"><div class="flip-title"><i class="fa-solid fa-repeat"></i> Formas TC</div><div id="bCnh" class="flip-rates">—</div></div></div></article>
+        <article class="kpi fx-card amber" data-code="JPY"><div class="kpi-inner"><div class="kpi-face kpi-front"><div class="kpi-top"><span><i class="fa-solid fa-yen-sign"></i><span id="lblJpy">USDJPY</span></span><b id="dJpy" class="delta flat">—</b></div><strong id="kJpy">—</strong><small id="sJpy">USDPEN / JPYPEN</small></div><div class="kpi-face kpi-back"><div class="flip-title"><i class="fa-solid fa-repeat"></i> Formas TC</div><div id="bJpy" class="flip-rates">—</div></div></div></article>
+        <article class="kpi fx-card" data-code="CHF"><div class="kpi-inner"><div class="kpi-face kpi-front"><div class="kpi-top"><span><i class="fa-solid fa-coins"></i><span id="lblChf">CHFUSD</span></span><b id="dCover" class="delta flat">—</b></div><strong id="kCover">—</strong><small id="kCoverSub">CHFPEN / USDPEN</small></div><div class="kpi-face kpi-back"><div class="flip-title"><i class="fa-solid fa-repeat"></i> Formas TC</div><div id="bChf" class="flip-rates">—</div></div></div></article>
       </section>
 
       <section class="chart-row">
@@ -744,7 +755,7 @@
 <script>
 (() => {
   const CORE = ["USD","EUR","GBP","CNH","JPY"];
-  const CACHE_KEY = "sbs_tc_history_v22_consolidated";
+  const CACHE_KEY = "sbs_tc_history_v27_conventions";
   const HISTORY_JSON_URL = "./data/tc_contable_history.json";
   const HISTORY_CSV_URL = "./data/tc_contable_history.csv";
   const HISTORY_START_DATE = "2026-02-13";
@@ -1056,7 +1067,7 @@
     const compact=source.replace(/[^A-Z0-9]/g,"");
     if(/\bUSD\b/.test(source)||compact.includes("DOLARDENA")||compact.includes("DOLARESDENA")||compact.includes("DOLARNORTEAMERICANO")||compact.includes("DOLARESTADOUNIDENSE")||compact.includes("DOLARDELOSESTADOSUNIDOS")||compact.includes("UNITEDSTATESDOLLAR")||compact.includes("USDOLLAR")) return "USD";
     const aliases=[
-      ["EUR",/(^|\b)(EUR|EURO)(\b|$)/],["GBP",/(^|\b)(GBP|LIBRA|POUND|STERLING)(\b|$)/],["CNH",/(^|\b)(CNH|YUAN OFFSHORE|RENMINBI OFFSHORE)(\b|$)/],["CNH",/(^|\b)(CNY|YUAN|RENMINBI|CHINA|YUAN CHINO)(\b|$)/],["JPY",/(^|\b)(JPY|YEN|JAPON)(\b|$)/],["CHF",/(^|\b)(CHF|FRANCO SUIZO|SWISS)(\b|$)/],["CAD",/(^|\b)(CAD|DOLAR CANADIENSE|CANADIAN|CANADIENSE)(\b|$)/],["AUD",/(^|\b)(AUD|DOLAR AUSTRALIANO|AUSTRALIAN|AUSTRALIANO)(\b|$)/],["NZD",/(^|\b)(NZD|DOLAR NEOZELANDES|NEW ZEALAND)(\b|$)/],["MXN",/(^|\b)(MXN|PESO MEXICANO|MEXICANO)(\b|$)/],["BRL",/(^|\b)(BRL|REAL BRASIL|BRAZIL)(\b|$)/],["CLP",/(^|\b)(CLP|PESO CHILENO|CHILE|CHILENO)(\b|$)/],["COP",/(^|\b)(COP|PESO COLOMBIANO|COLOMBIA|COLOMBIANO)(\b|$)/]
+      ["EUR",/(^|\b)(EUR|EURO)(\b|$)/],["GBP",/(^|\b)(GBP|LIBRA|POUND|STERLING)(\b|$)/],["CNH",/(^|\b)(CNH|YUAN OFFSHORE|RENMINBI OFFSHORE)(\b|$)/],["CNH",/(^|\b)(CNY|YUAN|RENMINBI|YUAN CHINO)(\b|$)/],["JPY",/(^|\b)(JPY|YEN|JAPON)(\b|$)/],["CHF",/(^|\b)(CHF|FRANCO SUIZO|SWISS)(\b|$)/],["CAD",/(^|\b)(CAD|DOLAR CANADIENSE|CANADIAN|CANADIENSE)(\b|$)/],["AUD",/(^|\b)(AUD|DOLAR AUSTRALIANO|AUSTRALIAN|AUSTRALIANO)(\b|$)/],["NZD",/(^|\b)(NZD|DOLAR NEOZELANDES|NEW ZEALAND)(\b|$)/],["MXN",/(^|\b)(MXN|PESO MEXICANO|MEXICANO)(\b|$)/],["BRL",/(^|\b)(BRL|REAL BRASIL|BRAZIL)(\b|$)/],["CLP",/(^|\b)(CLP|PESO CHILENO|CHILE|CHILENO)(\b|$)/],["COP",/(^|\b)(COP|PESO COLOMBIANO|COLOMBIA|COLOMBIANO)(\b|$)/]
     ];
     for(const [code,re] of aliases){if(re.test(source)) return code;}
     const iso=source.match(/\b[A-Z]{3}\b/); return iso?iso[0]:"";
@@ -1080,7 +1091,10 @@
     for(const row of rows){
       if(!row||typeof row!=="object") continue; const code=inferCode(row); const rate=inferRate(row); if(!code||!Number.isFinite(rate)||rate<=0) continue;
       const b=toNum(row.base??row.unidad??row.factor??row.cantidad??row.units??1); const base=Number.isFinite(b)&&b>0?b:1;
-      map.set(code,{code,name:inferName(row,code),rate:rate/base,base,raw:row});
+      const unitRate=rate/base;
+      if(code==="CNH" && unitRate < 0.25) continue; // evita confundir Nuevo Dólar/Taiwán con Yuan.
+      if(code==="JPY" && unitRate > 0.10) continue;
+      map.set(code,{code,name:inferName(row,code),rate:unitRate,base,raw:row});
     }
     return {rows,map};
   }
@@ -1090,12 +1104,15 @@
     if(code==="CNH"&&!state.rates.has("CNH")&&state.rates.has("CNY")) return state.rates.get("CNY").rate;
     return state.rates.get(code)?.rate??NaN;
   }
+  function isUsdQuoted(code){return code==="JPY" || code==="CNH";}
   function shownRate(code,ratesObj=null){
     const usd=getRaw("USD",ratesObj); if(code==="USD") return usd;
-    const raw=getRaw(code,ratesObj); return Number.isFinite(raw)&&Number.isFinite(usd)&&usd>0?raw/usd:NaN;
+    const raw=getRaw(code,ratesObj);
+    if(!Number.isFinite(raw)||!Number.isFinite(usd)||usd<=0||raw<=0) return NaN;
+    return isUsdQuoted(code) ? usd/raw : raw/usd;
   }
-  function pair(code){return code==="USD"?"USDPEN":`${code}USD`;}
-  function calc(code){return code==="USD"?"Dólar de N.A. en PEN":`${code}PEN / USDPEN`;}
+  function pair(code){return code==="USD"?"USDPEN":isUsdQuoted(code)?`USD${code}`:`${code}USD`;}
+  function calc(code){return code==="USD"?"Dólar de N.A. en PEN":isUsdQuoted(code)?`USDPEN / ${code}PEN`:`${code}PEN / USDPEN`;}
   function allCodes(){return [...state.rates.keys()].filter(c=>c!=="PEN"&&Number.isFinite(shownRate(c))).sort((a,b)=>(CORE.indexOf(a)<0?99:CORE.indexOf(a))-(CORE.indexOf(b)<0?99:CORE.indexOf(b))||a.localeCompare(b));}
   function snapshotFromPayload(payload,fallbackDate=""){
     if(payload?.rates && typeof payload.rates==="object"){
@@ -1138,8 +1155,13 @@
         if(k.endsWith('USD')){
           const code=k.replace(/USD$/,'');
           if(code && code!=='USD') rates[code]=n*usd;
+        } else if(k.startsWith('USD') && k.length===6){
+          const code=k.replace(/^USD/,'');
+          if(code && code!=='PEN' && n>0) rates[code]=usd/n;
         }
       }
+      if(Number.isFinite(rates.CNH) && rates.CNH < 0.25) delete rates.CNH;
+      if(Number.isFinite(rates.JPY) && rates.JPY > 0.10) delete rates.JPY;
       out.push({date:dk,rates});
     }
     return out.sort((a,b)=>a.date.localeCompare(b.date));
@@ -1285,10 +1307,32 @@
   }
   function renderBar(){}
   function renderCharts(){renderTrend(); renderChange(); renderStats(); renderDeltas();}
+  function altRows(code){
+    const usd=getRaw("USD"), raw=getRaw(code);
+    const rows=[];
+    const add=(label,val,d=4)=>rows.push(`<div class="flip-row"><span>${label}</span><b>${fmt(val,d)}</b></div>`);
+    if(code==="USD"){
+      add("USDPEN",usd,4); add("PENUSD",Number.isFinite(usd)&&usd>0?1/usd:NaN,4);
+    }else{
+      add(`${code}PEN`,raw,4);
+      add(`${code}USD`,Number.isFinite(raw)&&Number.isFinite(usd)&&usd>0?raw/usd:NaN,4);
+      add(`USD${code}`,Number.isFinite(raw)&&raw>0?usd/raw:NaN,4);
+    }
+    return rows.join("");
+  }
+  function renderFlipCards(){
+    const ids={USD:"bUsd",EUR:"bEur",GBP:"bGbp",CNH:"bCnh",JPY:"bJpy",CHF:"bChf"};
+    for(const [code,id] of Object.entries(ids)){const node=el(id); if(node) node.innerHTML=altRows(code);}
+  }
   function renderKpis(){
     const values={USD:shownRate("USD"),EUR:shownRate("EUR"),GBP:shownRate("GBP"),CNH:shownRate("CNH"),JPY:shownRate("JPY"),CHF:shownRate("CHF")};
+    const labelMap={lblUsd:"USDPEN",lblEur:"EURUSD",lblGbp:"GBPUSD",lblCnh:"USDCNH",lblJpy:"USDJPY",lblChf:"CHFUSD"};
+    for(const [id,txt] of Object.entries(labelMap)){const n=el(id); if(n) n.textContent=txt;}
+    const subMap={sEur:calc("EUR"),sGbp:calc("GBP"),sCnh:calc("CNH"),sJpy:calc("JPY"),kCoverSub:calc("CHF")};
+    for(const [id,txt] of Object.entries(subMap)){const n=el(id); if(n) n.textContent=txt;}
     el("kUsd").textContent=fmt(values.USD,digits("USD",values.USD)); el("kEur").textContent=fmt(values.EUR,digits("EUR",values.EUR)); el("kGbp").textContent=fmt(values.GBP,digits("GBP",values.GBP)); el("kCnh").textContent=fmt(values.CNH,digits("CNH",values.CNH)); el("kJpy").textContent=fmt(values.JPY,digits("JPY",values.JPY));
-    el("kCover").textContent=fmt(values.CHF,digits("CHF",values.CHF)); el("kCoverSub").textContent="CHFPEN / USDPEN";
+    el("kCover").textContent=fmt(values.CHF,digits("CHF",values.CHF));
+    renderFlipCards();
   }
   function syncTrendControls(){
     const all=allCodes();
@@ -1403,6 +1447,10 @@
     on("trendOther","change",e=>selectTrend(e.target.value));
     on("trendQuick","click",e=>{const btn=e.target.closest(".pair-btn"); if(btn) selectTrend(btn.dataset.code);});
     on("searchBox","input",renderTable);
+    document.querySelectorAll(".fx-card").forEach(card=>card.addEventListener("click",e=>{
+      if(e.target.closest("button,a,select,input")) return;
+      card.classList.toggle("flipped");
+    }));
     const rangeTabs=el("rangeTabs");
     if(rangeTabs) rangeTabs.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{rangeTabs.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.range=Number(b.dataset.range); renderCharts();}));
     on("btnZoomReset","click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
