@@ -56,6 +56,16 @@
     .panel-title h2{font-weight:640}.brand h1{font-weight:650}.brand p{font-weight:560}.date-value,.kpi strong,.pair-card .r,.result-box .big{font-weight:650}.status,.chip{font-weight:600}.kpi span,.label,th{font-weight:650}.kpi small,.pair-card .d,.result-box .sub,.panel-title p{font-weight:520}.btn,button,.tab,.pair-btn,select,input{font-weight:620}.delta{font-weight:650}.table-wrap{scrollbar-width:thin}.topbar{border-bottom-width:3px}.kpi{transition:border-color .15s ease, transform .15s ease}.kpi:hover{transform:translateY(-1px);border-color:var(--line2)}
     @media(max-width:1260px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.chart-row,.content-row{grid-template-columns:1fr}.chart.side{height:290px}.chart.stats{height:250px}}
     @media(max-width:760px){.topbar-inner{align-items:flex-start;flex-direction:column;padding:10px 12px}.top-actions{justify-content:flex-start;width:100%}.wrap{padding:12px}.snapshot{grid-template-columns:1fr}.date-card{align-items:flex-start;flex-direction:column}.download-card{justify-content:flex-start}.kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{min-height:90px;padding:10px}.kpi strong{font-size:1.18rem}.panel-head{align-items:flex-start;flex-direction:column}.tools{justify-content:flex-start;width:100%}.chart{height:286px}.chart.side{height:250px}.chart.stats{height:232px}.conv-grid{grid-template-columns:1fr}.quick-pairs{grid-template-columns:1fr}.search{min-width:100%}th,td{padding:8px}.trend-quick,.trend-other{display:none}.trend-mobile{display:block;width:100%}.tabs{width:100%}.tab{flex:1}.chart-legend{gap:6px}.legend-pill{font-size:.68rem;padding:5px 7px}.top-actions .icon-only,.download-card .icon-only{width:34px;min-width:34px}}
+
+    /* V12 ajustes mobile/FX: evita zoom iOS, conserva Histórico visible y fija la columna Par */
+    #btnReloadHistory .btn-label{display:inline!important}
+    #historySource{display:inline!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;min-width:max-content}
+    .history-word{white-space:nowrap;color:var(--muted);font-size:.82em;font-weight:560}
+    .table-wrap table{min-width:640px}
+    .table-wrap th:first-child,.table-wrap td:first-child{position:sticky;left:0;z-index:3;background:var(--panel);box-shadow:8px 0 10px -10px rgba(5,28,44,.32)}
+    .table-wrap th:first-child{z-index:5;background:var(--soft)}
+    .table-wrap tbody tr:hover td:first-child{background:var(--soft)}
+    @media(max-width:760px){select,input{font-size:16px!important}.top-actions{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}.top-actions .status{flex:0 0 auto}.top-actions button{flex:0 0 auto}#btnReloadHistory{width:auto;min-width:104px;padding-inline:10px}.panel-title h2{font-size:.88rem}.panel-title p{font-size:.7rem}.table-wrap{max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch}.result-box .big{font-size:1.22rem}.result-box .sub{font-size:.68rem}}
   </style>
 </head>
 <body>
@@ -99,7 +109,7 @@
       <section class="chart-row">
         <article class="panel">
           <div class="panel-head">
-            <div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia</h2><p id="historySource">histórico</p></div></div>
+            <div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia <span class="history-word">histórico</span></h2><p id="historySource">histórico</p></div></div>
             <div class="tools"><div id="trendQuick" class="trend-quick"></div><select id="trendOther" class="trend-other"></select><select id="trendCcy" class="trend-mobile"></select><div class="tabs" id="rangeTabs"><button class="tab" data-range="15">15D</button><button class="tab active" data-range="30">30D</button><button class="tab" data-range="60">60D</button><button class="tab" data-range="120">120D</button></div></div>
           </div>
           <div class="panel-body"><div id="trendLegend" class="chart-legend"></div><div id="trendChart" class="chart"></div></div>
@@ -475,6 +485,7 @@
   function renderTrend(){
     const chart=ensureChart("trendChart"); if(!chart) return;
     const code=state.trend, data=seriesFor(code).slice(-state.range); const name=pair(code); const t=themeColors();
+    const isMobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
     const legend=el("trendLegend");
     if(!data.length){
       if(legend) legend.innerHTML="";
@@ -492,7 +503,7 @@
     });
     chart.setOption({
       color:[t.navy], animationDuration:540,
-      grid:{left:14,right:18,top:52,bottom:58,containLabel:true},
+      grid:{left:isMobile?10:14,right:isMobile?10:18,top:52,bottom:58,containLabel:true},
       tooltip:{trigger:"axis",axisPointer:{type:"line",lineStyle:{color:t.muted,width:1,opacity:.55}},backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff",fontWeight:500},formatter:params=>{
         const arr=Array.isArray(params)?params:[params];
         const p=arr.find(x=>x.seriesName===name)||arr[0];
@@ -502,7 +513,7 @@
       toolbox:{right:12,top:7,itemSize:14,itemGap:9,iconStyle:{borderColor:t.muted},emphasis:{iconStyle:{borderColor:t.ink}},feature:{dataZoom:{yAxisIndex:"none",title:{zoom:"Zoom",back:"Atrás"}},restore:{title:"Restaurar"},saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Tendencia_${name}_${fileStamp()}`)}}},
       dataZoom:[{type:"inside",throttle:60},{type:"slider",height:22,bottom:18,borderColor:t.line,fillerColor:rgba(t.cyan,.20),handleStyle:{color:t.navy},textStyle:{color:t.muted,fontWeight:500,fontSize:10},backgroundColor:t.soft}],
       xAxis:{type:"category",data:data.map(x=>x.date),boundaryGap:false,axisLabel:{color:t.muted,fontWeight:500},axisLine:{lineStyle:{color:t.line}},axisTick:{show:false}},
-      yAxis:{type:"value",position:"right",scale:true,axisLabel:{color:t.muted,formatter:v=>fmt(v,4),fontWeight:500,fontSize:10,margin:8,hideOverlap:true},axisLine:{show:false},axisTick:{show:false},splitLine:{lineStyle:{color:t.grid}}},
+      yAxis:{type:"value",position:isMobile?"left":"right",scale:true,axisLabel:{color:t.muted,formatter:v=>fmt(v,4),fontWeight:500,fontSize:10,margin:isMobile?6:8,hideOverlap:true},axisLine:{show:false},axisTick:{show:false},splitLine:{lineStyle:{color:t.grid}}},
       series:[{
         name,type:"line",data:values,smooth:true,showSymbol:false,symbol:"circle",symbolSize:6,
         lineStyle:{width:1.25,color:t.navy,shadowBlur:2,shadowColor:rgba(t.navy,.12)},
@@ -561,8 +572,8 @@
   function convert(amount,from,to){const rf=getRaw(from), rt=getRaw(to); return Number.isFinite(rf)&&Number.isFinite(rt)&&rt>0?amount*rf/rt:NaN;}
   function renderConverter(){
     const a=toNum(el("amount").value), from=el("fromCcy").value, to=el("toCcy").value, val=convert(a,from,to);
-    el("convResult").textContent=Number.isFinite(val)?`${fmt(val,4)} ${to}`:"—";
-    el("convSub").textContent=Number.isFinite(val)?`${fmt(a,4)} ${from} → vía PEN · ${fmt(getRaw(from),4)} / ${fmt(getRaw(to),4)}`:"No hay tasa suficiente";
+    el("convResult").textContent=Number.isFinite(val)?`${fmt(val,2)} ${to}`:"—";
+    el("convSub").textContent=Number.isFinite(val)?`${fmt(a,2)} ${from} → vía PEN · ${fmt(getRaw(from),4)} / ${fmt(getRaw(to),4)}`:"No hay tasa suficiente";
     renderQuickPairs();
   }
   function renderQuickPairs(){
@@ -630,7 +641,7 @@
     const rangeTabs=el("rangeTabs");
     if(rangeTabs) rangeTabs.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{rangeTabs.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.range=Number(b.dataset.range); loadHistory(false);}));
     on("btnZoomReset","click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
-    window.addEventListener("resize",()=>Object.values(state.charts).forEach(c=>c&&c.resize()));
+    window.addEventListener("resize",()=>{Object.values(state.charts).forEach(c=>c&&c.resize()); clearTimeout(window.__fxResizeTimer); window.__fxResizeTimer=setTimeout(renderCharts,160);});
   }
   function renderStatic(){renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
   async function refresh(forceHistory=false){
