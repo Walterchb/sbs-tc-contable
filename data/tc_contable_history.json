@@ -1,6 +1,6 @@
 {
   "schema": "tc_contable_history.v1",
-  "generated_utc": "2026-05-25T16:45:41.839367+00:00",
+  "generated_utc": "2026-05-25T18:18:56.553814+00:00",
   "source": "data/tc_contable_YYYY-MM-DD.json",
   "count_dates": 68,
   "range": {
@@ -37,7 +37,7 @@
     {
       "fecha_iso": "2026-02-13",
       "fecha_publicada": "13/02/2026",
-      "USDPEN": 4.353,
+      "USDPEN": 3.353,
       "ARSUSD": 0.0007148821950492095,
       "AUDUSD": 0.7082150313152401,
       "BOBUSD": 0.14573009245451832,
