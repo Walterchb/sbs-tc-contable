@@ -3,36 +3,36 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SBS TC Contable · Treasury Hub USD Cross</title>
+  <title>SBS TC Contable · Treasury Hub FX</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
   <style>
     :root{
       --navy:#051c2c;
-      --navy-2:#08263a;
-      --navy-3:#0b314b;
-      --ink:#0f172a;
-      --bg:#f4f7fb;
+      --navy-2:#08283f;
+      --navy-3:#0c3857;
+      --bg:#eef3f8;
       --panel:#ffffff;
-      --panel-2:#f8fafc;
-      --line:#dbe4ef;
-      --line-2:#c8d5e3;
-      --text:#102033;
-      --muted:#66788f;
-      --soft:#eef3f8;
+      --panel-2:#f7fafc;
+      --ink:#102033;
+      --muted:#61768a;
+      --line:#d7e1ec;
+      --line-2:#c2d0dc;
       --blue:#1f5eff;
-      --green:#168b5f;
-      --amber:#b7791f;
-      --red:#b42318;
-      --radius:5px;
-      --shadow:0 16px 34px rgba(5,28,44,.10);
+      --cyan:#00a3b5;
+      --green:#13966b;
+      --amber:#c17a18;
+      --red:#bd2c22;
+      --purple:#635bff;
+      --shadow:0 12px 26px rgba(5,28,44,.08);
+      --radius:6px;
     }
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
     body{
       margin:0;
       min-height:100vh;
       font-family:Manrope,Inter,"Segoe UI",Roboto,Arial,sans-serif;
-      color:var(--text);
-      background:var(--bg);
+      color:var(--ink);
+      background:linear-gradient(180deg,#e8eff6 0,#f4f7fa 270px,#eef3f8 100%);
     }
     button,input,select{font:inherit}
     a{color:inherit;text-decoration:none}
@@ -40,264 +40,88 @@
     .topbar{
       background:var(--navy);
       color:#fff;
-      border-bottom:4px solid #123d5c;
-      padding:13px 20px;
-      position:sticky;
-      top:0;
-      z-index:20;
+      border-bottom:4px solid #125078;
+      position:sticky;top:0;z-index:20;
     }
     .topbar-inner{
-      width:min(1440px,100%);
+      width:min(1480px,100%);
       margin:0 auto;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:14px;
-    }
-    .brand{display:flex;align-items:center;gap:12px;min-width:0}
-    .logo{
-      width:38px;height:38px;border-radius:var(--radius);
-      background:#fff;color:var(--navy);
-      display:grid;place-items:center;
-      font-weight:900;letter-spacing:-.06em;
-      box-shadow:inset 0 -4px 0 rgba(5,28,44,.12);
-    }
-    .brand h1{margin:0;font-size:1.02rem;line-height:1.05;letter-spacing:-.02em}
-    .brand p{margin:3px 0 0;color:#9db6ca;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-    .status{
-      display:flex;align-items:center;gap:7px;
-      min-height:34px;padding:7px 10px;border-radius:var(--radius);
-      background:#092235;border:1px solid #17415f;color:#cfe7f8;
-      font-size:.82rem;font-weight:800;white-space:nowrap;
-    }
-    .dot{width:8px;height:8px;border-radius:50%;background:#8aa0b5}
-    .status.ok .dot{background:var(--green)}
-    .status.err .dot{background:var(--red)}
-    .btn,button{
-      min-height:34px;
-      border:1px solid transparent;
-      border-radius:var(--radius);
-      background:var(--blue);
-      color:#fff;
-      padding:8px 10px;
-      font-weight:800;
-      cursor:pointer;
-      display:inline-flex;align-items:center;justify-content:center;gap:7px;
-      transition:transform .12s ease,opacity .12s ease,background .12s ease;
-    }
-    .btn:hover,button:hover{transform:translateY(-1px)}
-    .btn:active,button:active{transform:translateY(0)}
-    .btn.secondary,button.secondary{background:#0d2e47;border-color:#1e506f;color:#e8f5ff}
-    .btn.light,button.light{background:#fff;color:var(--navy);border-color:#bfd0df}
-    .btn.ghost,button.ghost{background:transparent;color:#d5e6f5;border-color:#32536b}
-    .wrap{width:min(1440px,100%);margin:0 auto;padding:18px 20px 28px}
-    .control-strip{
-      display:grid;
-      grid-template-columns:minmax(280px,1fr) auto;
-      gap:12px;
-      align-items:stretch;
-      margin-bottom:14px;
-    }
-    .date-card{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-left:5px solid var(--navy);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:13px 14px;
-      display:flex;align-items:center;justify-content:space-between;gap:16px;
-    }
-    .date-main{display:grid;gap:2px;min-width:0}
-    .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:900}
-    .value{font-size:1.15rem;font-weight:900;letter-spacing:-.03em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .date-meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .chip{
-      border:1px solid var(--line);
-      background:var(--soft);
-      color:#375068;
-      border-radius:var(--radius);
-      padding:6px 8px;
-      font-size:.78rem;
-      font-weight:800;
-      white-space:nowrap;
-    }
-    .download-card{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:12px;
-      display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;
-    }
-    .kpi-grid{
-      display:grid;
-      grid-template-columns:repeat(6,minmax(0,1fr));
-      gap:10px;
-      margin-bottom:14px;
-    }
-    .kpi{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:0 10px 22px rgba(5,28,44,.06);
-      padding:12px;
-      min-height:104px;
-      display:grid;
-      align-content:space-between;
-      position:relative;
-      overflow:hidden;
-    }
-    .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--navy)}
-    .kpi strong{font-size:1.58rem;letter-spacing:-.05em;line-height:1;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .kpi span{font-size:.76rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .kpi small{color:#50667d;font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .dashboard{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) 390px;
-      gap:14px;
-      align-items:start;
-    }
-    .stack{display:grid;gap:14px}
-    .panel{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .panel-head{
+      padding:12px 18px;
       display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:12px 14px;
-      border-bottom:1px solid var(--line);
-      background:#fbfdff;
     }
-    .panel-title{display:flex;align-items:center;gap:10px;min-width:0}
-    .bar-mark{width:5px;height:28px;background:var(--navy);border-radius:2px;flex:0 0 auto}
-    .panel h2{margin:0;font-size:.94rem;letter-spacing:-.01em;color:var(--text)}
-    .panel p{margin:2px 0 0;color:var(--muted);font-size:.78rem;font-weight:700}
-    .panel-body{padding:14px}
-    .chart-wrap{height:306px;position:relative;border:1px solid var(--line);background:#fff;border-radius:var(--radius);overflow:hidden}
-    .chart-wrap.compact{height:244px}
-    .chart-empty{
-      position:absolute;inset:0;display:grid;place-items:center;text-align:center;
-      color:var(--muted);font-weight:800;font-size:.86rem;padding:20px;
+    .brand{display:flex;align-items:center;gap:11px;min-width:0}
+    .logo{
+      width:38px;height:38px;border-radius:7px;background:#fff;color:var(--navy);
+      display:grid;place-items:center;font-weight:950;letter-spacing:-.055em;
+      box-shadow:inset 0 -4px 0 rgba(5,28,44,.14);
+      flex:0 0 auto;
     }
-    svg{display:block;width:100%;height:100%}
-    .chart-axis{stroke:#d8e2ec;stroke-width:1}
-    .gridline{stroke:#edf2f7;stroke-width:1}
-    .line-main{fill:none;stroke:#051c2c;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
-    .area-main{fill:#e8eff6}
-    .bar{fill:#0c314a}
-    .bar.alt{fill:#2f5f7d}
-    .point{fill:#051c2c;stroke:#fff;stroke-width:2}
-    .tick{fill:#6a7d90;font-size:10px;font-weight:700}
-    .chart-label{fill:#293d51;font-size:11px;font-weight:800}
-    .tabs{display:flex;gap:6px;flex-wrap:wrap}
-    .tab{
-      min-height:30px;padding:6px 8px;border-radius:var(--radius);
-      border:1px solid var(--line);background:#fff;color:#496177;
-      font-size:.78rem;font-weight:900;box-shadow:none;
+    .brand h1{margin:0;font-size:1.02rem;letter-spacing:-.03em;line-height:1.05}
+    .brand p{margin:3px 0 0;color:#a4c0d4;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .top-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+    .status{
+      height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;border-radius:var(--radius);
+      background:#09273d;border:1px solid #174c70;color:#d9edf9;font-size:.8rem;font-weight:900;white-space:nowrap;
     }
-    .tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
-    .tool-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
-    select,input{
-      border:1px solid var(--line-2);
-      background:#fff;
-      border-radius:var(--radius);
-      color:var(--text);
-      padding:8px 9px;
-      min-height:34px;
-      outline:none;
-      font-weight:750;
+    .dot{width:8px;height:8px;border-radius:50%;background:#8fa4b6}
+    .status.ok .dot{background:var(--green)} .status.warn .dot{background:var(--amber)} .status.err .dot{background:var(--red)}
+    .btn,button{
+      min-height:34px;border:1px solid transparent;border-radius:var(--radius);background:var(--blue);color:#fff;
+      padding:8px 11px;font-size:.82rem;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+      transition:transform .12s ease,filter .12s ease,background .12s ease;
     }
-    input:focus,select:focus{border-color:#7599b8;box-shadow:0 0 0 3px rgba(5,28,44,.08)}
-    .converter{
-      display:grid;gap:10px;
+    .btn:hover,button:hover{transform:translateY(-1px);filter:brightness(1.03)}
+    .btn:active,button:active{transform:translateY(0)}
+    .btn.dark,button.dark{background:#0b324e;border-color:#1e5a80;color:#eaf7ff}
+    .btn.light,button.light{background:#fff;color:var(--navy);border-color:#bdd0df}
+    .btn.soft,button.soft{background:#edf4fa;color:#24475f;border-color:#c9d8e3}
+    .wrap{width:min(1480px,100%);margin:0 auto;padding:16px 18px 26px}
+    .snapshot{
+      display:grid;grid-template-columns:minmax(260px,1fr) auto;gap:10px;align-items:stretch;margin-bottom:10px;
     }
-    .conv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .conv-grid input,.conv-grid select{width:100%}
-    .swapline{display:flex;gap:8px;align-items:center}
-    .swapline input{flex:1;width:100%}
-    .result-box{
-      border:1px solid var(--line);
-      border-left:4px solid var(--navy);
-      border-radius:var(--radius);
-      background:var(--panel-2);
-      padding:12px;
+    .date-card,.download-card,.market-card,.panel,.kpi{
+      background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
     }
-    .result-box .big{font-size:1.55rem;font-weight:950;letter-spacing:-.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .result-box .sub{margin-top:4px;color:var(--muted);font-size:.8rem;font-weight:800}
-    .mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .mini{
-      border:1px solid var(--line);
-      background:var(--panel-2);
-      border-radius:var(--radius);
-      padding:10px;
-      min-height:72px;
-    }
-    .mini .m-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:900}
-    .mini .m-value{margin-top:6px;font-size:1.04rem;font-weight:950;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .table-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-    .search{min-width:240px;flex:1}
-    .table-wrap{max-height:370px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius)}
-    table{width:100%;border-collapse:separate;border-spacing:0;font-size:.86rem;background:#fff}
-    th,td{padding:10px 11px;text-align:left;border-bottom:1px solid #edf2f7;white-space:nowrap}
-    th{position:sticky;top:0;background:#f7fafc;color:#52687d;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;z-index:2}
-    td.code{font-weight:950;color:var(--navy)}
-    td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:850}
-    tbody tr:hover{background:#f8fbff}
-    .currency-pills{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .pill-card{
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      background:#fff;
-      padding:10px;
-      cursor:pointer;
-      transition:background .12s ease,border-color .12s ease;
-    }
-    .pill-card:hover{background:#f8fbff;border-color:#9db4c7}
-    .pill-card.active{background:#f0f5fa;border-color:#173e5b}
-    .pill-code{font-size:.78rem;color:var(--muted);font-weight:950;letter-spacing:.08em}
-    .pill-rate{margin-top:5px;font-size:1.02rem;font-weight:950;letter-spacing:-.03em}
-    .log{
-      font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
-      font-size:.76rem;
-      color:#516a82;
-      background:#f8fafc;
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:10px;
-      max-height:126px;
-      overflow:auto;
-      white-space:pre-wrap;
-    }
-    .footline{margin-top:14px;color:#6b7f93;font-size:.78rem;text-align:right;font-weight:750}
-    .hidden{display:none!important}
-    @media(max-width:1180px){
-      .kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-      .dashboard{grid-template-columns:1fr}
-    }
-    @media(max-width:760px){
-      .topbar{padding:10px 12px}
-      .topbar-inner{align-items:flex-start;flex-direction:column}
-      .top-actions{width:100%;justify-content:flex-start}
-      .wrap{padding:12px}
-      .control-strip{grid-template-columns:1fr}
-      .date-card{align-items:flex-start;flex-direction:column}
-      .date-meta{justify-content:flex-start}
-      .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-      .kpi{min-height:94px;padding:10px}
-      .kpi strong{font-size:1.25rem}
-      .panel-head{align-items:flex-start;flex-direction:column}
-      .tool-row{justify-content:flex-start;width:100%}
-      .chart-wrap{height:260px}
-      .chart-wrap.compact{height:220px}
-      .currency-pills{grid-template-columns:repeat(2,1fr)}
-      .conv-grid{grid-template-columns:1fr}
-      .download-card{justify-content:flex-start}
-      th,td{padding:8px}
-    }
+    .date-card{padding:12px 13px;border-left:5px solid var(--navy);display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0}
+    .label{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:950}
+    .date-value{font-size:1.2rem;font-weight:950;letter-spacing:-.04em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .chips{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+    .chip{border:1px solid var(--line);background:#f2f6fa;color:#466178;border-radius:var(--radius);padding:6px 8px;font-size:.75rem;font-weight:900;white-space:nowrap}
+    .download-card{padding:10px;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+    .kpi-grid{display:grid;grid-template-columns:1.15fr repeat(5,1fr);gap:10px;margin-bottom:10px}
+    .kpi{padding:12px;min-height:102px;position:relative;overflow:hidden;display:grid;align-content:space-between}
+    .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--navy)}
+    .kpi.accent::before{background:var(--cyan)} .kpi.green::before{background:var(--green)} .kpi.purple::before{background:var(--purple)} .kpi.amber::before{background:var(--amber)}
+    .kpi-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .kpi span{font-size:.7rem;color:var(--muted);font-weight:950;text-transform:uppercase;letter-spacing:.09em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .kpi strong{font-size:1.56rem;line-height:1;font-weight:950;letter-spacing:-.055em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .kpi small{font-size:.76rem;color:#557086;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .delta{font-variant-numeric:tabular-nums;border-radius:20px;padding:3px 7px;font-size:.68rem;font-weight:950;border:1px solid var(--line);background:#f6f9fc;color:#536b80;white-space:nowrap}
+    .delta.pos{background:#eaf8f2;border-color:#b8e2cf;color:#057450}.delta.neg{background:#fff0ef;border-color:#f4c4c0;color:#a72117}.delta.flat{background:#f4f7fa;color:#607789}
+    .main-grid{display:grid;grid-template-columns:minmax(0,1fr) 382px;gap:12px;align-items:start}
+    .stack{display:grid;gap:12px}
+    .chart-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,.85fr);gap:12px}
+    .panel{overflow:hidden}
+    .panel-head{padding:11px 12px;border-bottom:1px solid var(--line);background:#fbfdff;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .panel-title{display:flex;align-items:center;gap:9px;min-width:0}.mark{width:5px;height:26px;background:var(--navy);border-radius:2px;flex:0 0 auto}
+    .panel-title h2{margin:0;font-size:.92rem;letter-spacing:-.02em}.panel-title p{margin:2px 0 0;font-size:.74rem;color:var(--muted);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .panel-body{padding:12px}.tools{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+    select,input{border:1px solid var(--line-2);background:#fff;border-radius:var(--radius);color:var(--ink);padding:8px 9px;min-height:34px;outline:none;font-size:.82rem;font-weight:850}
+    input:focus,select:focus{border-color:#789db9;box-shadow:0 0 0 3px rgba(5,28,44,.08)}
+    .tabs{display:flex;gap:5px;flex-wrap:wrap}.tab{min-height:30px;padding:6px 8px;border-radius:var(--radius);border:1px solid var(--line);background:#fff;color:#526a7e;box-shadow:none;font-size:.76rem}.tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
+    .chart{height:342px;width:100%}.chart.small{height:284px}.chart.mini{height:214px}.chart.empty{display:grid;place-items:center;text-align:center;color:var(--muted);font-weight:900;font-size:.86rem;padding:20px;background:#f8fbfd;border:1px dashed var(--line)}
+    .table-tools{display:flex;gap:9px;align-items:center;justify-content:space-between;margin-bottom:9px;flex-wrap:wrap}.search{min-width:240px;flex:1}
+    .table-wrap{max-height:334px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius)}
+    table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;font-size:.84rem}th,td{padding:9px 10px;border-bottom:1px solid #edf2f7;white-space:nowrap;text-align:left}th{position:sticky;top:0;background:#f7fafc;color:#52697e;font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;z-index:2}td.code{font-weight:950;color:var(--navy)}td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:900}tbody tr:hover{background:#f8fbff}
+    .converter{display:grid;gap:10px}.conv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.conv-grid input,.conv-grid select,.swapline select{width:100%}.swapline{display:grid;grid-template-columns:40px 1fr;gap:8px;align-items:center}
+    .result-box{border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:var(--radius);background:#f7fafc;padding:12px;overflow:hidden}.result-box .big{font-size:1.52rem;font-weight:950;letter-spacing:-.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.result-box .sub{margin-top:4px;color:var(--muted);font-size:.78rem;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .quick-pairs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.pair-card{border:1px solid var(--line);background:#fff;border-radius:var(--radius);padding:10px;cursor:pointer;transition:background .12s,border-color .12s}.pair-card:hover{background:#f7fbff;border-color:#9fb8cb}.pair-card.active{background:#eef6fb;border-color:#125078}.pair-card .c{font-size:.72rem;color:var(--muted);font-weight:950;letter-spacing:.08em}.pair-card .r{margin-top:5px;font-size:1.02rem;font-weight:950;letter-spacing:-.03em}.pair-card .d{margin-top:3px;font-size:.72rem;color:#60788c;font-weight:850}
+    .mini-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.mini{border:1px solid var(--line);border-radius:var(--radius);background:#f8fafc;padding:10px;min-height:70px}.mini .m-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:950}.mini .m-value{margin-top:6px;font-size:1.03rem;font-weight:950;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .monitor{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.72rem;color:#516a82;background:#f8fafc;border:1px solid var(--line);border-radius:var(--radius);padding:9px;max-height:120px;overflow:auto;white-space:pre-wrap}
+    .perf-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.perf-note{font-size:.75rem;color:#60788c;font-weight:850;line-height:1.35}.progress{height:7px;background:#edf3f7;border-radius:999px;overflow:hidden;margin-top:8px}.progress b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--navy),var(--cyan));transition:width .25s ease}
+    .footline{margin-top:12px;text-align:right;font-size:.76rem;color:#63798d;font-weight:800}
+    @media(max-width:1220px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.main-grid{grid-template-columns:1fr}.chart-grid{grid-template-columns:1fr}}
+    @media(max-width:760px){.topbar-inner{align-items:flex-start;flex-direction:column;padding:10px 12px}.top-actions{justify-content:flex-start;width:100%}.wrap{padding:12px}.snapshot{grid-template-columns:1fr}.date-card{align-items:flex-start;flex-direction:column}.chips{justify-content:flex-start}.download-card{justify-content:flex-start}.kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{min-height:92px;padding:10px}.kpi strong{font-size:1.25rem}.panel-head{align-items:flex-start;flex-direction:column}.tools{justify-content:flex-start}.chart{height:286px}.chart.small{height:250px}.chart.mini{height:206px}.conv-grid{grid-template-columns:1fr}.quick-pairs{grid-template-columns:1fr}.search{min-width:100%}th,td{padding:8px}}
   </style>
 </head>
 <body>
@@ -306,752 +130,416 @@
       <div class="topbar-inner">
         <div class="brand">
           <div class="logo">BIF</div>
-          <div>
-            <h1>TC Contable SBS</h1>
-            <p>Mercado de Capitales & Control de Gestión</p>
-          </div>
+          <div><h1>TC Contable SBS</h1><p>FX Control Tower</p></div>
         </div>
         <div class="top-actions">
           <div id="vStatus" class="status"><span class="dot"></span><span>Consultando</span></div>
           <button id="btnRefresh" class="light">Actualizar</button>
-          <button id="btnHistory" class="ghost">Histórico</button>
+          <button id="btnReloadHistory" class="dark">Histórico</button>
         </div>
       </div>
     </header>
 
     <section class="wrap">
-      <section class="control-strip">
+      <section class="snapshot">
         <article class="date-card">
-          <div class="date-main">
-            <div class="label">Fecha SBS</div>
-            <div id="vFecha" class="value">—</div>
-          </div>
-          <div class="date-meta">
-            <span id="vGen" class="chip">UTC —</span>
-            <span id="vRows" class="chip">0 filas</span>
-            <span id="vHash" class="chip">hash —</span>
-          </div>
+          <div><div class="label">Fecha SBS</div><div id="vFecha" class="date-value">—</div></div>
+          <div class="chips"><span id="vRows" class="chip">— filas</span><span id="vHist" class="chip">hist —</span><span id="vHash" class="chip">hash —</span></div>
         </article>
         <article class="download-card">
-          <a id="btnCsv" class="btn" href="./data/tc_contable_latest.csv" download>CSV latest</a>
-          <a id="btnJson" class="btn secondary" href="./data/tc_contable_latest.json" download>JSON latest</a>
-          <button id="btnCopy" class="light">Copiar resumen</button>
+          <a class="btn" href="./data/tc_contable_latest.csv" download>CSV</a>
+          <a class="btn dark" href="./data/tc_contable_latest.json" download>JSON</a>
+          <button id="btnCopy" class="soft">Copiar</button>
         </article>
       </section>
 
       <section class="kpi-grid">
-        <article class="kpi"><span>USDPEN</span><strong id="kUsd">—</strong><small id="kUsdSub">Dólar de N.A.</small></article>
-        <article class="kpi"><span>EURUSD</span><strong id="kEur">—</strong><small>EURPEN / USDPEN</small></article>
-        <article class="kpi"><span>GBPUSD</span><strong id="kGbp">—</strong><small>GBPPEN / USDPEN</small></article>
-        <article class="kpi"><span>CNHUSD</span><strong id="kCnh">—</strong><small>CNHPEN / USDPEN</small></article>
-        <article class="kpi"><span>JPYUSD</span><strong id="kJpy">—</strong><small>JPYPEN / USDPEN</small></article>
-        <article class="kpi"><span>Cobertura</span><strong id="kCover">—</strong><small id="kCoverSub">monedas detectadas</small></article>
+        <article class="kpi"><div class="kpi-top"><span>USDPEN</span><b id="dUsd" class="delta flat">—</b></div><strong id="kUsd">—</strong><small>Dólar de N.A.</small></article>
+        <article class="kpi accent"><div class="kpi-top"><span>EURUSD</span><b id="dEur" class="delta flat">—</b></div><strong id="kEur">—</strong><small>EURPEN / USDPEN</small></article>
+        <article class="kpi green"><div class="kpi-top"><span>GBPUSD</span><b id="dGbp" class="delta flat">—</b></div><strong id="kGbp">—</strong><small>GBPPEN / USDPEN</small></article>
+        <article class="kpi purple"><div class="kpi-top"><span>CNHUSD</span><b id="dCnh" class="delta flat">—</b></div><strong id="kCnh">—</strong><small>CNHPEN / USDPEN</small></article>
+        <article class="kpi amber"><div class="kpi-top"><span>JPYUSD</span><b id="dJpy" class="delta flat">—</b></div><strong id="kJpy">—</strong><small>JPYPEN / USDPEN</small></article>
+        <article class="kpi"><div class="kpi-top"><span>Cobertura</span><b id="dCover" class="delta flat">SBS</b></div><strong id="kCover">—</strong><small id="kCoverSub">monedas</small></article>
       </section>
 
-      <section class="dashboard">
+      <section class="main-grid">
         <div class="stack">
-          <article class="panel">
-            <div class="panel-head">
-              <div class="panel-title"><span class="bar-mark"></span><div><h2>Tendencia histórica</h2><p id="historySource">últimos archivos diarios detectados</p></div></div>
-              <div class="tool-row">
-                <select id="currencyTrend"></select>
-                <div class="tabs" id="rangeTabs">
-                  <button class="tab active" data-range="15">15D</button>
-                  <button class="tab" data-range="30">30D</button>
-                  <button class="tab" data-range="60">60D</button>
-                  <button class="tab" data-range="120">120D</button>
-                </div>
+          <section class="chart-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div class="panel-title"><span class="mark"></span><div><h2>Tendencia</h2><p id="historySource">carga rápida activada</p></div></div>
+                <div class="tools"><select id="trendCcy"></select><div class="tabs" id="rangeTabs"><button class="tab" data-range="15">15D</button><button class="tab active" data-range="30">30D</button><button class="tab" data-range="60">60D</button><button class="tab" data-range="120">120D</button></div></div>
               </div>
-            </div>
-            <div class="panel-body">
-              <div class="chart-wrap" id="trendChart"><div class="chart-empty">Cargando histórico…</div></div>
-            </div>
-          </article>
+              <div class="panel-body"><div id="trendChart" class="chart"></div></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Ranking</h2><p>último corte</p></div></div><div class="tabs" id="barTabs"><button class="tab active" data-set="core">Core</button><button class="tab" data-set="top">Top</button></div></div>
+              <div class="panel-body"><div id="barChart" class="chart small"></div></div>
+            </article>
+          </section>
+
+          <section class="chart-grid">
+            <article class="panel">
+              <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Variación diaria</h2><p id="changeSource">selecciona un par</p></div></div><button id="btnZoomReset" class="soft">Reset zoom</button></div>
+              <div class="panel-body"><div id="changeChart" class="chart mini"></div></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Performance histórico</h2><p>caché + manifest + carga paralela</p></div></div></div>
+              <div class="panel-body">
+                <div class="perf-row"><div><div class="label">Estado</div><div id="perfLabel" class="perf-note">Preparando lectura…</div><div class="progress"><b id="perfBar"></b></div></div><button id="btnClearCache" class="soft">Limpiar caché</button></div>
+              </div>
+            </article>
+          </section>
 
           <article class="panel">
-            <div class="panel-head">
-              <div class="panel-title"><span class="bar-mark"></span><div><h2>Último corte: monedas principales</h2><p>cruces contra Dólar de N.A.</p></div></div>
-              <div class="tabs" id="barTabs">
-                <button class="tab active" data-set="main">Core</button>
-                <button class="tab" data-set="top">Top</button>
-              </div>
-            </div>
+            <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Tabla FX</h2><p>USDPEN directo; demás cruces contra USD</p></div></div></div>
             <div class="panel-body">
-              <div class="chart-wrap compact" id="barChart"><div class="chart-empty">Sin data latest</div></div>
-            </div>
-          </article>
-
-          <article class="panel">
-            <div class="panel-head">
-              <div class="panel-title"><span class="bar-mark"></span><div><h2>Tabla de tipos de cambio</h2><p>USDPEN y cruces contra USD</p></div></div>
-            </div>
-            <div class="panel-body">
-              <div class="table-tools">
-                <input id="searchBox" class="search" placeholder="Buscar: USDPEN, EURUSD, euro, yen…" />
-                <span id="tableCount" class="chip">0 monedas</span>
-              </div>
-              <div class="table-wrap">
-                <table>
-                  <thead><tr><th>Par</th><th>Moneda</th><th style="text-align:right">TC mostrado</th><th style="text-align:right">Cálculo</th></tr></thead>
-                  <tbody id="ratesTable"><tr><td colspan="4">Cargando…</td></tr></tbody>
-                </table>
-              </div>
+              <div class="table-tools"><input id="searchBox" class="search" placeholder="Buscar: USDPEN, EURUSD, Dólar de N.A., yen…"><span id="tableCount" class="chip">0 pares</span></div>
+              <div class="table-wrap"><table><thead><tr><th>Par</th><th>Moneda SBS</th><th style="text-align:right">TC</th><th style="text-align:right">Cálculo</th></tr></thead><tbody id="ratesTable"><tr><td colspan="4">Cargando…</td></tr></tbody></table></div>
             </div>
           </article>
         </div>
 
         <aside class="stack">
           <article class="panel">
-            <div class="panel-head">
-              <div class="panel-title"><span class="bar-mark"></span><div><h2>Conversor</h2><p>conversión vía PEN y cruces USD</p></div></div>
-            </div>
+            <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Conversor</h2><p>vía PEN</p></div></div></div>
             <div class="panel-body converter">
-              <div class="conv-grid">
-                <input id="amount" type="number" inputmode="decimal" value="1000" min="0" step="0.01" />
-                <select id="fromCcy"></select>
-              </div>
-              <div class="swapline">
-                <button id="swapBtn" class="secondary" title="Invertir">⇄</button>
-                <select id="toCcy"></select>
-              </div>
-              <div class="result-box">
-                <div id="convResult" class="big">—</div>
-                <div id="convSub" class="sub">—</div>
-              </div>
-              <div class="currency-pills" id="currencyPills"></div>
+              <div class="conv-grid"><input id="amount" type="number" inputmode="decimal" value="1000" min="0" step="0.01"><select id="fromCcy"></select></div>
+              <div class="swapline"><button id="swapBtn" class="dark">⇄</button><select id="toCcy"></select></div>
+              <div class="result-box"><div id="convResult" class="big">—</div><div id="convSub" class="sub">—</div></div>
+              <div id="quickPairs" class="quick-pairs"></div>
             </div>
           </article>
 
           <article class="panel">
-            <div class="panel-head">
-              <div class="panel-title"><span class="bar-mark"></span><div><h2>Estadísticas</h2><p>último corte y dispersión</p></div></div>
-            </div>
-            <div class="panel-body">
-              <div class="mini-stats">
-                <div class="mini"><div class="m-label">Mayor TC</div><div id="sMax" class="m-value">—</div></div>
-                <div class="mini"><div class="m-label">Menor TC</div><div id="sMin" class="m-value">—</div></div>
-                <div class="mini"><div class="m-label">Promedio</div><div id="sAvg" class="m-value">—</div></div>
-                <div class="mini"><div class="m-label">Mediana</div><div id="sMed" class="m-value">—</div></div>
-                <div class="mini"><div class="m-label">Histórico</div><div id="sHist" class="m-value">—</div></div>
-                <div class="mini"><div class="m-label">Última var.</div><div id="sVar" class="m-value">—</div></div>
-              </div>
-            </div>
+            <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Estadísticas</h2><p id="statsPair">—</p></div></div></div>
+            <div class="panel-body"><div class="mini-stats">
+              <div class="mini"><div class="m-label">Último</div><div id="sLast" class="m-value">—</div></div>
+              <div class="mini"><div class="m-label">Var. diaria</div><div id="sChg" class="m-value">—</div></div>
+              <div class="mini"><div class="m-label">Máximo</div><div id="sMax" class="m-value">—</div></div>
+              <div class="mini"><div class="m-label">Mínimo</div><div id="sMin" class="m-value">—</div></div>
+              <div class="mini"><div class="m-label">Promedio</div><div id="sAvg" class="m-value">—</div></div>
+              <div class="mini"><div class="m-label">Volatilidad</div><div id="sVol" class="m-value">—</div></div>
+            </div></div>
           </article>
 
           <article class="panel">
-            <div class="panel-head">
-              <div class="panel-title"><span class="bar-mark"></span><div><h2>Monitor</h2><p>lectura de archivos</p></div></div>
-            </div>
-            <div class="panel-body">
-              <div id="log" class="log"></div>
-            </div>
+            <div class="panel-head"><div class="panel-title"><span class="mark"></span><div><h2>Monitor</h2><p>lectura data/</p></div></div></div>
+            <div class="panel-body"><div id="log" class="monitor"></div></div>
           </article>
         </aside>
       </section>
-      <div class="footline">Fuente local: <strong>./data/</strong> · Visualización no modifica el workflow</div>
+      <div class="footline">Fuente: <strong>./data/</strong> · El workflow no se modifica.</div>
     </section>
   </main>
 
 <script>
 (() => {
-  const CORE = ["PEN","USD","EUR","GBP","CNH","CNY","JPY"];
-  const TREND_DEFAULT = "USD";
-  const CANDIDATE_MANIFESTS = [
+  const CORE = ["USD","EUR","GBP","CNH","JPY"];
+  const CACHE_KEY = "sbs_tc_history_v4_fast";
+  const MANIFESTS = [
+    "./data/tc_contable_manifest.json",
     "./data/tc_contable_history.json",
     "./data/tc_contable_series.json",
     "./data/tc_contable_index.json",
     "./data/manifest.json",
     "./data/index.json"
   ];
-  const DAILY_PATTERNS = [
+  const PATTERNS = [
     d => `./data/tc_contable_${d.ymd}.json`,
     d => `./data/tc_contable_${d.compact}.json`,
     d => `./data/${d.ymd}.json`,
     d => `./data/${d.compact}.json`,
-    d => `./data/${d.ymd}/tc_contable.json`,
     d => `./data/sbs_tc_contable_${d.ymd}.json`,
     d => `./data/sbs_tc_contable_${d.compact}.json`
   ];
-
   const el = id => document.getElementById(id);
-  const state = {
-    meta:null,
-    latestRows:[],
-    rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),
-    history:[],
-    selectedTrend:TREND_DEFAULT,
-    range:15,
-    barSet:"main"
-  };
+  const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),history:[],trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
 
-  function setStatus(text, cls=""){
-    const box = el("vStatus");
-    box.className = `status ${cls}`.trim();
-    box.querySelector("span:last-child").textContent = text;
-  }
-  function log(msg, type="info"){
-    const t = new Date().toLocaleString("es-PE", {hour12:false});
+  function log(msg,type="info"){
+    const t = new Date().toLocaleString("es-PE",{hour12:false});
     el("log").textContent = `[${t}] ${type.toUpperCase()} · ${msg}\n` + el("log").textContent;
   }
-  function fmtNumber(n, d=4){
+  function setStatus(text,cls=""){
+    const s = el("vStatus"); s.className = `status ${cls}`.trim(); s.querySelector("span:last-child").textContent = text;
+  }
+  function perf(text,pct=0){ el("perfLabel").textContent = text; el("perfBar").style.width = `${Math.max(0,Math.min(100,pct))}%`; }
+  function normText(v){return String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().trim();}
+  function toNum(v){
+    if(typeof v==="number") return Number.isFinite(v)?v:NaN;
+    if(v==null) return NaN;
+    let s=String(v).trim(); if(!s||s==="—") return NaN;
+    s=s.replace(/\s/g,"").replace(/[A-Za-z$€£¥]/g,"");
+    const c=s.lastIndexOf(","), d=s.lastIndexOf(".");
+    if(c>d) s=s.replace(/\./g,"").replace(",","."); else s=s.replace(/,/g,"");
+    const n=Number(s); return Number.isFinite(n)?n:NaN;
+  }
+  function parseDate(v){
+    if(!v) return null; if(v instanceof Date && !Number.isNaN(v.getTime())) return v;
+    const s=String(v).trim();
+    const iso=s.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); if(iso) return new Date(+iso[1],+iso[2]-1,+iso[3]);
+    const lat=s.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/); if(lat) return new Date(+lat[3],+lat[2]-1,+lat[1]);
+    const d=new Date(s); return Number.isNaN(d.getTime())?null:d;
+  }
+  function dateKey(v){
+    const d=parseDate(v); if(!d) return "";
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }
+  function displayDate(v){const d=parseDate(v); return d?new Intl.DateTimeFormat("es-PE",{year:"numeric",month:"short",day:"2-digit"}).format(d):(v||"—");}
+  function compactHash(h){return h?String(h).slice(0,12):"—";}
+  function fmt(n,d=4){
     if(!Number.isFinite(n)) return "—";
-    const abs = Math.abs(n);
-    const digits = abs >= 100 ? 3 : abs >= 10 ? 4 : d;
+    const abs=Math.abs(n); const digits=abs>=100?3:abs>=10?4:d;
     return new Intl.NumberFormat("es-PE",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(n);
   }
-  function fmtMoney(n, ccy){
-    if(!Number.isFinite(n)) return "—";
-    return `${new Intl.NumberFormat("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)} ${ccy}`;
-  }
-  function compactHash(h){ return h ? String(h).slice(0,12) : "—"; }
-  function parseDate(value){
-    if(!value) return null;
-    if(value instanceof Date && !Number.isNaN(value.getTime())) return value;
-    const s = String(value).trim();
-    const iso = s.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
-    if(iso) return new Date(+iso[1], +iso[2]-1, +iso[3]);
-    const latam = s.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
-    if(latam) return new Date(+latam[3], +latam[2]-1, +latam[1]);
-    const d = new Date(s);
-    return Number.isNaN(d.getTime()) ? null : d;
-  }
-  function dateKey(value){
-    const d = parseDate(value);
-    if(!d) return "";
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,"0");
-    const day = String(d.getDate()).padStart(2,"0");
-    return `${y}-${m}-${day}`;
-  }
-  function displayDate(value){
-    const d = parseDate(value);
-    if(!d) return value || "—";
-    return new Intl.DateTimeFormat("es-PE",{year:"numeric",month:"short",day:"2-digit"}).format(d);
-  }
-  function toNum(v){
-    if(typeof v === "number") return Number.isFinite(v) ? v : NaN;
-    if(v == null) return NaN;
-    let s = String(v).trim();
-    if(!s || s === "—") return NaN;
-    s = s.replace(/\s/g,"").replace(/[A-Za-z$€£¥]/g,"");
-    const comma = s.lastIndexOf(",");
-    const dot = s.lastIndexOf(".");
-    if(comma > dot){ s = s.replace(/\./g,"").replace(",","."); }
-    else { s = s.replace(/,/g,""); }
-    const n = Number(s);
-    return Number.isFinite(n) ? n : NaN;
-  }
-  function normText(v){ return String(v ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().trim(); }
-  function inferCode(row){
-    const keys = Object.keys(row || {});
-    const pick = (...names) => {
-      for(const n of names){
-        const k = keys.find(x => normText(x).replace(/[^A-Z0-9]/g,"") === normText(n).replace(/[^A-Z0-9]/g,""));
-        if(k && row[k] != null && String(row[k]).trim() !== "") return String(row[k]).trim();
-      }
-      return "";
-    };
-    const direct = pick("codigo","cod_moneda","codmon","currency","ccy","moneda_codigo","cod","iso","currency_code","sigla");
-    const upperDirect = normText(direct).replace(/[^A-Z]/g,"");
-    if(/^[A-Z]{3}$/.test(upperDirect)) return upperDirect;
-
-    const allRaw = keys.map(k => row[k]).join(" ");
-    const all = normText(allRaw);
-    const source = `${normText(direct)} ${all}`;
-    const compact = source.replace(/[^A-Z0-9]/g,"");
-
-    // Regla crítica: el USD contable de SBS debe ser la fila "Dólar de N.A.".
-    // No usar "dólar" genérico, porque puede confundir AUD/CAD/NZD con USD.
-    if(
-      /\bUSD\b/.test(source) ||
-      compact.includes("DOLARDENA") ||
-      compact.includes("DOLARESDENA") ||
-      compact.includes("DOLARNORTEAMERICANO") ||
-      compact.includes("DOLARESTADOUNIDENSE") ||
-      compact.includes("DOLARDELOSESTADOSUNIDOS") ||
-      compact.includes("USDOLLAR") ||
-      compact.includes("AMERICANDOLLAR") ||
-      compact.includes("UNITEDSTATESDOLLAR")
-    ) return "USD";
-
-    const aliases = [
-      ["EUR",/(^|\b)(EUR|EURO)(\b|$)/],
-      ["GBP",/(^|\b)(GBP|LIBRA|POUND|STERLING)(\b|$)/],
-      ["CNH",/(^|\b)(CNH|YUAN OFFSHORE|RENMINBI OFFSHORE)(\b|$)/],
-      ["CNY",/(^|\b)(CNY|YUAN|RENMINBI|CHINA)(\b|$)/],
-      ["JPY",/(^|\b)(JPY|YEN|JAPON)(\b|$)/],
-      ["CHF",/(^|\b)(CHF|FRANCO SUIZO|SWISS)(\b|$)/],
-      ["CAD",/(^|\b)(CAD|DOLAR CANADIENSE|CANADIENSE|CANADIAN)(\b|$)/],
-      ["AUD",/(^|\b)(AUD|DOLAR AUSTRALIANO|AUSTRALIAN|AUSTRALIANO)(\b|$)/],
-      ["NZD",/(^|\b)(NZD|DOLAR NEOZELANDES|NEW ZEALAND)(\b|$)/],
-      ["MXN",/(^|\b)(MXN|PESO MEXICANO|MEXICANO|MEXICAN)(\b|$)/],
-      ["BRL",/(^|\b)(BRL|REAL BRASIL|BRAZIL)(\b|$)/],
-      ["CLP",/(^|\b)(CLP|PESO CHILENO|CHILE|CHILENO)(\b|$)/],
-      ["COP",/(^|\b)(COP|PESO COLOMBIANO|COLOMBIA|COLOMBIANO)(\b|$)/]
-    ];
-    for(const [code, re] of aliases){ if(re.test(source)) return code; }
-    const isoLike = source.match(/\b[A-Z]{3}\b/);
-    return isoLike ? isoLike[0] : "";
-  }
-  function inferName(row, code){
-    const keys = Object.keys(row || {});
-    const nameKeys = ["moneda","descripcion","desc_moneda","nombre","currency_name","divisa","pais"];
-    for(const nk of nameKeys){
-      const k = keys.find(x => normText(x).replace(/[^A-Z0-9]/g,"") === normText(nk).replace(/[^A-Z0-9]/g,""));
-      if(k && row[k] != null && String(row[k]).trim() !== "") return String(row[k]).trim();
-    }
-    const fallback = {PEN:"Sol peruano",USD:"Dólar de N.A.",EUR:"Euro",GBP:"Libra esterlina",CNH:"Yuan offshore",CNY:"Yuan chino",JPY:"Yen japonés"};
-    return fallback[code] || code || "Moneda";
-  }
-  function inferRate(row){
-    const keys = Object.keys(row || {});
-    const exactNames = ["tipo_cambio","tc","t_c","t.c.","t.c. contable","tc_contable","tipo de cambio","tipo cambio contable","valor","rate","exchange_rate","venta","promedio","equivalencia","pen","soles"];
-    for(const name of exactNames){
-      const k = keys.find(x => normText(x).replace(/[^A-Z0-9]/g,"") === normText(name).replace(/[^A-Z0-9]/g,""));
-      if(k){ const n = toNum(row[k]); if(Number.isFinite(n) && n > 0) return n; }
-    }
-    const numericCandidates = keys
-      .map(k => [k, toNum(row[k])])
-      .filter(([k,n]) => Number.isFinite(n) && n > 0 && n < 100000)
-      .filter(([k]) => !/(fecha|date|codigo|cod|fila|row|id)/i.test(k));
-    if(!numericCandidates.length) return NaN;
-    numericCandidates.sort((a,b) => {
-      const score = k => /(cambio|contable|venta|rate|valor|equiv|tc)/i.test(k) ? 0 : 1;
-      return score(a[0]) - score(b[0]);
-    });
-    return numericCandidates[0][1];
+  function pct(n){return Number.isFinite(n)?`${n>=0?"+":""}${new Intl.NumberFormat("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)}%`:"—";}
+  function digits(code,v){return code==="JPY"||code==="CNH"||Math.abs(v)<0.1?6:4;}
+  async function fetchJSON(url,{fresh=false,cache="default"}={}){
+    const full=fresh ? url + (url.includes("?")?"&":"?") + "ts=" + Date.now() : url;
+    const r=await fetch(full,{cache}); if(!r.ok) throw new Error(`HTTP ${r.status}`); return await r.json();
   }
   function rowsFromPayload(payload){
     if(Array.isArray(payload)) return payload;
-    if(!payload || typeof payload !== "object") return [];
-    const possible = ["rows","data","items","tasas","rates","tipos_cambio","monedas","records","latest"];
-    for(const k of possible){ if(Array.isArray(payload[k])) return payload[k]; }
-    if(payload.data && typeof payload.data === "object") return rowsFromPayload(payload.data);
-    const entries = Object.entries(payload).filter(([k,v]) => v && typeof v === "object" && !Array.isArray(v));
-    if(entries.length && entries.some(([k]) => /^[A-Z]{3}$/.test(k))){
-      return entries.map(([code,obj]) => ({codigo:code, ...obj}));
-    }
+    if(!payload || typeof payload!=="object") return [];
+    for(const k of ["rows","data","items","tasas","rates","tipos_cambio","monedas","records","latest"]){ if(Array.isArray(payload[k])) return payload[k]; }
+    if(payload.data && typeof payload.data==="object") return rowsFromPayload(payload.data);
+    const entries=Object.entries(payload).filter(([k,v])=>v && typeof v==="object" && !Array.isArray(v));
+    if(entries.length && entries.some(([k])=>/^[A-Z]{3}$/.test(k))) return entries.map(([code,obj])=>({codigo:code,...obj}));
     return [];
+  }
+  function inferCode(row){
+    const keys=Object.keys(row||{});
+    const pick=(...names)=>{for(const n of names){const k=keys.find(x=>normText(x).replace(/[^A-Z0-9]/g,"")===normText(n).replace(/[^A-Z0-9]/g,"")); if(k && row[k]!=null && String(row[k]).trim()!=="") return String(row[k]).trim();} return "";};
+    const direct=pick("codigo","cod_moneda","codmon","currency","ccy","moneda_codigo","cod","iso","currency_code","sigla");
+    const upper=normText(direct).replace(/[^A-Z]/g,""); if(/^[A-Z]{3}$/.test(upper)) return upper;
+    const source=`${normText(direct)} ${normText(keys.map(k=>row[k]).join(" "))}`;
+    const compact=source.replace(/[^A-Z0-9]/g,"");
+    if(/\bUSD\b/.test(source)||compact.includes("DOLARDENA")||compact.includes("DOLARESDENA")||compact.includes("DOLARNORTEAMERICANO")||compact.includes("DOLARESTADOUNIDENSE")||compact.includes("DOLARDELOSESTADOSUNIDOS")||compact.includes("UNITEDSTATESDOLLAR")||compact.includes("USDOLLAR")) return "USD";
+    const aliases=[
+      ["EUR",/(^|\b)(EUR|EURO)(\b|$)/],["GBP",/(^|\b)(GBP|LIBRA|POUND|STERLING)(\b|$)/],["CNH",/(^|\b)(CNH|YUAN OFFSHORE|RENMINBI OFFSHORE)(\b|$)/],["CNY",/(^|\b)(CNY|YUAN|RENMINBI|CHINA)(\b|$)/],["JPY",/(^|\b)(JPY|YEN|JAPON)(\b|$)/],["CHF",/(^|\b)(CHF|FRANCO SUIZO|SWISS)(\b|$)/],["CAD",/(^|\b)(CAD|DOLAR CANADIENSE|CANADIAN|CANADIENSE)(\b|$)/],["AUD",/(^|\b)(AUD|DOLAR AUSTRALIANO|AUSTRALIAN|AUSTRALIANO)(\b|$)/],["NZD",/(^|\b)(NZD|DOLAR NEOZELANDES|NEW ZEALAND)(\b|$)/],["MXN",/(^|\b)(MXN|PESO MEXICANO|MEXICANO)(\b|$)/],["BRL",/(^|\b)(BRL|REAL BRASIL|BRAZIL)(\b|$)/],["CLP",/(^|\b)(CLP|PESO CHILENO|CHILE|CHILENO)(\b|$)/],["COP",/(^|\b)(COP|PESO COLOMBIANO|COLOMBIA|COLOMBIANO)(\b|$)/]
+    ];
+    for(const [code,re] of aliases){if(re.test(source)) return code;}
+    const iso=source.match(/\b[A-Z]{3}\b/); return iso?iso[0]:"";
+  }
+  function inferName(row,code){
+    const keys=Object.keys(row||{});
+    for(const nk of ["moneda","descripcion","desc_moneda","nombre","currency_name","divisa","pais"]){const k=keys.find(x=>normText(x).replace(/[^A-Z0-9]/g,"")===normText(nk).replace(/[^A-Z0-9]/g,"")); if(k && row[k]!=null && String(row[k]).trim()!=="") return String(row[k]).trim();}
+    return {PEN:"Sol peruano",USD:"Dólar de N.A.",EUR:"Euro",GBP:"Libra esterlina",CNH:"Yuan offshore",CNY:"Yuan chino",JPY:"Yen japonés"}[code]||code||"Moneda";
+  }
+  function inferRate(row){
+    const keys=Object.keys(row||{});
+    for(const name of ["tipo_cambio","tc","t_c","t.c.","t.c. contable","tc_contable","tipo de cambio","tipo cambio contable","valor","rate","exchange_rate","venta","promedio","equivalencia","pen","soles"]){
+      const k=keys.find(x=>normText(x).replace(/[^A-Z0-9]/g,"")===normText(name).replace(/[^A-Z0-9]/g,"")); if(k){const n=toNum(row[k]); if(Number.isFinite(n)&&n>0) return n;}
+    }
+    const nums=keys.map(k=>[k,toNum(row[k])]).filter(([k,n])=>Number.isFinite(n)&&n>0&&n<100000&&!/(fecha|date|codigo|cod|fila|row|id)/i.test(k));
+    nums.sort((a,b)=>((/(cambio|contable|venta|rate|valor|equiv|tc)/i.test(a[0])?0:1)-(/(cambio|contable|venta|rate|valor|equiv|tc)/i.test(b[0])?0:1)));
+    return nums[0]?.[1]??NaN;
   }
   function normalizeRates(payload){
-    const rows = rowsFromPayload(payload);
-    const map = new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]);
+    const rows=rowsFromPayload(payload); const map=new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]);
     for(const row of rows){
-      if(!row || typeof row !== "object") continue;
-      const code = inferCode(row);
-      const rate = inferRate(row);
-      if(!code || !Number.isFinite(rate) || rate <= 0) continue;
-      const baseRaw = row.base || row.unidad || row.factor || row.cantidad || row.units || 1;
-      const base = Number.isFinite(toNum(baseRaw)) && toNum(baseRaw)>0 ? toNum(baseRaw) : 1;
-      map.set(code, {code, name:inferName(row, code), rate:rate/base, base, raw:row});
+      if(!row||typeof row!=="object") continue; const code=inferCode(row); const rate=inferRate(row); if(!code||!Number.isFinite(rate)||rate<=0) continue;
+      const b=toNum(row.base??row.unidad??row.factor??row.cantidad??row.units??1); const base=Number.isFinite(b)&&b>0?b:1;
+      map.set(code,{code,name:inferName(row,code),rate:rate/base,base,raw:row});
     }
-    return {rows, map};
-  }
-  function getRate(code){
-    if(code === "PEN") return 1;
-    if(code === "CNH" && !state.rates.has("CNH") && state.rates.has("CNY")) return state.rates.get("CNY").rate;
-    return state.rates.get(code)?.rate ?? NaN;
-  }
-  function getRawFromSnapshot(code, rates){
-    if(code === "PEN") return 1;
-    if(!rates || typeof rates !== "object") return NaN;
-    if(code === "CNH" && rates.CNH == null && rates.CNY != null) return toNum(rates.CNY);
-    return toNum(rates[code]);
-  }
-  function displayPair(code){
-    return code === "USD" ? "USDPEN" : `${code}USD`;
-  }
-  function displayRate(code, snapshotRates=null){
-    const usd = snapshotRates ? getRawFromSnapshot("USD", snapshotRates) : getRate("USD");
-    if(code === "USD") return usd;
-    const raw = snapshotRates ? getRawFromSnapshot(code, snapshotRates) : getRate(code);
-    if(!Number.isFinite(raw) || !Number.isFinite(usd) || usd <= 0) return NaN;
-    return raw / usd;
-  }
-  function displayDigits(code, value){
-    if(code === "JPY" || code === "CNH" || Math.abs(value) < 0.1) return 6;
-    return 4;
-  }
-  function displayCalc(code){
-    return code === "USD" ? "Dólar de N.A. en PEN" : `${code}PEN / USDPEN`;
-  }
-  async function fetchJSON(url){
-    const r = await fetch(url + (url.includes("?") ? "&" : "?") + "ts=" + Date.now(), {cache:"no-store"});
-    if(!r.ok) throw new Error(`HTTP ${r.status}`);
-    return await r.json();
-  }
-
-  async function loadMeta(){
-    const m = await fetchJSON("./data/tc_contable_meta.json");
-    state.meta = m;
-    el("vFecha").textContent = displayDate(m.fecha_publicada || m.fecha || m.date);
-    el("vGen").textContent = "UTC " + (m.generado_utc || m.generated_utc || "—");
-    el("vRows").textContent = `${Number.isFinite(m.rows) ? m.rows : "—"} filas`;
-    el("vHash").textContent = `hash ${compactHash(m.hash)}`;
-    return m;
-  }
-  async function loadLatest(){
-    const payload = await fetchJSON("./data/tc_contable_latest.json");
-    const {rows,map} = normalizeRates(payload);
-    state.latestRows = rows;
-    state.rates = map;
     return {rows,map};
   }
-  function renderKpis(){
-    const usd = displayRate("USD");
-    el("kUsd").textContent = fmtNumber(usd);
-    el("kEur").textContent = fmtNumber(displayRate("EUR"), displayDigits("EUR", displayRate("EUR")));
-    el("kGbp").textContent = fmtNumber(displayRate("GBP"), displayDigits("GBP", displayRate("GBP")));
-    el("kCnh").textContent = fmtNumber(displayRate("CNH"), displayDigits("CNH", displayRate("CNH")));
-    el("kJpy").textContent = fmtNumber(displayRate("JPY"), displayDigits("JPY", displayRate("JPY")));
-    const validRaw = [...state.rates.values()].filter(x => x.code !== "PEN" && Number.isFinite(x.rate));
-    const validCross = validRaw
-      .filter(x => x.code !== "USD")
-      .map(x => ({...x, shown:displayRate(x.code)}))
-      .filter(x => Number.isFinite(x.shown));
-    el("kCover").textContent = validRaw.length || "—";
-    el("kCoverSub").textContent = `${validRaw.length} monedas · USD: ${state.rates.has("USD") ? "Dólar de N.A." : "no detectado"}`;
-    el("kUsdSub").textContent = state.rates.has("USD") ? state.rates.get("USD").name : "No detectado: Dólar de N.A.";
-
-    const rates = validCross.map(x => x.shown).sort((a,b)=>a-b);
-    const max = validCross.reduce((a,b)=> !a || b.shown>a.shown ? b : a, null);
-    const min = validCross.reduce((a,b)=> !a || b.shown<a.shown ? b : a, null);
-    const avg = rates.length ? rates.reduce((a,b)=>a+b,0)/rates.length : NaN;
-    const med = rates.length ? (rates[Math.floor((rates.length-1)/2)] + rates[Math.ceil((rates.length-1)/2)]) / 2 : NaN;
-    el("sMax").textContent = max ? `${displayPair(max.code)} ${fmtNumber(max.shown, displayDigits(max.code,max.shown))}` : "—";
-    el("sMin").textContent = min ? `${displayPair(min.code)} ${fmtNumber(min.shown, displayDigits(min.code,min.shown))}` : "—";
-    el("sAvg").textContent = fmtNumber(avg);
-    el("sMed").textContent = fmtNumber(med);
+  function getRaw(code,ratesObj=null){
+    if(code==="PEN") return 1;
+    if(ratesObj){ if(code==="CNH"&&ratesObj.CNH==null&&ratesObj.CNY!=null) return toNum(ratesObj.CNY); return toNum(ratesObj[code]); }
+    if(code==="CNH"&&!state.rates.has("CNH")&&state.rates.has("CNY")) return state.rates.get("CNY").rate;
+    return state.rates.get(code)?.rate??NaN;
   }
-  function populateSelectors(){
-    const codes = ["PEN", ...CORE.filter(c => c !== "PEN" && (state.rates.has(c) || (c === "CNH" && state.rates.has("CNY"))))];
-    const all = [...state.rates.keys()].filter(c => !codes.includes(c)).sort();
-    const finalCodes = [...codes, ...all];
-    for(const id of ["fromCcy","toCcy","currencyTrend"]){
-      const select = el(id);
-      const prev = select.value;
-      if(id === "currencyTrend"){
-        const trendCodes = finalCodes.filter(c => c !== "PEN");
-        select.innerHTML = trendCodes.map(c => `<option value="${c}">${displayPair(c)}</option>`).join("");
-        select.value = prev && trendCodes.includes(prev) ? prev : (state.rates.has(TREND_DEFAULT) ? TREND_DEFAULT : trendCodes[0] || "USD");
-      }else{
-        select.innerHTML = finalCodes.map(c => `<option value="${c}">${c}</option>`).join("");
-        if(id === "fromCcy") select.value = prev || "USD";
-        if(id === "toCcy") select.value = prev || "PEN";
-      }
+  function shownRate(code,ratesObj=null){
+    const usd=getRaw("USD",ratesObj); if(code==="USD") return usd;
+    const raw=getRaw(code,ratesObj); return Number.isFinite(raw)&&Number.isFinite(usd)&&usd>0?raw/usd:NaN;
+  }
+  function pair(code){return code==="USD"?"USDPEN":`${code}USD`;}
+  function calc(code){return code==="USD"?"Dólar de N.A. en PEN":`${code}PEN / USDPEN`;}
+  function allCodes(){return [...state.rates.keys()].filter(c=>c!=="PEN"&&Number.isFinite(shownRate(c))).sort((a,b)=>(CORE.indexOf(a)<0?99:CORE.indexOf(a))-(CORE.indexOf(b)<0?99:CORE.indexOf(b))||a.localeCompare(b));}
+  function snapshotFromPayload(payload,fallbackDate=""){
+    if(payload?.rates && typeof payload.rates==="object"){
+      const rates={}; for(const [k,v] of Object.entries(payload.rates)){const n=toNum(v?.rate??v); if(Number.isFinite(n)) rates[k.toUpperCase()]=n;}
+      const dk=dateKey(payload.date||payload.fecha||payload.fecha_publicada||fallbackDate); return Object.keys(rates).length&&dk?{date:dk,rates}:null;
     }
-    state.selectedTrend = el("currencyTrend").value;
+    const {map}=normalizeRates(payload); const rates={}; for(const [code,obj] of map) if(code!=="PEN") rates[code]=obj.rate;
+    const dk=dateKey(payload?.fecha_publicada||payload?.fecha||payload?.date||payload?.generated_at||fallbackDate);
+    return Object.keys(rates).length&&dk?{date:dk,rates}:null;
   }
-  function renderConverter(){
-    const amt = toNum(el("amount").value);
-    const from = el("fromCcy").value;
-    const to = el("toCcy").value;
-    const rf = getRate(from);
-    const rt = getRate(to);
-    if(!Number.isFinite(amt) || !Number.isFinite(rf) || !Number.isFinite(rt)){
-      el("convResult").textContent = "—";
-      el("convSub").textContent = "Falta tasa para una de las monedas";
-      return;
-    }
-    const pen = amt * rf;
-    const converted = pen / rt;
-    el("convResult").textContent = fmtMoney(converted, to);
-    el("convSub").textContent = `${fmtMoney(amt, from)} · PEN base ${fmtNumber(pen,2)}`;
-    renderPills();
+  function manifestEntries(payload){
+    const out=[]; const add=x=>{if(!x)return; if(typeof x==="string") out.push(x); else if(typeof x==="object"){const emb=snapshotFromPayload(x,x.date||x.fecha||x.fecha_publicada); if(emb) out.push({embedded:emb}); else out.push(x.url||x.path||x.file||x.filename||x.href||"");}};
+    if(Array.isArray(payload)) payload.forEach(add); else if(payload&&typeof payload==="object"){["files","history","snapshots","items","data"].forEach(k=>Array.isArray(payload[k])&&payload[k].forEach(add)); const emb=snapshotFromPayload(payload); if(emb) out.push({embedded:emb});}
+    return out.filter(Boolean).map(x=>typeof x==="object"?x:(/^https?:\/\//i.test(String(x))||String(x).startsWith("./")?String(x):"./data/"+String(x).replace(/^data\//,"")));
   }
-  function renderPills(){
-    const target = el("toCcy").value || "PEN";
-    const amt = toNum(el("amount").value) || 1;
-    const from = el("fromCcy").value || "USD";
-    const rf = getRate(from);
-    const html = ["PEN","USD","EUR","GBP","CNH","JPY"].map(code => {
-      const r = getRate(code);
-      const val = Number.isFinite(rf) && Number.isFinite(r) ? (amt*rf)/r : NaN;
-      return `<div class="pill-card ${code===target?"active":""}" data-code="${code}"><div class="pill-code">${code}</div><div class="pill-rate">${fmtNumber(val, code==="JPY"?2:2)}</div></div>`;
-    }).join("");
-    el("currencyPills").innerHTML = html;
-    el("currencyPills").querySelectorAll(".pill-card").forEach(card => card.addEventListener("click", () => {
-      el("toCcy").value = card.dataset.code;
-      renderConverter();
-    }));
+  async function mapLimit(items,limit,fn,onProgress){
+    const results=[]; let i=0,done=0;
+    async function worker(){while(i<items.length){const idx=i++; try{results[idx]=await fn(items[idx],idx);}catch(e){results[idx]=null;} done++; if(onProgress) onProgress(done,items.length);}}
+    await Promise.all(Array.from({length:Math.min(limit,items.length)},worker)); return results;
   }
-  function renderTable(){
-    const q = normText(el("searchBox").value);
-    const rows = [...state.rates.values()]
-      .filter(x => x.code !== "PEN")
-      .map(x => ({...x, pair:displayPair(x.code), shown:displayRate(x.code)}))
-      .filter(x => Number.isFinite(x.shown))
-      .sort((a,b) => CORE.indexOf(a.code) !== -1 && CORE.indexOf(b.code) === -1 ? -1 : CORE.indexOf(b.code) !== -1 && CORE.indexOf(a.code) === -1 ? 1 : a.code.localeCompare(b.code));
-    const filtered = rows.filter(x => !q || normText(`${x.pair} ${x.code} ${x.name}`).includes(q));
-    el("tableCount").textContent = `${filtered.length} pares`;
-    el("ratesTable").innerHTML = filtered.length ? filtered.map(x => `
-      <tr>
-        <td class="code">${x.pair}</td>
-        <td>${x.name}</td>
-        <td class="num">${fmtNumber(x.shown, displayDigits(x.code,x.shown))}</td>
-        <td class="num">${displayCalc(x.code)}</td>
-      </tr>`).join("") : `<tr><td colspan="4">Sin resultados</td></tr>`;
+  function mergeHistory(snaps){
+    const by=new Map(); for(const s of snaps){const dk=dateKey(s.date); if(dk&&s.rates) by.set(dk,{date:dk,rates:s.rates});}
+    const latestDate=dateKey(state.meta?.fecha_publicada||state.meta?.fecha||new Date()); const latest={}; for(const [code,obj] of state.rates) if(code!=="PEN") latest[code]=obj.rate;
+    if(Object.keys(latest).length&&latestDate) by.set(latestDate,{date:latestDate,rates:latest});
+    return [...by.values()].sort((a,b)=>a.date.localeCompare(b.date));
   }
-  function chartScales(values, width, height, pad){
-    const xs = values.map((_,i) => values.length === 1 ? pad.l + (width-pad.l-pad.r)/2 : pad.l + i*((width-pad.l-pad.r)/(values.length-1)));
-    let min = Math.min(...values), max = Math.max(...values);
-    if(!Number.isFinite(min) || !Number.isFinite(max)){ min=0; max=1; }
-    if(min === max){ min = min * .995; max = max * 1.005; if(min===max){min-=1;max+=1;} }
-    const span = max-min;
-    min -= span*.08; max += span*.08;
-    const y = v => pad.t + (max-v)/(max-min)*(height-pad.t-pad.b);
-    return {xs,y,min,max};
+  function loadCache(){
+    try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null"); if(c?.history?.length){state.history=mergeHistory(c.history); el("vHist").textContent=`hist ${state.history.length}`; log(`Histórico desde caché: ${state.history.length} cortes`); perf(`Caché local cargada (${state.history.length} cortes)`,35); renderCharts(); return true;}}catch(e){}
+    return false;
   }
-  function renderTrendChart(){
-    const container = el("trendChart");
-    const ccy = state.selectedTrend;
-    const pair = displayPair(ccy);
-    const hist = state.history
-      .filter(x => x.rates && Number.isFinite(displayRate(ccy, x.rates)))
-      .sort((a,b)=>dateKey(a.date).localeCompare(dateKey(b.date)))
-      .slice(-state.range);
-    el("sHist").textContent = state.history.length ? `${state.history.length} días` : "—";
-    if(hist.length < 2){
-      container.innerHTML = `<div class="chart-empty">No hay histórico suficiente para ${pair}. Carga manifest o archivos diarios en data/.</div>`;
-      el("sVar").textContent = "—";
-      return;
-    }
-    const values = hist.map(x => displayRate(ccy, x.rates));
-    const last = values[values.length-1], prev = values[values.length-2];
-    const variation = ((last/prev)-1)*100;
-    el("sVar").textContent = `${variation>=0?"+":""}${fmtNumber(variation,2)}%`;
-    const W = 920, H = 300, pad = {l:58,r:20,t:24,b:38};
-    const {xs,y,min,max} = chartScales(values,W,H,pad);
-    const pts = values.map((v,i)=>`${xs[i]},${y(v)}`).join(" ");
-    const area = `${pad.l},${H-pad.b} ${pts} ${xs[xs.length-1]},${H-pad.b}`;
-    const ticks = [0,.25,.5,.75,1].map(p => min + (max-min)*p);
-    const xLabels = hist.map((h,i)=>({i,date:dateKey(h.date)})).filter((_,i,arr)=> i===0 || i===arr.length-1 || i===Math.floor(arr.length/2));
-    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tendencia ${pair}">
-      ${ticks.map(t => `<line class="gridline" x1="${pad.l}" x2="${W-pad.r}" y1="${y(t)}" y2="${y(t)}"></line><text class="tick" x="12" y="${y(t)+4}">${fmtNumber(t, displayDigits(ccy,t))}</text>`).join("")}
-      <line class="chart-axis" x1="${pad.l}" x2="${W-pad.r}" y1="${H-pad.b}" y2="${H-pad.b}"></line>
-      <polygon class="area-main" points="${area}"></polygon>
-      <polyline class="line-main" points="${pts}"></polyline>
-      ${values.map((v,i)=> i===values.length-1 ? `<circle class="point" cx="${xs[i]}" cy="${y(v)}" r="4"></circle><text class="chart-label" x="${Math.max(pad.l, xs[i]-72)}" y="${Math.max(16,y(v)-12)}">${pair} ${fmtNumber(v, displayDigits(ccy,v))}</text>` : "").join("")}
-      ${xLabels.map(x => `<text class="tick" text-anchor="middle" x="${xs[x.i]}" y="${H-13}">${x.date.slice(5)}</text>`).join("")}
-    </svg>`;
-  }
-  function renderBarChart(){
-    const container = el("barChart");
-    let rows = [...state.rates.values()].filter(x => x.code !== "PEN" && x.code !== "USD" && Number.isFinite(x.rate));
-    if(state.barSet === "main") rows = ["EUR","GBP","CNH","JPY"].map(c => state.rates.get(c) || (c==="CNH"?state.rates.get("CNY"):null)).filter(Boolean);
-    else rows = rows.map(x => ({...x, shown:displayRate(x.code)})).filter(x => Number.isFinite(x.shown)).sort((a,b)=>b.shown-a.shown).slice(0,8);
-    rows = rows.map(x => ({...x, pair:displayPair(x.code), shown:displayRate(x.code)})).filter(x => Number.isFinite(x.shown));
-    if(!rows.length){ container.innerHTML = `<div class="chart-empty">Sin cruces disponibles. Revisa que exista la fila Dólar de N.A.</div>`; return; }
-    const W = 920, H = 244, pad = {l:48,r:20,t:18,b:44};
-    const max = Math.max(...rows.map(x=>x.shown))*1.12;
-    const bw = (W-pad.l-pad.r)/rows.length*.62;
-    const gap = (W-pad.l-pad.r)/rows.length;
-    const y = v => pad.t + (max-v)/max*(H-pad.t-pad.b);
-    container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Barras cruces USD">
-      ${[0,.25,.5,.75,1].map(p => `<line class="gridline" x1="${pad.l}" x2="${W-pad.r}" y1="${y(max*p)}" y2="${y(max*p)}"></line>`).join("")}
-      <line class="chart-axis" x1="${pad.l}" x2="${W-pad.r}" y1="${H-pad.b}" y2="${H-pad.b}"></line>
-      ${rows.map((r,i)=>{
-        const x = pad.l + i*gap + (gap-bw)/2;
-        const h = H-pad.b-y(r.shown);
-        return `<rect class="bar ${i%2?"alt":""}" x="${x}" y="${y(r.shown)}" width="${bw}" height="${h}" rx="3"></rect>
-          <text class="chart-label" text-anchor="middle" x="${x+bw/2}" y="${Math.max(13,y(r.shown)-6)}">${fmtNumber(r.shown,displayDigits(r.code,r.shown))}</text>
-          <text class="tick" text-anchor="middle" x="${x+bw/2}" y="${H-16}">${r.pair}</text>`;
-      }).join("")}
-    </svg>`;
-  }
-  function extractSnapshot(payload, fallbackDate){
-    const {map} = normalizeRates(payload);
-    const rates = {};
-    for(const [code,obj] of map) if(code !== "PEN") rates[code] = obj.rate;
-    const date = payload?.fecha_publicada || payload?.fecha || payload?.date || payload?.generated_at || fallbackDate;
-    return Object.keys(rates).length ? {date:dateKey(date) || fallbackDate, rates} : null;
-  }
-  function snapshotFromEmbedded(item){
-    if(!item || typeof item !== "object") return null;
-    if(item.rates && typeof item.rates === "object"){
-      const rates = {};
-      for(const [k,v] of Object.entries(item.rates)){ const n = toNum(v?.rate ?? v); if(Number.isFinite(n)) rates[k.toUpperCase()] = n; }
-      return Object.keys(rates).length ? {date:dateKey(item.date || item.fecha || item.fecha_publicada), rates} : null;
-    }
-    const snap = extractSnapshot(item, item.date || item.fecha || item.fecha_publicada);
-    return snap;
-  }
-  function urlsFromManifest(payload){
-    const files = [];
-    const add = x => {
-      if(!x) return;
-      if(typeof x === "string") files.push(x);
-      else if(typeof x === "object"){
-        const embedded = snapshotFromEmbedded(x);
-        if(embedded && embedded.date) files.push({embedded});
-        else files.push(x.url || x.path || x.file || x.filename || x.href || "");
-      }
-    };
-    if(Array.isArray(payload)) payload.forEach(add);
-    else if(payload && typeof payload === "object"){
-      ["files","history","snapshots","items","data"].forEach(k => Array.isArray(payload[k]) && payload[k].forEach(add));
-      const embedded = snapshotFromEmbedded(payload);
-      if(embedded && embedded.date) files.push({embedded});
-    }
-    return files.filter(Boolean).map(f => {
-      if(typeof f === "object" && f.embedded) return f;
-      const s = String(f);
-      if(/^https?:\/\//i.test(s) || s.startsWith("./")) return s;
-      return "./data/" + s.replace(/^data\//,"");
-    });
-  }
-  async function loadHistoryFromManifest(){
-    for(const url of CANDIDATE_MANIFESTS){
+  function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({savedAt:Date.now(),history:state.history.slice(-260)}));}catch(e){} }
+  async function loadHistoryManifest(){
+    for(const url of MANIFESTS){
       try{
-        const payload = await fetchJSON(url);
-        const files = urlsFromManifest(payload);
-        const embedded = files.filter(x => typeof x === "object" && x.embedded).map(x => x.embedded);
-        const urls = files.filter(x => typeof x === "string");
-        const snaps = [...embedded];
-        const picked = urls.slice(-160);
-        for(const f of picked){
-          try{
-            const p = await fetchJSON(f);
-            const snap = extractSnapshot(p, dateKey(f));
-            if(snap) snaps.push(snap);
-          }catch(_e){}
-        }
-        if(snaps.length){
-          log(`Histórico cargado desde ${url}: ${snaps.length} cortes`);
-          el("historySource").textContent = `${snaps.length} archivos detectados vía manifest`;
-          return snaps;
-        }
-      }catch(_e){}
+        const payload=await fetchJSON(url,{cache:"force-cache"}); const entries=manifestEntries(payload); if(!entries.length) continue;
+        const embedded=entries.filter(x=>typeof x==="object").map(x=>x.embedded); const urls=entries.filter(x=>typeof x==="string").slice(-260);
+        perf(`Manifest detectado: ${url.split('/').pop()} · ${urls.length+embedded.length} archivos`,50);
+        const fetched=await mapLimit(urls,12,async f=>snapshotFromPayload(await fetchJSON(f,{cache:"force-cache"}),f),(d,t)=>perf(`Leyendo manifest ${d}/${t}`,50+Math.round(d/t*40)));
+        const snaps=[...embedded,...fetched.filter(Boolean)]; if(snaps.length){state.historySource=`manifest ${url.split('/').pop()}`; return snaps;}
+      }catch(e){}
     }
     return [];
   }
-  function datePartsFrom(baseDate, daysBack){
-    const base = parseDate(baseDate) || new Date();
-    const arr = [];
-    for(let i=0;i<daysBack;i++){
-      const d = new Date(base);
-      d.setDate(base.getDate()-i);
-      const y = d.getFullYear();
-      const m = String(d.getMonth()+1).padStart(2,"0");
-      const day = String(d.getDate()).padStart(2,"0");
-      arr.push({ymd:`${y}-${m}-${day}`, compact:`${y}${m}${day}`});
-    }
+  function dateParts(days){
+    const base=parseDate(state.meta?.fecha_publicada||state.meta?.fecha)||new Date(); const arr=[];
+    for(let i=0;i<days;i++){const d=new Date(base); d.setDate(base.getDate()-i); const wd=d.getDay(); if(wd===0) continue; const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0"); arr.push({ymd:`${y}-${m}-${day}`,compact:`${y}${m}${day}`});}
     return arr.reverse();
   }
-  async function loadHistoryByDateProbe(){
-    const base = state.meta?.fecha_publicada || state.meta?.fecha || new Date();
-    const dates = datePartsFrom(base, 75);
-    const snaps = [];
-    for(const d of dates){
-      for(const pat of DAILY_PATTERNS){
-        const url = pat(d);
-        try{
-          const p = await fetchJSON(url);
-          const snap = extractSnapshot(p, d.ymd);
-          if(snap){ snaps.push(snap); break; }
-        }catch(_e){}
-      }
+  async function loadHistoryProbe(){
+    const dates=dateParts(Math.min(150,Math.max(state.range+18,45))); const found=new Map();
+    for(let p=0;p<PATTERNS.length;p++){
+      const missing=dates.filter(d=>!found.has(d.ymd)); if(!missing.length) break;
+      const tasks=missing.map(d=>({d,url:PATTERNS[p](d)})); perf(`Probando patrón ${p+1}/${PATTERNS.length}`,18+p*10);
+      const res=await mapLimit(tasks,14,async item=>({d:item.d,s:snapshotFromPayload(await fetchJSON(item.url,{cache:"force-cache"}),item.d.ymd)}),(done,total)=>perf(`Histórico rápido ${done}/${total}`,20+p*10+Math.round(done/total*8)));
+      for(const r of res){if(r?.s) found.set(r.d.ymd,r.s);}
+      if(found.size>=Math.min(state.range,30)) break;
     }
-    if(snaps.length){
-      log(`Histórico detectado por fecha: ${snaps.length} cortes`);
-      el("historySource").textContent = `${snaps.length} archivos diarios detectados`;
-    }
-    return snaps;
+    state.historySource="detección por fecha"; return [...found.values()];
   }
-  function mergeHistory(snaps){
-    const byDate = new Map();
-    for(const s of snaps){
-      const dk = dateKey(s.date);
-      if(!dk) continue;
-      byDate.set(dk, {...s, date:dk});
-    }
-    const latestDate = dateKey(state.meta?.fecha_publicada || state.meta?.fecha || new Date());
-    const latestRates = {};
-    for(const [code,obj] of state.rates) if(code !== "PEN") latestRates[code] = obj.rate;
-    if(Object.keys(latestRates).length) byDate.set(latestDate, {date:latestDate, rates:latestRates});
-    return [...byDate.values()].sort((a,b)=>a.date.localeCompare(b.date));
+  async function loadHistory(force=false){
+    setStatus("Histórico",""); perf("Iniciando carga histórica…",5);
+    if(!force && loadCache()) setStatus("Caché", "ok");
+    let snaps=await loadHistoryManifest();
+    if(!snaps.length) snaps=await loadHistoryProbe();
+    state.history=mergeHistory(snaps); saveCache();
+    el("vHist").textContent=`hist ${state.history.length}`;
+    el("historySource").textContent=state.history.length?`${state.history.length} cortes · ${state.historySource}`:"solo latest";
+    perf(state.history.length?`Histórico actualizado (${state.history.length} cortes)`:"No se encontró histórico",100);
+    setStatus(state.history.length?"Actualizado":"Sin histórico",state.history.length?"ok":"warn");
+    renderCharts(); renderStats(); renderDeltas();
   }
-  async function loadHistory(){
-    setStatus("Cargando histórico", "");
-    let snaps = await loadHistoryFromManifest();
-    if(!snaps.length) snaps = await loadHistoryByDateProbe();
-    state.history = mergeHistory(snaps);
-    if(!state.history.length) log("No se encontraron archivos históricos. Se mostrará solo latest.", "warn");
-    renderTrendChart();
+  function ensureChart(id){
+    const dom=el(id); if(!window.echarts){dom.className="chart empty"; dom.textContent="No se pudo cargar ECharts. Revisa conexión/CDN."; return null;}
+    dom.classList.remove("empty"); if(!state.charts[id]) state.charts[id]=echarts.init(dom,null,{renderer:"canvas"}); return state.charts[id];
   }
-  function bindEvents(){
-    el("btnRefresh").addEventListener("click", refresh);
-    el("btnHistory").addEventListener("click", loadHistory);
-    el("amount").addEventListener("input", renderConverter);
-    el("fromCcy").addEventListener("change", renderConverter);
-    el("toCcy").addEventListener("change", renderConverter);
-    el("currencyTrend").addEventListener("change", e => {state.selectedTrend=e.target.value; renderTrendChart();});
-    el("swapBtn").addEventListener("click", () => {
-      const a = el("fromCcy"), b = el("toCcy");
-      [a.value,b.value] = [b.value,a.value];
-      renderConverter();
-    });
-    el("searchBox").addEventListener("input", renderTable);
-    el("rangeTabs").querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
-      el("rangeTabs").querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
-      state.range = Number(btn.dataset.range);
-      renderTrendChart();
-    }));
-    el("barTabs").querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
-      el("barTabs").querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
-      state.barSet = btn.dataset.set;
-      renderBarChart();
-    }));
-    el("btnCopy").addEventListener("click", async () => {
-      const txt = [
-        `TC Contable SBS · ${el("vFecha").textContent}`,
-        `USDPEN: ${el("kUsd").textContent}`,
-        `EURUSD: ${el("kEur").textContent}`,
-        `GBPUSD: ${el("kGbp").textContent}`,
-        `CNHUSD: ${el("kCnh").textContent}`,
-        `JPYUSD: ${el("kJpy").textContent}`,
-        `Cobertura: ${el("kCoverSub").textContent}`
-      ].join("\n");
-      try{ await navigator.clipboard.writeText(txt); log("Resumen copiado al portapapeles"); }catch(e){ log("No se pudo copiar el resumen", "warn"); }
-    });
+  function seriesFor(code){
+    return state.history.map(s=>({date:s.date,value:shownRate(code,s.rates)})).filter(x=>Number.isFinite(x.value));
   }
-  function renderAll(){
-    renderKpis();
-    populateSelectors();
-    renderConverter();
-    renderTable();
-    renderBarChart();
-    renderTrendChart();
+  function prevChange(code){
+    const s=seriesFor(code); if(s.length<2) return NaN; const a=s.at(-2).value,b=s.at(-1).value; return a?((b/a)-1)*100:NaN;
   }
-  async function refresh(){
-    setStatus("Consultando", "");
-    try{
-      const m = await loadMeta();
-      log(`Meta OK · Fecha ${m.fecha_publicada || m.fecha || "n/d"}`);
-      try{
-        await loadLatest();
-        log(`Latest OK · ${state.rates.size-1} monedas detectadas · USD=${state.rates.has("USD") ? state.rates.get("USD").name : "no detectado"}`);
-      }catch(e){
-        log(`No se pudo leer latest JSON: ${e.message || e}`, "warn");
-      }
-      renderAll();
-      setStatus("Actualizado", "ok");
-      loadHistory();
-    }catch(e){
-      setStatus("Error", "err");
-      log(`No se pudo leer ./data/tc_contable_meta.json · ${e.message || e}`, "error");
-      try{
-        await loadLatest();
-        renderAll();
-        setStatus("Latest cargado", "ok");
-      }catch(_e){}
+  function renderDeltas(){
+    for(const [code,id] of [["USD","dUsd"],["EUR","dEur"],["GBP","dGbp"],["CNH","dCnh"],["JPY","dJpy"]]){
+      const v=prevChange(code), node=el(id); node.textContent=pct(v); node.className=`delta ${!Number.isFinite(v)||Math.abs(v)<0.005?"flat":v>0?"pos":"neg"}`;
     }
   }
-
-  bindEvents();
-  refresh();
+  function renderTrend(){
+    const chart=ensureChart("trendChart"); if(!chart) return;
+    const code=state.trend, data=seriesFor(code).slice(-state.range); const name=pair(code);
+    if(!data.length){chart.clear(); chart.setOption({title:{text:"Sin histórico disponible",left:"center",top:"center",textStyle:{fontSize:13,color:"#61768a"}}}); return;}
+    chart.setOption({
+      color:["#051c2c","#00a3b5"], animationDuration:450,
+      grid:{left:48,right:24,top:24,bottom:58},
+      tooltip:{trigger:"axis",axisPointer:{type:"cross"},valueFormatter:v=>fmt(v,digits(code,v))},
+      toolbox:{right:8,feature:{dataZoom:{yAxisIndex:"none"},restore:{},saveAsImage:{pixelRatio:2}}},
+      dataZoom:[{type:"inside",throttle:60},{type:"slider",height:22,bottom:18}],
+      xAxis:{type:"category",data:data.map(x=>x.date),boundaryGap:false,axisLabel:{color:"#60788c",fontWeight:700},axisLine:{lineStyle:{color:"#d7e1ec"}},axisTick:{show:false}},
+      yAxis:{type:"value",scale:true,axisLabel:{color:"#60788c",formatter:v=>fmt(v,digits(code,v))},splitLine:{lineStyle:{color:"#edf2f7"}}},
+      series:[{name,type:"line",data:data.map(x=>x.value),smooth:true,symbol:"circle",symbolSize:6,lineStyle:{width:3},areaStyle:{opacity:.13},markPoint:{data:[{type:"max",name:"Max"},{type:"min",name:"Min"}]}}]
+    },true);
+  }
+  function renderChange(){
+    const chart=ensureChart("changeChart"); if(!chart) return;
+    const code=state.trend, base=seriesFor(code).slice(-state.range), changes=[];
+    for(let i=1;i<base.length;i++){const a=base[i-1].value,b=base[i].value; if(a) changes.push({date:base[i].date,value:(b/a-1)*100});}
+    el("changeSource").textContent=`${pair(code)} · variación % diaria`;
+    if(!changes.length){chart.clear(); chart.setOption({title:{text:"Sin variaciones suficientes",left:"center",top:"center",textStyle:{fontSize:13,color:"#61768a"}}}); return;}
+    chart.setOption({
+      animationDuration:450, grid:{left:44,right:16,top:18,bottom:34},
+      tooltip:{trigger:"axis",valueFormatter:v=>pct(v)},
+      xAxis:{type:"category",data:changes.map(x=>x.date),axisLabel:{color:"#60788c",fontWeight:700},axisTick:{show:false},axisLine:{lineStyle:{color:"#d7e1ec"}}},
+      yAxis:{type:"value",axisLabel:{color:"#60788c",formatter:v=>`${v}%`},splitLine:{lineStyle:{color:"#edf2f7"}}},
+      series:[{name:"Var. diaria",type:"bar",data:changes.map(x=>({value:x.value,itemStyle:{color:x.value>=0?"#13966b":"#bd2c22"}})),barMaxWidth:28,markLine:{symbol:"none",data:[{yAxis:0}],lineStyle:{color:"#8ba0b3",type:"dashed"}}}]
+    },true);
+  }
+  function renderBar(){
+    const chart=ensureChart("barChart"); if(!chart) return;
+    let codes = state.barSet==="core" ? ["EUR","GBP","CNH","JPY"].filter(c=>Number.isFinite(shownRate(c))) : allCodes().filter(c=>c!=="USD").sort((a,b)=>shownRate(b)-shownRate(a)).slice(0,9);
+    const data=codes.map(c=>({code:c,name:pair(c),value:shownRate(c)})).filter(x=>Number.isFinite(x.value));
+    if(!data.length){chart.clear(); chart.setOption({title:{text:"Sin cruces disponibles",left:"center",top:"center",textStyle:{fontSize:13,color:"#61768a"}}}); return;}
+    chart.setOption({
+      color:["#0c3857"], animationDuration:450, grid:{left:56,right:24,top:16,bottom:36},
+      tooltip:{trigger:"axis",axisPointer:{type:"shadow"},valueFormatter:v=>fmt(v,6)},
+      xAxis:{type:"category",data:data.map(x=>x.name),axisLabel:{color:"#60788c",fontWeight:800},axisTick:{show:false},axisLine:{lineStyle:{color:"#d7e1ec"}}},
+      yAxis:{type:"value",scale:true,axisLabel:{color:"#60788c",formatter:v=>fmt(v,4)},splitLine:{lineStyle:{color:"#edf2f7"}}},
+      series:[{name:"TC",type:"bar",data:data.map((x,i)=>({value:x.value,itemStyle:{color:["#0c3857","#00a3b5","#13966b","#635bff","#c17a18"][i%5]}})),barMaxWidth:38,label:{show:true,position:"top",fontWeight:800,formatter:p=>fmt(p.value,digits(data[p.dataIndex].code,p.value))}}]
+    },true);
+  }
+  function renderCharts(){renderTrend(); renderChange(); renderBar(); renderStats(); renderDeltas();}
+  function renderKpis(){
+    const values={USD:shownRate("USD"),EUR:shownRate("EUR"),GBP:shownRate("GBP"),CNH:shownRate("CNH"),JPY:shownRate("JPY")};
+    el("kUsd").textContent=fmt(values.USD,digits("USD",values.USD)); el("kEur").textContent=fmt(values.EUR,digits("EUR",values.EUR)); el("kGbp").textContent=fmt(values.GBP,digits("GBP",values.GBP)); el("kCnh").textContent=fmt(values.CNH,digits("CNH",values.CNH)); el("kJpy").textContent=fmt(values.JPY,digits("JPY",values.JPY));
+    const codes=allCodes(); el("kCover").textContent=codes.length||"—"; el("kCoverSub").textContent=`${codes.length} pares · USD ${state.rates.has("USD")?"OK":"no detectado"}`;
+  }
+  function populateSelectors(){
+    const codes=["PEN",...allCodes()];
+    const opts=codes.map(c=>`<option value="${c}">${c}${c==="USD"?" · Dólar de N.A.":""}</option>`).join("");
+    for(const id of ["fromCcy","toCcy"]){const old=el(id).value; el(id).innerHTML=opts; if(codes.includes(old)) el(id).value=old;}
+    if(!el("fromCcy").value) el("fromCcy").value="USD"; if(!el("toCcy").value) el("toCcy").value="PEN";
+    const trendCodes=allCodes(); el("trendCcy").innerHTML=trendCodes.map(c=>`<option value="${c}">${pair(c)}</option>`).join(""); if(trendCodes.includes(state.trend)) el("trendCcy").value=state.trend; else {state.trend=trendCodes[0]||"USD"; el("trendCcy").value=state.trend;}
+  }
+  function convert(amount,from,to){const rf=getRaw(from), rt=getRaw(to); return Number.isFinite(rf)&&Number.isFinite(rt)&&rt>0?amount*rf/rt:NaN;}
+  function renderConverter(){
+    const a=toNum(el("amount").value), from=el("fromCcy").value, to=el("toCcy").value, val=convert(a,from,to);
+    el("convResult").textContent=Number.isFinite(val)?`${fmt(val,2)} ${to}`:"—";
+    el("convSub").textContent=Number.isFinite(val)?`${fmt(a,2)} ${from} → vía PEN · ${fmt(getRaw(from),6)} / ${fmt(getRaw(to),6)}`:"No hay tasa suficiente";
+    renderQuickPairs();
+  }
+  function renderQuickPairs(){
+    const pairs=["USD","EUR","GBP","CNH","JPY"].filter(c=>Number.isFinite(shownRate(c)));
+    el("quickPairs").innerHTML=pairs.map(c=>{const v=shownRate(c), ch=prevChange(c); return `<div class="pair-card ${state.trend===c?"active":""}" data-code="${c}"><div class="c">${pair(c)}</div><div class="r">${fmt(v,digits(c,v))}</div><div class="d">${pct(ch)}</div></div>`;}).join("");
+    el("quickPairs").querySelectorAll(".pair-card").forEach(card=>card.addEventListener("click",()=>{state.trend=card.dataset.code; el("trendCcy").value=state.trend; renderCharts(); renderQuickPairs();}));
+  }
+  function renderTable(){
+    const q=normText(el("searchBox").value); const rows=allCodes().map(c=>({code:c,p:pair(c),name:state.rates.get(c)?.name||(c==="CNH"?state.rates.get("CNY")?.name:c),value:shownRate(c),calc:calc(c)})).filter(r=>!q||normText(`${r.p} ${r.code} ${r.name} ${r.calc}`).includes(q));
+    el("tableCount").textContent=`${rows.length} pares`;
+    el("ratesTable").innerHTML=rows.length?rows.map(r=>`<tr><td class="code">${r.p}</td><td>${r.name||"—"}</td><td class="num">${fmt(r.value,digits(r.code,r.value))}</td><td class="num">${r.calc}</td></tr>`).join(""):`<tr><td colspan="4">Sin resultados</td></tr>`;
+  }
+  function renderStats(){
+    const code=state.trend, s=seriesFor(code).slice(-state.range), vals=s.map(x=>x.value), last=vals.at(-1), ch=prevChange(code);
+    const max=Math.max(...vals), min=Math.min(...vals), avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:NaN;
+    let vol=NaN; if(vals.length>2){const changes=[]; for(let i=1;i<vals.length;i++) if(vals[i-1]) changes.push((vals[i]/vals[i-1]-1)*100); const mean=changes.reduce((a,b)=>a+b,0)/changes.length; vol=Math.sqrt(changes.reduce((a,b)=>a+(b-mean)**2,0)/changes.length);}
+    el("statsPair").textContent=`${pair(code)} · ${state.range}D`; el("sLast").textContent=fmt(last,digits(code,last)); el("sChg").textContent=pct(ch); el("sMax").textContent=fmt(max,digits(code,max)); el("sMin").textContent=fmt(min,digits(code,min)); el("sAvg").textContent=fmt(avg,digits(code,avg)); el("sVol").textContent=Number.isFinite(vol)?`${fmt(vol,3)}%`:"—";
+  }
+  async function loadMeta(){const m=await fetchJSON("./data/tc_contable_meta.json",{fresh:true,cache:"no-store"}); state.meta=m; el("vFecha").textContent=displayDate(m.fecha_publicada||m.fecha||m.date); el("vRows").textContent=`${Number.isFinite(m.rows)?m.rows:"—"} filas`; el("vHash").textContent=`hash ${compactHash(m.hash)}`; return m;}
+  async function loadLatest(){const payload=await fetchJSON("./data/tc_contable_latest.json",{fresh:true,cache:"no-store"}); const {map}=normalizeRates(payload); state.rates=map; log(`Latest OK · ${map.size-1} monedas · USD=${map.has("USD")?"Dólar de N.A.":"no detectado"}`);}
+  function bind(){
+    el("btnRefresh").addEventListener("click",()=>refresh(true)); el("btnReloadHistory").addEventListener("click",()=>loadHistory(true));
+    el("btnClearCache").addEventListener("click",()=>{localStorage.removeItem(CACHE_KEY); log("Caché histórica eliminada"); perf("Caché eliminada. Vuelve a cargar histórico.",0);});
+    el("btnCopy").addEventListener("click",async()=>{const text=[`TC Contable SBS · ${el("vFecha").textContent}`,`USDPEN ${el("kUsd").textContent}`,`EURUSD ${el("kEur").textContent}`,`GBPUSD ${el("kGbp").textContent}`,`CNHUSD ${el("kCnh").textContent}`,`JPYUSD ${el("kJpy").textContent}`].join("\n"); try{await navigator.clipboard.writeText(text); log("Resumen copiado");}catch(e){log("No se pudo copiar","warn");}});
+    el("amount").addEventListener("input",renderConverter); el("fromCcy").addEventListener("change",renderConverter); el("toCcy").addEventListener("change",renderConverter); el("swapBtn").addEventListener("click",()=>{const a=el("fromCcy"),b=el("toCcy"); [a.value,b.value]=[b.value,a.value]; renderConverter();});
+    el("trendCcy").addEventListener("change",e=>{state.trend=e.target.value; renderCharts(); renderQuickPairs();});
+    el("searchBox").addEventListener("input",renderTable);
+    el("rangeTabs").querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{el("rangeTabs").querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.range=Number(b.dataset.range); loadHistory(false);}));
+    el("barTabs").querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{el("barTabs").querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.barSet=b.dataset.set; renderBar();}));
+    el("btnZoomReset").addEventListener("click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
+    window.addEventListener("resize",()=>Object.values(state.charts).forEach(c=>c&&c.resize()));
+  }
+  function renderStatic(){renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
+  async function refresh(forceHistory=false){
+    setStatus("Consultando",""); perf("Leyendo latest…",5);
+    try{await loadMeta(); await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory);}catch(e){setStatus("Error","err"); log(`Error de carga: ${e.message||e}`,"error"); try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory);}catch(_e){}}
+  }
+  bind(); refresh(false);
 })();
 </script>
 </body>
