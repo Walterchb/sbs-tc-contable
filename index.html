@@ -89,6 +89,54 @@
       .date-picker::-webkit-calendar-picker-indicator{max-width:18px;margin-right:0}
       .download-card{width:100%;max-width:100%;overflow:hidden}
     }
+
+
+    /* V16: calendario nativo como antes, pero contenido dentro del recuadro en móvil */
+    .date-picker{
+      width:178px;
+      max-width:100%;
+      min-width:0!important;
+      box-sizing:border-box!important;
+      appearance:auto;
+      -webkit-appearance:auto;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .date-picker::-webkit-datetime-edit,
+    .date-picker::-webkit-datetime-edit-fields-wrapper{
+      min-width:0;
+      max-width:100%;
+      overflow:hidden;
+    }
+    .date-picker::-webkit-calendar-picker-indicator{
+      flex:0 0 auto;
+      max-width:18px;
+      margin-left:2px;
+      margin-right:0;
+    }
+    @media(max-width:760px){
+      .date-card{width:100%;max-width:100%;overflow:hidden}
+      .date-control{width:100%;max-width:100%;min-width:0;overflow:hidden}
+      .date-line{
+        width:100%;
+        max-width:100%;
+        min-width:0;
+        display:grid;
+        grid-template-columns:minmax(0,1fr);
+        gap:7px;
+        overflow:hidden;
+      }
+      .date-picker{
+        width:100%!important;
+        max-width:100%!important;
+        min-width:0!important;
+        font-size:16px!important;
+        padding:8px 8px!important;
+        border-radius:var(--radius);
+      }
+      .date-value{max-width:100%;font-size:.8rem}
+    }
   </style>
 </head>
 <body>
@@ -260,6 +308,7 @@
     const brand=el("brandSubtitle"); if(brand) brand.textContent=`Fecha SBS: ${displayDate(latest)}`;
     const vf=el("vFecha"); if(vf) vf.textContent=selected && selected!==latest ? `Vista: ${displayDate(selected)}` : "Última disponible";
     const dp=el("datePicker"); if(dp && selected) dp.value=selected;
+    const dpl=el("datePickerLabel"); if(dpl) dpl.textContent=selected?displayDate(selected):"Seleccionar fecha";
   }
   function setDatePickerBounds(){
     const dp=el("datePicker"); if(!dp) return;
