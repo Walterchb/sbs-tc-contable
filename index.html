@@ -57,6 +57,15 @@
     @media(max-width:1260px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.chart-row,.content-row{grid-template-columns:1fr}.chart.side{height:290px}.chart.stats{height:250px}}
     @media(max-width:760px){.topbar-inner{align-items:flex-start;flex-direction:column;padding:10px 12px}.top-actions{justify-content:flex-start;width:100%}.wrap{padding:12px}.snapshot{grid-template-columns:1fr}.date-card{align-items:flex-start;flex-direction:column}.download-card{justify-content:flex-start}.kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{min-height:90px;padding:10px}.kpi strong{font-size:1.18rem}.panel-head{align-items:flex-start;flex-direction:column}.tools{justify-content:flex-start;width:100%}.chart{height:286px}.chart.side{height:250px}.chart.stats{height:232px}.conv-grid{grid-template-columns:1fr}.quick-pairs{grid-template-columns:1fr}.search{min-width:100%}th,td{padding:8px}.trend-quick,.trend-other{display:none}.trend-mobile{display:block;width:100%}.tabs{width:100%}.tab{flex:1}.chart-legend{gap:6px}.legend-pill{font-size:.68rem;padding:5px 7px}.top-actions .icon-only,.download-card .icon-only{width:34px;min-width:34px}}
 
+
+    /* V13: selector de fecha y descarga histórica armada en cliente */
+    .date-control{min-width:0;width:100%}
+    .date-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px}
+    .date-picker{font-size:.9rem;min-height:36px;padding:7px 9px;max-width:170px;background:var(--panel);color:var(--ink);border-color:var(--line2)}
+    .date-card{min-height:58px}
+    .date-card .date-value{font-size:.88rem;font-weight:560;letter-spacing:-.02em;color:var(--muted)}
+    @media(max-width:760px){.date-line{align-items:flex-start;flex-direction:column;gap:6px}.date-picker{font-size:16px!important;width:100%;max-width:none}.date-card .date-value{font-size:.8rem}}
+
     /* V12 ajustes mobile/FX: evita zoom iOS, conserva Histórico visible y fija la columna Par */
     #btnReloadHistory .btn-label{display:inline!important}
     #historySource{display:inline!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;min-width:max-content}
@@ -74,7 +83,7 @@
       <div class="topbar-inner">
         <div class="brand">
           <div class="logo">BIF</div>
-          <div><h1>TC Contable SBS</h1><p>FX Control Tower</p></div>
+          <div><h1>TC Contable SBS</h1><p id="brandSubtitle">Fecha SBS: —</p></div>
         </div>
         <div class="top-actions">
           <div id="vStatus" class="status"><span class="dot"></span><span>Consultando</span></div>
@@ -88,10 +97,10 @@
     <section class="wrap">
       <section class="snapshot">
         <article class="date-card">
-          <div><div class="label">Fecha SBS</div><div id="vFecha" class="date-value">—</div></div>
+          <div class="date-control"><div class="label">Fecha SBS</div><div class="date-line"><input id="datePicker" class="date-picker" type="date" aria-label="Seleccionar Fecha SBS"><span id="vFecha" class="date-value">—</span></div></div>
         </article>
         <article class="download-card">
-          <a class="btn" href="./data/tc_contable_latest.csv" download><i class="fa-solid fa-file-csv"></i>CSV</a>
+          <button id="btnCsvHistory" class="btn" title="Descargar histórico armado" aria-label="Descargar histórico armado"><i class="fa-solid fa-file-csv"></i>CSV</button>
           <a class="btn dark" href="./data/tc_contable_latest.json" download><i class="fa-solid fa-code"></i>JSON</a>
           <button id="btnCopy" class="soft icon-only" title="Copiar resumen" aria-label="Copiar resumen"><i class="fa-regular fa-clipboard"></i></button>
         </article>
@@ -175,7 +184,7 @@
     d => `./data/sbs_tc_contable_${d.compact}.csv`
   ];
   const el = id => document.getElementById(id);
-  const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),history:[],trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
+  const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestRates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestDate:"",selectedDate:"",history:[],trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
 
   function cssVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
   function themeColors(){return {navy:cssVar("--navy3")||"#0b3654",ink:cssVar("--ink")||"#102033",muted:cssVar("--muted")||"#5f7283",line:cssVar("--line")||"#d9e3ec",grid:cssVar("--grid")||"#e8eef4",panel:cssVar("--panel")||"#fff",soft:cssVar("--soft")||"#f6f9fc",cyan:cssVar("--cyan")||"#00a3b5",green:cssVar("--green")||"#13966b",red:cssVar("--red")||"#bd2c22",amber:cssVar("--amber")||"#c17a18",blue:cssVar("--blue")||"#1f5eff",avg:cssVar("--avg")||"#7b61ff",tooltipBg:cssVar("--tooltip-bg")||"#051c2c",tooltipBorder:cssVar("--tooltip-border")||"#125078"};}
@@ -229,6 +238,100 @@
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   }
   function displayDate(v){const d=parseDate(v); return d?new Intl.DateTimeFormat("es-PE",{year:"numeric",month:"short",day:"2-digit"}).format(d):(v||"—");}
+
+  function setDateLabels(){
+    const latest = state.latestDate || dateKey(state.meta?.fecha_publicada||state.meta?.fecha||state.meta?.date);
+    const selected = state.selectedDate || latest;
+    const brand=el("brandSubtitle"); if(brand) brand.textContent=`Fecha SBS: ${displayDate(latest)}`;
+    const vf=el("vFecha"); if(vf) vf.textContent=selected && selected!==latest ? `Vista: ${displayDate(selected)}` : "Última disponible";
+    const dp=el("datePicker"); if(dp && selected) dp.value=selected;
+  }
+  function setDatePickerBounds(){
+    const dp=el("datePicker"); if(!dp) return;
+    const dates=state.history.map(s=>dateKey(s.date)).filter(Boolean).sort();
+    if(dates.length){dp.min=dates[0]; dp.max=state.latestDate||dates.at(-1);}
+    else if(state.latestDate){dp.max=state.latestDate;}
+    if(state.selectedDate) dp.value=state.selectedDate;
+  }
+  function mapFromRatesObject(ratesObj){
+    const map=new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]);
+    for(const [rawCode,val] of Object.entries(ratesObj||{})){
+      const code=String(rawCode||"").toUpperCase()==="CNY"?"CNH":String(rawCode||"").toUpperCase();
+      const rate=toNum(val?.rate??val); if(!/^[A-Z]{3}$/.test(code)||!Number.isFinite(rate)||rate<=0) continue;
+      const prev=state.latestRates.get(code)||state.rates.get(code)||{};
+      map.set(code,{code,name:prev.name||inferName({},code),rate,base:1,raw:{}});
+    }
+    return map;
+  }
+  function currentRatesObject(map=state.rates){
+    const rates={}; for(const [code,obj] of map) if(code!=="PEN"&&Number.isFinite(obj.rate)) rates[code]=obj.rate; return rates;
+  }
+  function findSnapshotByDate(dateStr){
+    const dk=dateKey(dateStr); if(!dk) return null;
+    return state.history.find(s=>dateKey(s.date)===dk) || null;
+  }
+  function dateObjectParts(dateStr){
+    const d=parseDate(dateStr); if(!d) return null;
+    const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+    return {ymd:`${y}-${m}-${day}`,compact:`${y}${m}${day}`};
+  }
+  async function fetchSnapshotForDate(dateStr){
+    const parts=dateObjectParts(dateStr); if(!parts) return null;
+    for(const pattern of PATTERNS){
+      const url=pattern(parts);
+      try{ const snap=snapshotFromPayload(await fetchAny(url,{fresh:true,cache:"no-store"}),parts.ymd); if(snap) return snap; }catch(e){}
+    }
+    return null;
+  }
+  function applySnapshot(snapshot){
+    if(!snapshot?.rates) return false;
+    state.rates=mapFromRatesObject(snapshot.rates);
+    state.selectedDate=dateKey(snapshot.date)||state.selectedDate;
+    setDateLabels(); setDatePickerBounds(); renderStatic();
+    return true;
+  }
+  async function selectDate(dateStr){
+    const dk=dateKey(dateStr); if(!dk) return;
+    setStatus("Fecha"," ".trim());
+    let snap=findSnapshotByDate(dk);
+    if(!snap) snap=await fetchSnapshotForDate(dk);
+    if(snap){
+      if(!findSnapshotByDate(dk)){state.history=mergeHistory([...state.history,snap]); saveCache();}
+      applySnapshot(snap); setStatus("Fecha OK","ok");
+    }else{
+      setDateLabels(); setStatus("Sin fecha","warn");
+      log(`No se encontró archivo histórico para ${dk}`,"warn");
+    }
+  }
+  function csvCell(v){return `"${String(v??"").replace(/"/g,'""')}"`;}
+  function csvNumber(n,d=4){return Number.isFinite(n)?fmt(n,d):"";}
+  function historyCodes(){
+    const set=new Set();
+    for(const snap of state.history) for(const code of Object.keys(snap.rates||{})) set.add(code==="CNY"?"CNH":code);
+    for(const code of state.latestRates.keys()) if(code!=="PEN") set.add(code);
+    return [...set].filter(c=>c!=="PEN"&&/^[A-Z]{3}$/.test(c)).sort((a,b)=>(CORE.indexOf(a)<0?99:CORE.indexOf(a))-(CORE.indexOf(b)<0?99:CORE.indexOf(b))||a.localeCompare(b));
+  }
+  function buildHistoricalCsv(){
+    const latestDate=state.latestDate||dateKey(state.meta?.fecha_publicada||state.meta?.fecha||new Date());
+    const latestSnap={date:latestDate,rates:currentRatesObject(state.latestRates.size>1?state.latestRates:state.rates)};
+    const rows=mergeHistory([...(state.history||[]),latestSnap]);
+    const codes=historyCodes();
+    const header=["Fecha",...codes.map(c=>pair(c))];
+    const lines=[header.map(csvCell).join(";")];
+    for(const row of rows){
+      const vals=[row.date,...codes.map(c=>csvNumber(shownRate(c,row.rates),4))];
+      lines.push(vals.map(csvCell).join(";"));
+    }
+    return "\ufeff"+lines.join("\r\n");
+  }
+  function downloadTextFile(name,text,type="text/csv;charset=utf-8"){
+    const blob=new Blob([text],{type}); const url=URL.createObjectURL(blob); const a=document.createElement("a");
+    a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),800);
+  }
+  function downloadHistoricalCsv(){
+    const csv=buildHistoricalCsv();
+    downloadTextFile(safeName(`TC_Contable_SBS_historico_${fileStamp()}`)+".csv",csv);
+  }
 
   function fileStamp(){
     const d=new Date(), pad=n=>String(n).padStart(2,"0");
@@ -392,7 +495,7 @@
   }
   function mergeHistory(snaps){
     const by=new Map(); for(const s of snaps){const dk=dateKey(s.date); if(dk&&s.rates) by.set(dk,{date:dk,rates:s.rates});}
-    const latestDate=dateKey(state.meta?.fecha_publicada||state.meta?.fecha||new Date()); const latest={}; for(const [code,obj] of state.rates) if(code!=="PEN") latest[code]=obj.rate;
+    const latestDate=state.latestDate||dateKey(state.meta?.fecha_publicada||state.meta?.fecha||new Date()); const latest={}; const src=(state.latestRates&&state.latestRates.size>1)?state.latestRates:state.rates; for(const [code,obj] of src) if(code!=="PEN") latest[code]=obj.rate;
     if(Object.keys(latest).length&&latestDate) by.set(latestDate,{date:latestDate,rates:latest});
     return [...by.values()].sort((a,b)=>a.date.localeCompare(b.date));
   }
@@ -403,6 +506,7 @@
         state.history=mergeHistory(c.history);
         state.cacheAge=Date.now()-(c.savedAt||0);
         el("historySource").textContent=`${state.history.length} cortes`;
+        setDatePickerBounds();
         renderCharts();
         return true;
       }
@@ -447,7 +551,9 @@
         if(snaps.length){
           state.history=mergeHistory(snaps); saveCache();
           el("historySource").textContent=`${state.history.length} cortes`;
-          setStatus("Actualizado","ok"); renderCharts(); renderDeltas();
+          setDatePickerBounds();
+          if(state.selectedDate && state.selectedDate!==state.latestDate){ const snap=findSnapshotByDate(state.selectedDate); if(snap) state.rates=mapFromRatesObject(snap.rates); }
+          setStatus("Actualizado","ok"); renderStatic(); renderDeltas();
           return true;
         }
       }catch(e){log(`Sync histórico: ${e.message||e}`,"warn");}
@@ -463,8 +569,10 @@
       const snaps=await loadHistoryProbe();
       state.history=mergeHistory(snaps); saveCache();
       el("historySource").textContent=state.history.length?`${state.history.length} cortes`:"solo latest";
+      setDatePickerBounds();
+      if(state.selectedDate && state.selectedDate!==state.latestDate){ const snap=findSnapshotByDate(state.selectedDate); if(snap) state.rates=mapFromRatesObject(snap.rates); }
       setStatus(state.history.length?"Actualizado":"Sin histórico",state.history.length?"ok":"warn");
-      renderCharts(); renderDeltas();
+      renderStatic(); renderDeltas();
     }
   }
   function ensureChart(id){
@@ -616,13 +724,17 @@
       series:[{name:"Estadística",type:"bar",data:bars.map(x=>({value:x.value,itemStyle:{color:x.color,borderRadius:[4,4,0,0]}})),barMaxWidth:34,label:{show:true,position:"top",fontWeight:720,color:t.ink,formatter:p=>fmt(p.value,4)}}]
     },true);
   }
-  async function loadMeta(){const m=await fetchJSON("./data/tc_contable_meta.json",{fresh:true,cache:"no-store"}); state.meta=m; el("vFecha").textContent=displayDate(m.fecha_publicada||m.fecha||m.date); return m;}
+  async function loadMeta(){const m=await fetchJSON("./data/tc_contable_meta.json",{fresh:true,cache:"no-store"}); state.meta=m; state.latestDate=dateKey(m.fecha_publicada||m.fecha||m.date); state.selectedDate=state.latestDate; setDateLabels(); setDatePickerBounds(); return m;}
   async function loadLatest(){
     let payload;
     try{ payload=await fetchAny("./data/tc_contable_latest.json",{fresh:true,cache:"no-store"}); }
     catch(e){ payload=await fetchAny("./data/tc_contable_latest.csv",{fresh:true,cache:"no-store"}); }
     const {map}=normalizeRates(payload);
+    state.latestRates=map;
     state.rates=map;
+    if(!state.latestDate) state.latestDate=dateKey(state.meta?.fecha_publicada||state.meta?.fecha||state.meta?.date||new Date());
+    if(!state.selectedDate) state.selectedDate=state.latestDate;
+    setDateLabels(); setDatePickerBounds();
     log(`Latest OK · ${map.size-1} monedas · USD=${map.has("USD")?"Dólar de N.A.":"no detectado"}`);
     if(!map.has("USD")) setStatus("USD no detectado","warn");
   }
@@ -631,7 +743,9 @@
     on("btnRefresh","click",()=>refresh(true));
     on("btnReloadHistory","click",()=>loadHistory(true));
     on("btnTheme","click",toggleTheme);
-    on("btnCopy","click",async()=>{const text=[`TC Contable SBS · ${el("vFecha")?.textContent||"—"}`,`USDPEN ${el("kUsd")?.textContent||"—"}`,`EURUSD ${el("kEur")?.textContent||"—"}`,`GBPUSD ${el("kGbp")?.textContent||"—"}`,`CNHUSD ${el("kCnh")?.textContent||"—"}`,`JPYUSD ${el("kJpy")?.textContent||"—"}`].join("\n"); try{await navigator.clipboard.writeText(text); log("Resumen copiado");}catch(e){log("No se pudo copiar","warn");}});
+    on("btnCsvHistory","click",downloadHistoricalCsv);
+    on("datePicker","change",e=>selectDate(e.target.value));
+    on("btnCopy","click",async()=>{const text=[`TC Contable SBS · ${state.selectedDate||el("vFecha")?.textContent||"—"}`,`USDPEN ${el("kUsd")?.textContent||"—"}`,`EURUSD ${el("kEur")?.textContent||"—"}`,`GBPUSD ${el("kGbp")?.textContent||"—"}`,`CNHUSD ${el("kCnh")?.textContent||"—"}`,`JPYUSD ${el("kJpy")?.textContent||"—"}`].join("\n"); try{await navigator.clipboard.writeText(text); log("Resumen copiado");}catch(e){log("No se pudo copiar","warn");}});
     on("amount","input",renderConverter); on("fromCcy","change",renderConverter); on("toCcy","change",renderConverter);
     on("swapBtn","click",()=>{const a=el("fromCcy"),b=el("toCcy"); if(a&&b){[a.value,b.value]=[b.value,a.value]; renderConverter();}});
     on("trendCcy","change",e=>selectTrend(e.target.value));
@@ -643,7 +757,7 @@
     on("btnZoomReset","click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
     window.addEventListener("resize",()=>{Object.values(state.charts).forEach(c=>c&&c.resize()); clearTimeout(window.__fxResizeTimer); window.__fxResizeTimer=setTimeout(renderCharts,160);});
   }
-  function renderStatic(){renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
+  function renderStatic(){setDateLabels(); setDatePickerBounds(); renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
   async function refresh(forceHistory=false){
     setStatus("Consultando",""); perf("Leyendo latest…",5);
     try{await loadMeta(); await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory);}catch(e){setStatus("Error","err"); log(`Error de carga: ${e.message||e}`,"error"); try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory);}catch(_e){}}
