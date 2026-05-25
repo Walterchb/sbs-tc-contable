@@ -129,19 +129,29 @@
     d => `./data/${d.ymd}.json`,
     d => `./data/${d.compact}.json`,
     d => `./data/sbs_tc_contable_${d.ymd}.json`,
-    d => `./data/sbs_tc_contable_${d.compact}.json`
+    d => `./data/sbs_tc_contable_${d.compact}.json`,
+    d => `./data/tc_contable_${d.ymd}.csv`,
+    d => `./data/tc_contable_${d.compact}.csv`,
+    d => `./data/${d.ymd}.csv`,
+    d => `./data/${d.compact}.csv`,
+    d => `./data/sbs_tc_contable_${d.ymd}.csv`,
+    d => `./data/sbs_tc_contable_${d.compact}.csv`
   ];
   const el = id => document.getElementById(id);
   const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),history:[],trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
 
   function log(msg,type="info"){
-    const t = new Date().toLocaleString("es-PE",{hour12:false});
-    el("log").textContent = `[${t}] ${type.toUpperCase()} · ${msg}\n` + el("log").textContent;
+    // La UI ya no muestra monitor técnico; dejamos el rastro solo en consola para no romper la carga.
+    try{ console[type==="error"?"error":type==="warn"?"warn":"log"](`[TC SBS] ${msg}`); }catch(e){}
   }
   function setStatus(text,cls=""){
-    const s = el("vStatus"); s.className = `status ${cls}`.trim(); s.querySelector("span:last-child").textContent = text;
+    const s = el("vStatus"); if(!s) return;
+    s.className = `status ${cls}`.trim();
+    const label=s.querySelector("span:last-child"); if(label) label.textContent = text;
   }
-  function perf(text,pct=0){ el("perfLabel").textContent = text; el("perfBar").style.width = `${Math.max(0,Math.min(100,pct))}%`; }
+  function perf(text,pct=0){
+    // Sin monitor visible: mantenemos la función como no-op seguro para preservar el flujo.
+  }
   function normText(v){return String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().trim();}
   function toNum(v){
     if(typeof v==="number") return Number.isFinite(v)?v:NaN;
@@ -177,9 +187,43 @@
   }
   function pct(n){return Number.isFinite(n)?`${n>=0?"+":""}${fmt(n,4)}%`:"—";}
   function digits(code,v){return 4;}
-  async function fetchJSON(url,{fresh=false,cache="default"}={}){
+  async function fetchText(url,{fresh=false,cache="default"}={}){
     const full=fresh ? url + (url.includes("?")?"&":"?") + "ts=" + Date.now() : url;
-    const r=await fetch(full,{cache}); if(!r.ok) throw new Error(`HTTP ${r.status}`); return await r.json();
+    const r=await fetch(full,{cache}); if(!r.ok) throw new Error(`HTTP ${r.status}`); return await r.text();
+  }
+  async function fetchJSON(url,{fresh=false,cache="default"}={}){
+    const text=await fetchText(url,{fresh,cache});
+    try{return JSON.parse(text);}catch(e){throw new Error(`JSON inválido en ${url}`);}
+  }
+  async function fetchAny(url,{fresh=false,cache="default"}={}){
+    const text=await fetchText(url,{fresh,cache});
+    const trimmed=text.trim();
+    if(trimmed.startsWith("{")||trimmed.startsWith("[")){
+      try{return JSON.parse(trimmed);}catch(e){}
+    }
+    return rowsFromCsv(trimmed);
+  }
+  function splitCsvLine(line,sep){
+    const out=[]; let cur="", q=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i], next=line[i+1];
+      if(ch==='"' && q && next==='"'){cur+='"'; i++; continue;}
+      if(ch==='"'){q=!q; continue;}
+      if(ch===sep && !q){out.push(cur); cur=""; continue;}
+      cur+=ch;
+    }
+    out.push(cur); return out.map(x=>x.trim());
+  }
+  function rowsFromCsv(text){
+    const lines=String(text||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    if(lines.length<2) return [];
+    const first=lines[0];
+    const sep=(first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length?";":",";
+    const headers=splitCsvLine(first,sep).map((h,i)=>h||`col_${i+1}`);
+    return lines.slice(1).map(line=>{
+      const vals=splitCsvLine(line,sep); const row={};
+      headers.forEach((h,i)=>row[h]=vals[i]??""); return row;
+    });
   }
   function rowsFromPayload(payload){
     if(Array.isArray(payload)) return payload;
@@ -285,7 +329,7 @@
         const payload=await fetchJSON(url,{cache:"force-cache"}); const entries=manifestEntries(payload); if(!entries.length) continue;
         const embedded=entries.filter(x=>typeof x==="object").map(x=>x.embedded); const urls=entries.filter(x=>typeof x==="string").slice(-260);
         perf(`Manifest detectado: ${url.split('/').pop()} · ${urls.length+embedded.length} archivos`,50);
-        const fetched=await mapLimit(urls,12,async f=>snapshotFromPayload(await fetchJSON(f,{cache:"force-cache"}),f),(d,t)=>perf(`Leyendo manifest ${d}/${t}`,50+Math.round(d/t*40)));
+        const fetched=await mapLimit(urls,12,async f=>snapshotFromPayload(await fetchAny(f,{cache:"force-cache"}),f),(d,t)=>perf(`Leyendo manifest ${d}/${t}`,50+Math.round(d/t*40)));
         const snaps=[...embedded,...fetched.filter(Boolean)]; if(snaps.length){state.historySource=`manifest ${url.split('/').pop()}`; return snaps;}
       }catch(e){}
     }
@@ -301,7 +345,7 @@
     for(let p=0;p<PATTERNS.length;p++){
       const missing=dates.filter(d=>!found.has(d.ymd)); if(!missing.length) break;
       const tasks=missing.map(d=>({d,url:PATTERNS[p](d)})); perf(`Probando patrón ${p+1}/${PATTERNS.length}`,18+p*10);
-      const res=await mapLimit(tasks,14,async item=>({d:item.d,s:snapshotFromPayload(await fetchJSON(item.url,{cache:"force-cache"}),item.d.ymd)}),(done,total)=>perf(`Histórico rápido ${done}/${total}`,20+p*10+Math.round(done/total*8)));
+      const res=await mapLimit(tasks,14,async item=>({d:item.d,s:snapshotFromPayload(await fetchAny(item.url,{cache:"force-cache"}),item.d.ymd)}),(done,total)=>perf(`Histórico rápido ${done}/${total}`,20+p*10+Math.round(done/total*8)));
       for(const r of res){if(r?.s) found.set(r.d.ymd,r.s);}
       if(found.size>=Math.min(state.range,30)) break;
     }
@@ -436,17 +480,28 @@
     },true);
   }
   async function loadMeta(){const m=await fetchJSON("./data/tc_contable_meta.json",{fresh:true,cache:"no-store"}); state.meta=m; el("vFecha").textContent=displayDate(m.fecha_publicada||m.fecha||m.date); return m;}
-  async function loadLatest(){const payload=await fetchJSON("./data/tc_contable_latest.json",{fresh:true,cache:"no-store"}); const {map}=normalizeRates(payload); state.rates=map; log(`Latest OK · ${map.size-1} monedas · USD=${map.has("USD")?"Dólar de N.A.":"no detectado"}`);}
+  async function loadLatest(){
+    let payload;
+    try{ payload=await fetchAny("./data/tc_contable_latest.json",{fresh:true,cache:"no-store"}); }
+    catch(e){ payload=await fetchAny("./data/tc_contable_latest.csv",{fresh:true,cache:"no-store"}); }
+    const {map}=normalizeRates(payload);
+    state.rates=map;
+    log(`Latest OK · ${map.size-1} monedas · USD=${map.has("USD")?"Dólar de N.A.":"no detectado"}`);
+    if(!map.has("USD")) setStatus("USD no detectado","warn");
+  }
+  function on(id,event,handler){const node=el(id); if(node) node.addEventListener(event,handler);}
   function bind(){
-    el("btnRefresh").addEventListener("click",()=>refresh(true)); el("btnReloadHistory").addEventListener("click",()=>loadHistory(true));
-    el("btnClearCache").addEventListener("click",()=>{localStorage.removeItem(CACHE_KEY); log("Caché histórica eliminada"); perf("Caché eliminada. Vuelve a cargar histórico.",0);});
-    el("btnCopy").addEventListener("click",async()=>{const text=[`TC Contable SBS · ${el("vFecha").textContent}`,`USDPEN ${el("kUsd").textContent}`,`EURUSD ${el("kEur").textContent}`,`GBPUSD ${el("kGbp").textContent}`,`CNHUSD ${el("kCnh").textContent}`,`JPYUSD ${el("kJpy").textContent}`].join("\n"); try{await navigator.clipboard.writeText(text); log("Resumen copiado");}catch(e){log("No se pudo copiar","warn");}});
-    el("amount").addEventListener("input",renderConverter); el("fromCcy").addEventListener("change",renderConverter); el("toCcy").addEventListener("change",renderConverter); el("swapBtn").addEventListener("click",()=>{const a=el("fromCcy"),b=el("toCcy"); [a.value,b.value]=[b.value,a.value]; renderConverter();});
-    el("trendCcy").addEventListener("change",e=>{state.trend=e.target.value; renderCharts(); renderQuickPairs();});
-    el("searchBox").addEventListener("input",renderTable);
-    el("rangeTabs").querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{el("rangeTabs").querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.range=Number(b.dataset.range); loadHistory(false);}));
-    el("barTabs").querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{el("barTabs").querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.barSet=b.dataset.set; renderBar();}));
-    el("btnZoomReset").addEventListener("click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
+    on("btnRefresh","click",()=>refresh(true));
+    on("btnReloadHistory","click",()=>loadHistory(true));
+    on("btnCopy","click",async()=>{const text=[`TC Contable SBS · ${el("vFecha")?.textContent||"—"}`,`USDPEN ${el("kUsd")?.textContent||"—"}`,`EURUSD ${el("kEur")?.textContent||"—"}`,`GBPUSD ${el("kGbp")?.textContent||"—"}`,`CNHUSD ${el("kCnh")?.textContent||"—"}`,`JPYUSD ${el("kJpy")?.textContent||"—"}`].join("
+"); try{await navigator.clipboard.writeText(text); log("Resumen copiado");}catch(e){log("No se pudo copiar","warn");}});
+    on("amount","input",renderConverter); on("fromCcy","change",renderConverter); on("toCcy","change",renderConverter);
+    on("swapBtn","click",()=>{const a=el("fromCcy"),b=el("toCcy"); if(a&&b){[a.value,b.value]=[b.value,a.value]; renderConverter();}});
+    on("trendCcy","change",e=>{state.trend=e.target.value; renderCharts(); renderQuickPairs();});
+    on("searchBox","input",renderTable);
+    const rangeTabs=el("rangeTabs");
+    if(rangeTabs) rangeTabs.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{rangeTabs.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.range=Number(b.dataset.range); loadHistory(false);}));
+    on("btnZoomReset","click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
     window.addEventListener("resize",()=>Object.values(state.charts).forEach(c=>c&&c.resize()));
   }
   function renderStatic(){renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
