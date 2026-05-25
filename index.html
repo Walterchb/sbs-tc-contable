@@ -427,6 +427,177 @@
       }
     }
 
+
+    /* V19: calendario compacto tipo stepper, toasts inferiores y variaciones con radio 5px */
+    .delta{border-radius:5px!important}
+    .date-card{overflow:hidden!important}
+    .date-control{width:100%;min-width:0;overflow:hidden!important}
+    .date-stepper{
+      display:grid!important;
+      grid-template-columns:34px minmax(128px,170px) 34px 54px;
+      align-items:center!important;
+      gap:7px!important;
+      width:100%!important;
+      max-width:100%!important;
+      min-width:0!important;
+      margin-top:7px!important;
+    }
+    .date-nav,.date-today{
+      min-height:34px!important;
+      height:34px!important;
+      border-radius:5px!important;
+      padding:0!important;
+      border:1px solid var(--line)!important;
+      background:var(--panel2)!important;
+      color:var(--ink)!important;
+      box-shadow:none!important;
+      font-size:.78rem!important;
+      font-weight:640!important;
+    }
+    .date-nav:hover,.date-today:hover{border-color:var(--line2)!important;background:var(--soft)!important;filter:none!important}
+    .date-today{padding:0 10px!important;letter-spacing:.01em!important;white-space:nowrap!important}
+    .date-picker-wrap.compact-date{
+      position:relative!important;
+      display:block!important;
+      width:100%!important;
+      max-width:100%!important;
+      min-width:0!important;
+      flex:none!important;
+    }
+    .date-picker-wrap.compact-date .date-picker{
+      display:block!important;
+      width:100%!important;
+      max-width:100%!important;
+      min-width:0!important;
+      height:34px!important;
+      min-height:34px!important;
+      max-height:34px!important;
+      line-height:34px!important;
+      padding:0 30px 0 9px!important;
+      border-radius:5px!important;
+      border:1px solid var(--line)!important;
+      background:var(--panel)!important;
+      color:var(--ink)!important;
+      box-sizing:border-box!important;
+      font-size:16px!important;
+      font-weight:520!important;
+      letter-spacing:-.015em!important;
+      text-align:center!important;
+      -webkit-appearance:none!important;
+      appearance:none!important;
+      overflow:hidden!important;
+      white-space:nowrap!important;
+      text-overflow:ellipsis!important;
+    }
+    .date-picker-wrap.compact-date .date-picker::-webkit-datetime-edit,
+    .date-picker-wrap.compact-date .date-picker::-webkit-datetime-edit-fields-wrapper{
+      height:34px!important;
+      line-height:34px!important;
+      padding:0!important;
+      margin:0!important;
+      text-align:center!important;
+      overflow:hidden!important;
+    }
+    .date-picker-wrap.compact-date .date-picker::-webkit-datetime-edit-text,
+    .date-picker-wrap.compact-date .date-picker::-webkit-datetime-edit-day-field,
+    .date-picker-wrap.compact-date .date-picker::-webkit-datetime-edit-month-field,
+    .date-picker-wrap.compact-date .date-picker::-webkit-datetime-edit-year-field{
+      font-size:16px!important;
+      line-height:34px!important;
+      padding:0!important;
+      text-align:center!important;
+    }
+    .date-picker-wrap.compact-date .date-picker::-webkit-calendar-picker-indicator{
+      position:absolute!important;
+      right:0!important;
+      top:0!important;
+      width:34px!important;
+      height:34px!important;
+      margin:0!important;
+      padding:0!important;
+      opacity:0!important;
+      cursor:pointer!important;
+      z-index:3!important;
+    }
+    .date-picker-wrap.compact-date .date-fa{
+      position:absolute!important;
+      right:9px!important;
+      top:50%!important;
+      transform:translateY(-50%)!important;
+      color:var(--muted)!important;
+      font-size:.78rem!important;
+      pointer-events:none!important;
+      z-index:2!important;
+    }
+    .date-card .date-value{
+      display:block!important;
+      width:100%!important;
+      max-width:100%!important;
+      line-height:1.2!important;
+      margin:8px 0 0!important;
+      padding-left:1px!important;
+      color:var(--muted)!important;
+      font-size:.82rem!important;
+      font-weight:520!important;
+      letter-spacing:-.015em!important;
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:ellipsis!important;
+      text-align:left!important;
+    }
+    .toast-stack{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      z-index:9999;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      pointer-events:none;
+      width:min(460px,calc(100vw - 24px));
+    }
+    .toast{
+      min-height:38px;
+      width:max-content;
+      max-width:100%;
+      display:flex;
+      align-items:center;
+      gap:9px;
+      padding:9px 12px;
+      border-radius:7px;
+      border:1px solid var(--line2);
+      background:var(--panel);
+      color:var(--ink);
+      box-shadow:0 14px 34px rgba(5,28,44,.18);
+      font-size:.82rem;
+      font-weight:570;
+      opacity:0;
+      transform:translateY(8px);
+      transition:opacity .18s ease,transform .18s ease;
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
+    .toast.ok i{color:var(--green)}
+    .toast.warn i{color:var(--amber)}
+    .toast.err i{color:var(--red)}
+    .toast.info i{color:var(--navy3)}
+    @media(max-width:760px){
+      .date-card{padding:10px 11px!important}
+      .date-stepper{grid-template-columns:36px minmax(0,1fr) 36px 52px!important;gap:6px!important}
+      .date-nav,.date-today{height:34px!important;min-height:34px!important}
+      .date-today{font-size:.72rem!important;padding:0 7px!important}
+      .date-picker-wrap.compact-date .date-picker{height:34px!important;min-height:34px!important;max-height:34px!important;line-height:34px!important;font-size:16px!important;padding-left:8px!important;padding-right:28px!important}
+      .date-picker-wrap.compact-date .date-fa{right:8px!important;font-size:.76rem!important}
+      .date-picker-wrap.compact-date .date-picker::-webkit-calendar-picker-indicator{width:32px!important;height:34px!important}
+      .toast-stack{left:12px;right:12px;bottom:14px;transform:none;width:auto;align-items:stretch}
+      .toast{width:100%;justify-content:flex-start}
+    }
+    @media(max-width:360px){
+      .date-stepper{grid-template-columns:32px minmax(0,1fr) 32px 46px!important;gap:5px!important}
+      .date-today{font-size:.68rem!important;padding:0 5px!important}
+    }
+
   </style>
 </head>
 <body>
@@ -449,7 +620,19 @@
     <section class="wrap">
       <section class="snapshot">
         <article class="date-card">
-          <div class="date-control"><div class="label">Fecha SBS</div><div class="date-line"><div class="date-picker-wrap"><input id="datePicker" class="date-picker" type="date" aria-label="Seleccionar Fecha SBS"><i class="fa-regular fa-calendar-days date-fa" aria-hidden="true"></i></div><span id="vFecha" class="date-value">—</span></div></div>
+          <div class="date-control">
+            <div class="label">Fecha SBS</div>
+            <div class="date-stepper" role="group" aria-label="Navegar Fecha SBS">
+              <button id="datePrev" class="date-nav" type="button" title="Día anterior" aria-label="Día anterior"><i class="fa-solid fa-caret-left"></i></button>
+              <div class="date-picker-wrap compact-date">
+                <input id="datePicker" class="date-picker" type="date" aria-label="Seleccionar Fecha SBS">
+                <i class="fa-regular fa-calendar-days date-fa" aria-hidden="true"></i>
+              </div>
+              <button id="dateNext" class="date-nav" type="button" title="Día siguiente" aria-label="Día siguiente"><i class="fa-solid fa-caret-right"></i></button>
+              <button id="dateToday" class="date-today" type="button" title="Última disponible" aria-label="Última disponible">HOY</button>
+            </div>
+            <span id="vFecha" class="date-value">—</span>
+          </div>
         </article>
         <article class="download-card">
           <button id="btnCsvHistory" class="btn" title="Descargar histórico armado" aria-label="Descargar histórico armado"><i class="fa-solid fa-file-csv"></i>CSV</button>
@@ -506,6 +689,7 @@
         </article>
       </section>
     </section>
+    <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
   </main>
 
 <script>
@@ -561,6 +745,16 @@
 
   function log(msg,type="info"){
     try{ console[type==="error"?"error":type==="warn"?"warn":"log"](`[TC SBS] ${msg}`); }catch(e){}
+  }
+  function showToast(message,type="info"){
+    const stack=el("toastStack"); if(!stack) return;
+    const icon = type==="ok" ? "fa-circle-check" : type==="warn" ? "fa-triangle-exclamation" : type==="err" ? "fa-circle-xmark" : "fa-circle-info";
+    const node=document.createElement("div");
+    node.className=`toast ${type}`;
+    node.innerHTML=`<i class="fa-solid ${icon}" aria-hidden="true"></i><span>${message}</span>`;
+    stack.appendChild(node);
+    requestAnimationFrame(()=>node.classList.add("show"));
+    setTimeout(()=>{node.classList.remove("show"); setTimeout(()=>node.remove(),220);},2800);
   }
   function setStatus(text,cls=""){
     const s = el("vStatus"); if(!s) return;
@@ -657,6 +851,20 @@
       setDateLabels(); setStatus("Sin fecha","warn");
       log(`No se encontró archivo histórico para ${dk}`,"warn");
     }
+  }
+  function shiftSelectedDate(days){
+    const base=parseDate(state.selectedDate || state.latestDate || new Date());
+    if(!base){showToast("No hay fecha seleccionada","warn"); return;}
+    base.setDate(base.getDate()+days);
+    const dk=dateKey(base);
+    const dp=el("datePicker");
+    if(dp?.min && dk < dp.min){showToast("No hay fecha anterior disponible","warn"); return;}
+    if(dp?.max && dk > dp.max){showToast("Ya estás en la última fecha","warn"); return;}
+    selectDate(dk);
+  }
+  function goLatestDate(){
+    const target=state.latestDate || el("datePicker")?.max || dateKey(new Date());
+    if(target) selectDate(target);
   }
   function csvCell(v){return `"${String(v??"").replace(/"/g,'""')}"`;}
   function csvNumber(n,d=4){return Number.isFinite(n)?fmt(n,d):"";}
@@ -1102,12 +1310,15 @@
   }
   function on(id,event,handler){const node=el(id); if(node) node.addEventListener(event,handler);}
   function bind(){
-    on("btnRefresh","click",()=>refresh(true));
+    on("btnRefresh","click",async()=>{showToast("Actualizando datos…","info"); const ok=await refresh(true); showToast(ok?"Datos actualizados":"No se pudo actualizar",ok?"ok":"err");});
     on("btnReloadHistory","click",()=>loadHistory(true));
     on("btnTheme","click",toggleTheme);
     on("btnCsvHistory","click",downloadHistoricalCsv);
     on("datePicker","change",e=>selectDate(e.target.value));
-    on("btnCopy","click",async()=>{const text=[`TC Contable SBS · ${state.selectedDate||el("vFecha")?.textContent||"—"}`,`USDPEN ${el("kUsd")?.textContent||"—"}`,`EURUSD ${el("kEur")?.textContent||"—"}`,`GBPUSD ${el("kGbp")?.textContent||"—"}`,`CNHUSD ${el("kCnh")?.textContent||"—"}`,`JPYUSD ${el("kJpy")?.textContent||"—"}`].join("\n"); try{await navigator.clipboard.writeText(text); log("Resumen copiado");}catch(e){log("No se pudo copiar","warn");}});
+    on("datePrev","click",()=>shiftSelectedDate(-1));
+    on("dateNext","click",()=>shiftSelectedDate(1));
+    on("dateToday","click",()=>goLatestDate());
+    on("btnCopy","click",async()=>{const text=[`TC Contable SBS · ${state.selectedDate||el("vFecha")?.textContent||"—"}`,`USDPEN ${el("kUsd")?.textContent||"—"}`,`EURUSD ${el("kEur")?.textContent||"—"}`,`GBPUSD ${el("kGbp")?.textContent||"—"}`,`CNHUSD ${el("kCnh")?.textContent||"—"}`,`JPYUSD ${el("kJpy")?.textContent||"—"}`].join("\n"); try{await navigator.clipboard.writeText(text); log("Resumen copiado"); showToast("Resumen copiado","ok");}catch(e){log("No se pudo copiar","warn"); showToast("No se pudo copiar","warn");}});
     on("amount","input",renderConverter); on("fromCcy","change",renderConverter); on("toCcy","change",renderConverter);
     on("swapBtn","click",()=>{const a=el("fromCcy"),b=el("toCcy"); if(a&&b){[a.value,b.value]=[b.value,a.value]; renderConverter();}});
     on("trendCcy","change",e=>selectTrend(e.target.value));
@@ -1122,7 +1333,12 @@
   function renderStatic(){setDateLabels(); setDatePickerBounds(); renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
   async function refresh(forceHistory=false){
     setStatus("Consultando",""); perf("Leyendo latest…",5);
-    try{await loadMeta(); await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory);}catch(e){setStatus("Error","err"); log(`Error de carga: ${e.message||e}`,"error"); try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory);}catch(_e){}}
+    try{
+      await loadMeta(); await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory); return true;
+    }catch(e){
+      setStatus("Error","err"); log(`Error de carga: ${e.message||e}`,"error");
+      try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory); return true;}catch(_e){return false;}
+    }
   }
   initTheme(); bind(); refresh(false);
 })();
