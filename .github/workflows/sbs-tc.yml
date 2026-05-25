@@ -34,6 +34,11 @@ jobs:
           def norm(s=""):
               return re.sub(r"\s+", " ", str(s)).strip()
 
+          def norm_key(s=""):
+              s = norm(s).lower()
+              tr = str.maketrans("áéíóúüñ", "aeiouun")
+              return s.translate(tr)
+
           def run_curl(url, timeout=55):
               # curl suele comportarse mejor que urllib aquí (redirecciones/WAF)
               cmd = [
@@ -142,7 +147,7 @@ jobs:
 
               for ln in lines:
                   up = ln.upper()
-                  if "PAISMONEDATIPO DE CAMBIO" in up: 
+                  if "PAISMONEDATIPO DE CAMBIO" in up:
                       continue
                   if "TIPO DE CAMBIO (EN S/)" in up:
                       continue
@@ -187,7 +192,7 @@ jobs:
               return out
 
           def csv_escape(v):
-              s = str(v)
+              s = "" if v is None else str(v)
               if any(c in s for c in [",", '"', "\n"]):
                   s = '"' + s.replace('"', '""') + '"'
               return s
@@ -200,6 +205,217 @@ jobs:
                   "generated_utc": datetime.now(timezone.utc).isoformat()
               }
               (DATA / "last_run_status.json").write_text(json.dumps(status, ensure_ascii=False, indent=2), encoding="utf-8")
+
+          def currency_code(row):
+              """Identifica códigos principales para construir cruces contra USD.
+              USD se toma estrictamente como Dólar de N.A. para evitar confundirlo con otros dólares.
+              """
+              pais = norm_key(row.get("pais", ""))
+              moneda = norm_key(row.get("moneda", ""))
+              txt = f"{pais} {moneda}"
+
+              # USD estricto: SBS publica la moneda como Dólar de N.A.
+              if "dolar de n.a" in moneda or "dolar n.a" in moneda or "dolar de na" in moneda:
+                  return "USD"
+
+              # Principales usados por la web.
+              if moneda == "euro" or " euro" in f" {moneda} ":
+                  return "EUR"
+              if "libra esterlina" in moneda or ("libra" in moneda and ("reino unido" in pais or "gran bretana" in pais)):
+                  return "GBP"
+              if "yuan" in moneda or "renminbi" in moneda:
+                  return "CNH"
+              if "yen" in moneda and "japon" in pais:
+                  return "JPY"
+
+              # Otros códigos útiles para que el histórico quede más completo.
+              rules = [
+                  ("AUD", ["australia"], ["dolar"]),
+                  ("CAD", ["canada"], ["dolar"]),
+                  ("CHF", ["suiza"], ["franco"]),
+                  ("CLP", ["chile"], ["peso"]),
+                  ("COP", ["colombia"], ["peso"]),
+                  ("MXN", ["mexico"], ["peso"]),
+                  ("BRL", ["brasil"], ["real"]),
+                  ("ARS", ["argentina"], ["peso"]),
+                  ("BOB", ["bolivia"], ["boliviano"]),
+                  ("PYG", ["paraguay"], ["guarani"]),
+                  ("UYU", ["uruguay"], ["peso"]),
+                  ("KRW", ["corea"], ["won"]),
+                  ("SGD", ["singapur"], ["dolar"]),
+                  ("HKD", ["hong kong"], ["dolar"]),
+                  ("NZD", ["nueva zeland", "nueva zelanda"], ["dolar"]),
+                  ("NOK", ["noruega"], ["corona"]),
+                  ("SEK", ["suecia"], ["corona"]),
+                  ("DKK", ["dinamarca"], ["corona"]),
+                  ("TRY", ["turquia"], ["lira"]),
+                  ("ZAR", ["sudafrica", "sudáfrica"], ["rand"]),
+                  ("INR", ["india"], ["rupia"]),
+                  ("THB", ["tailandia"], ["baht"]),
+              ]
+              for code, pais_needles, moneda_needles in rules:
+                  if any(x in pais for x in pais_needles) and any(x in moneda for x in moneda_needles):
+                      return code
+              return None
+
+          def as_number(x):
+              try:
+                  return float(x)
+              except Exception:
+                  return None
+
+          def read_daily_json(path):
+              obj = json.loads(path.read_text(encoding="utf-8"))
+              rows = obj.get("data") or obj.get("rows") or []
+              if not isinstance(rows, list):
+                  return None
+              fecha_iso = obj.get("fecha_iso")
+              if not fecha_iso:
+                  m = re.search(r"tc_contable_(\d{4}-\d{2}-\d{2})\.json$", path.name)
+                  fecha_iso = m.group(1) if m else None
+              if not fecha_iso:
+                  return None
+              fecha_publicada = obj.get("fecha_publicada") or datetime.strptime(fecha_iso, "%Y-%m-%d").strftime("%d/%m/%Y")
+              return {
+                  "fecha_iso": fecha_iso,
+                  "fecha_publicada": fecha_publicada,
+                  "generated_utc": obj.get("generado_utc"),
+                  "source_used": obj.get("source_used"),
+                  "rows": rows,
+                  "file": path.name,
+              }
+
+          def build_history_files():
+              """Construye un histórico consolidado desde los JSON diarios ya guardados.
+              No scrapea fechas antiguas y no falla el workflow si algo sale mal.
+              """
+              daily_paths = sorted(DATA.glob("tc_contable_????-??-??.json"))
+              by_date = {}
+              skipped = []
+
+              for path in daily_paths:
+                  try:
+                      item = read_daily_json(path)
+                      if not item:
+                          skipped.append({"file": path.name, "reason": "sin fecha/data válida"})
+                          continue
+                      by_date[item["fecha_iso"]] = item
+                  except Exception as e:
+                      skipped.append({"file": path.name, "reason": str(e)[:180]})
+
+              series = []
+              observations = []
+              meta_dates = []
+              all_pairs = set()
+
+              for fecha_iso in sorted(by_date):
+                  item = by_date[fecha_iso]
+                  rows = item["rows"]
+
+                  usd_row = None
+                  coded = []
+                  for r in rows:
+                      code = currency_code(r)
+                      tc_pen = as_number(r.get("tc"))
+                      if not code or tc_pen is None:
+                          continue
+                      rec = {
+                          "code": code,
+                          "pais": norm(r.get("pais", "")),
+                          "moneda": norm(r.get("moneda", "")),
+                          "tc_pen": tc_pen,
+                      }
+                      coded.append(rec)
+                      if code == "USD":
+                          usd_row = rec
+
+                  if not usd_row:
+                      skipped.append({"file": item["file"], "reason": "no se encontró USD como Dólar de N.A."})
+                      continue
+
+                  usd_pen = usd_row["tc_pen"]
+                  point = {
+                      "fecha_iso": fecha_iso,
+                      "fecha_publicada": item["fecha_publicada"],
+                      "USDPEN": usd_pen,
+                  }
+                  all_pairs.add("USDPEN")
+
+                  for rec in coded:
+                      if rec["code"] == "USD":
+                          pair = "USDPEN"
+                          tc_value = usd_pen
+                      else:
+                          pair = f'{rec["code"]}USD'
+                          tc_value = rec["tc_pen"] / usd_pen
+
+                      # Si hay duplicados de código en SBS, conserva el primero para la serie ancha.
+                      if pair not in point:
+                          point[pair] = tc_value
+                          all_pairs.add(pair)
+
+                      observations.append({
+                          "fecha_iso": fecha_iso,
+                          "fecha_publicada": item["fecha_publicada"],
+                          "code": rec["code"],
+                          "pair": pair,
+                          "pais": rec["pais"],
+                          "moneda": rec["moneda"],
+                          "tc_pen": rec["tc_pen"],
+                          "tc_usd": tc_value,
+                      })
+
+                  series.append(point)
+                  meta_dates.append({
+                      "fecha_iso": fecha_iso,
+                      "fecha_publicada": item["fecha_publicada"],
+                      "file": item["file"],
+                      "rows": len(rows),
+                      "source_used": item.get("source_used"),
+                  })
+
+              preferred = ["USDPEN", "EURUSD", "GBPUSD", "CNHUSD", "JPYUSD"]
+              pairs = preferred + sorted(p for p in all_pairs if p not in preferred)
+              range_obj = {
+                  "from": series[0]["fecha_iso"] if series else None,
+                  "to": series[-1]["fecha_iso"] if series else None,
+              }
+
+              history = {
+                  "schema": "tc_contable_history.v1",
+                  "generated_utc": datetime.now(timezone.utc).isoformat(),
+                  "source": "data/tc_contable_YYYY-MM-DD.json",
+                  "count_dates": len(series),
+                  "range": range_obj,
+                  "pairs": pairs,
+                  "series": series,
+                  "observations": observations,
+                  "dates": meta_dates,
+                  "skipped": skipped,
+              }
+
+              (DATA / "tc_contable_history.json").write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+
+              # CSV ancho: una fila por fecha y un campo por par.
+              csv_cols = ["fecha_iso", "fecha_publicada"] + pairs
+              csv_lines = [",".join(csv_cols)]
+              for p in series:
+                  csv_lines.append(",".join(csv_escape(p.get(c, "")) for c in csv_cols))
+              (DATA / "tc_contable_history.csv").write_text("\ufeff" + "\n".join(csv_lines), encoding="utf-8")
+
+              # Manifest liviano para front-end/debug.
+              manifest = {
+                  "generated_utc": history["generated_utc"],
+                  "history_file": "tc_contable_history.json",
+                  "history_csv": "tc_contable_history.csv",
+                  "count_dates": len(series),
+                  "range": range_obj,
+                  "pairs": pairs,
+                  "daily_files": [x["file"] for x in meta_dates],
+              }
+              (DATA / "tc_contable_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+
+              print(f"History OK | fechas={len(series)} | pares={len(pairs)} | observaciones={len(observations)}")
 
           # seed mínimo para evitar primer-run rojo sin archivos
           if not (DATA / "tc_contable_meta.json").exists():
@@ -214,6 +430,18 @@ jobs:
               (DATA / "tc_contable_meta.json").write_text(json.dumps(seed, ensure_ascii=False, indent=2), encoding="utf-8")
               (DATA / "tc_contable_latest.csv").write_text("pais,moneda,tc\n", encoding="utf-8")
               (DATA / "tc_contable_latest.json").write_text(json.dumps({"message":"pending successful run"}, ensure_ascii=False, indent=2), encoding="utf-8")
+              (DATA / "tc_contable_history.json").write_text(json.dumps({
+                  "schema": "tc_contable_history.v1",
+                  "generated_utc": datetime.now(timezone.utc).isoformat(),
+                  "count_dates": 0,
+                  "range": {"from": None, "to": None},
+                  "pairs": [],
+                  "series": [],
+                  "observations": [],
+                  "dates": [],
+                  "skipped": []
+              }, ensure_ascii=False, indent=2), encoding="utf-8")
+              (DATA / "tc_contable_history.csv").write_text("\ufefffecha_iso,fecha_publicada\n", encoding="utf-8")
 
           try:
               raw, source = fetch_any()
@@ -263,6 +491,14 @@ jobs:
               print(err)
               (DATA / "last_error.txt").write_text(err, encoding="utf-8")
               write_status(False, err, source=None)
+
+          try:
+              build_history_files()
+          except Exception as e:
+              # El histórico no debe tumbar el workflow ni borrar latest/daily.
+              err = f"WARNING: No se pudo construir tc_contable_history.json. Detalle: {e}"
+              print(err)
+              (DATA / "last_history_error.txt").write_text(err, encoding="utf-8")
 
           # Siempre exit 0 para evitar rojo por bloqueos temporales del origen
           raise SystemExit(0)
