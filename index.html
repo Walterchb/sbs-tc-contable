@@ -75,6 +75,20 @@
     .table-wrap th:first-child{z-index:5;background:var(--soft)}
     .table-wrap tbody tr:hover td:first-child{background:var(--soft)}
     @media(max-width:760px){select,input{font-size:16px!important}.top-actions{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}.top-actions .status{flex:0 0 auto}.top-actions button{flex:0 0 auto}#btnReloadHistory{width:auto;min-width:104px;padding-inline:10px}.panel-title h2{font-size:.88rem}.panel-title p{font-size:.7rem}.table-wrap{max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch}.result-box .big{font-size:1.22rem}.result-box .sub{font-size:.68rem}}
+
+
+    /* V14: calendario mobile contenido + histórico completo desde 13/02/2026 */
+    .date-card{overflow:hidden}
+    .date-line{width:100%;min-width:0}
+    .date-picker{min-width:0;max-width:180px;box-sizing:border-box}
+    @media(max-width:760px){
+      .date-card{width:100%;max-width:100%;padding:10px 11px;overflow:hidden}
+      .date-control,.date-line{width:100%;max-width:100%;min-width:0}
+      .date-line{display:grid;grid-template-columns:minmax(0,1fr);gap:7px}
+      .date-picker{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box}
+      .date-picker::-webkit-calendar-picker-indicator{max-width:18px;margin-right:0}
+      .download-card{width:100%;max-width:100%;overflow:hidden}
+    }
   </style>
 </head>
 <body>
@@ -159,7 +173,8 @@
 <script>
 (() => {
   const CORE = ["USD","EUR","GBP","CNH","JPY"];
-  const CACHE_KEY = "sbs_tc_history_v8_treasuryhub";
+  const CACHE_KEY = "sbs_tc_history_v14_treasuryhub";
+  const HISTORY_START_DATE = "2026-02-13";
   const THEME_KEY = "sbs_tc_theme_treasuryhub";
   const MANIFESTS = [
     "./data/tc_contable_manifest.json",
@@ -249,8 +264,9 @@
   function setDatePickerBounds(){
     const dp=el("datePicker"); if(!dp) return;
     const dates=state.history.map(s=>dateKey(s.date)).filter(Boolean).sort();
-    if(dates.length){dp.min=dates[0]; dp.max=state.latestDate||dates.at(-1);}
-    else if(state.latestDate){dp.max=state.latestDate;}
+    dp.min = dates.length ? dates[0] : HISTORY_START_DATE;
+    if(state.latestDate) dp.max = state.latestDate;
+    else if(dates.length) dp.max = dates.at(-1);
     if(state.selectedDate) dp.value=state.selectedDate;
   }
   function mapFromRatesObject(ratesObj){
@@ -513,12 +529,12 @@
     }catch(e){}
     return false;
   }
-  function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({savedAt:Date.now(),history:state.history.slice(-260)}));}catch(e){} }
+  function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({savedAt:Date.now(),history:state.history.slice(-420)}));}catch(e){} }
   async function loadHistoryManifest({fresh=false}={}){
     for(const url of MANIFESTS){
       try{
         const payload=await fetchJSON(url,{fresh,cache:fresh?"no-store":"force-cache"}); const entries=manifestEntries(payload); if(!entries.length) continue;
-        const embedded=entries.filter(x=>typeof x==="object").map(x=>x.embedded); const urls=entries.filter(x=>typeof x==="string").slice(-260);
+        const embedded=entries.filter(x=>typeof x==="object").map(x=>x.embedded); const urls=entries.filter(x=>typeof x==="string").slice(-420);
         perf(`Manifest detectado: ${url.split('/').pop()} · ${urls.length+embedded.length} archivos`,50);
         const fetched=await mapLimit(urls,12,async f=>snapshotFromPayload(await fetchAny(f,{fresh,cache:fresh?"no-store":"force-cache"}),f),(d,t)=>perf(`Leyendo manifest ${d}/${t}`,50+Math.round(d/t*40)));
         const snaps=[...embedded,...fetched.filter(Boolean)]; if(snaps.length){state.historySource=`manifest ${url.split('/').pop()}`; return snaps;}
@@ -527,18 +543,25 @@
     return [];
   }
   function dateParts(days){
-    const base=parseDate(state.meta?.fecha_publicada||state.meta?.fecha)||new Date(); const arr=[];
-    for(let i=0;i<days;i++){const d=new Date(base); d.setDate(base.getDate()-i); const wd=d.getDay(); if(wd===0) continue; const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0"); arr.push({ymd:`${y}-${m}-${day}`,compact:`${y}${m}${day}`});}
-    return arr.reverse();
+    const end=parseDate(state.meta?.fecha_publicada||state.meta?.fecha)||new Date();
+    const start=parseDate(HISTORY_START_DATE);
+    const arr=[];
+    let d=start?new Date(start):new Date(end);
+    if(!start && Number.isFinite(days)){ d.setDate(end.getDate()-days+1); }
+    while(d<=end){
+      const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+      arr.push({ymd:`${y}-${m}-${day}`,compact:`${y}${m}${day}`});
+      d.setDate(d.getDate()+1);
+    }
+    return arr;
   }
   async function loadHistoryProbe(){
-    const dates=dateParts(Math.min(150,Math.max(state.range+18,45))); const found=new Map();
+    const dates=dateParts(); const found=new Map();
     for(let p=0;p<PATTERNS.length;p++){
       const missing=dates.filter(d=>!found.has(d.ymd)); if(!missing.length) break;
       const tasks=missing.map(d=>({d,url:PATTERNS[p](d)})); perf(`Probando patrón ${p+1}/${PATTERNS.length}`,18+p*10);
       const res=await mapLimit(tasks,14,async item=>({d:item.d,s:snapshotFromPayload(await fetchAny(item.url,{cache:"force-cache"}),item.d.ymd)}),(done,total)=>perf(`Histórico rápido ${done}/${total}`,20+p*10+Math.round(done/total*8)));
       for(const r of res){if(r?.s) found.set(r.d.ymd,r.s);}
-      if(found.size>=Math.min(state.range,30)) break;
     }
     state.historySource="detección por fecha"; return [...found.values()];
   }
