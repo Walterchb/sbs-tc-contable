@@ -802,6 +802,88 @@
       .chart.side{height:286px!important;}
     }
 
+
+
+    /* V44: ticker propio con Yahoo Finance, sin iframe ni links - solo desktop */
+    .date-card.has-market-ticker{
+      display:grid!important;
+      grid-template-columns:minmax(300px,380px) minmax(0,1fr)!important;
+      align-items:stretch!important;
+      gap:12px!important;
+    }
+    .market-ticker{
+      min-width:0;
+      display:grid;
+      grid-template-rows:auto 1fr;
+      align-items:stretch;
+      gap:6px;
+      overflow:hidden;
+      height:100%;
+      padding-top:0;
+    }
+    .market-ticker-label{
+      font-size:.66rem;
+      line-height:1.15;
+      min-height:.78rem;
+      text-transform:uppercase;
+      letter-spacing:.1em;
+      color:var(--muted);
+      font-weight:650;
+      white-space:nowrap;
+      display:flex;
+      align-items:flex-start;
+    }
+    .market-ticker-box{
+      position:relative;
+      min-width:0;
+      height:42px;
+      align-self:center;
+      display:flex;
+      align-items:center;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:5px;
+      background:var(--panel2);
+      pointer-events:none!important;
+    }
+    .market-ticker-box::before{
+      content:"";
+      position:absolute;
+      inset:0 auto 0 0;
+      width:24px;
+      background:linear-gradient(90deg,var(--panel2),rgba(255,255,255,0));
+      z-index:3;
+      pointer-events:none;
+    }
+    .market-ticker-box::after{
+      content:"";
+      position:absolute;
+      inset:0 0 0 auto;
+      width:24px;
+      background:linear-gradient(270deg,var(--panel2),rgba(255,255,255,0));
+      z-index:3;
+      pointer-events:none;
+    }
+    .market-ticker-box *{pointer-events:none!important}
+    .market-ticker-mask{width:100%;height:100%;overflow:hidden;display:flex;align-items:center}
+    .market-ticker-track{display:flex;align-items:center;width:max-content;height:100%;animation:marketTickerScroll 52s linear infinite;will-change:transform}
+    .market-ticker-strip{display:flex;align-items:center;height:100%;padding-right:18px}
+    .market-quote{height:100%;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border-right:1px solid var(--line);white-space:nowrap;font-size:.72rem;color:var(--ink);font-variant-numeric:tabular-nums}
+    .market-quote .mkt-symbol{font-weight:760;letter-spacing:.04em;color:var(--muted);font-size:.67rem;text-transform:uppercase}
+    .market-quote .mkt-price{font-weight:760;color:var(--ink)}
+    .market-quote .mkt-change{font-weight:720;font-size:.66rem;border-radius:5px;padding:2px 5px;background:var(--soft);color:var(--muted)}
+    .market-quote.up .mkt-change{background:rgba(19,150,107,.12);color:var(--green)}
+    .market-quote.down .mkt-change{background:rgba(189,44,34,.12);color:var(--red)}
+    .market-message{width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 12px;color:var(--muted);font-size:.72rem;font-weight:620;white-space:nowrap;text-align:center}
+    .market-message i{color:var(--navy3)}
+    :root[data-theme="dark"] .market-message i{color:#95d9ee}
+    @keyframes marketTickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    @media(max-width:1024px){.market-quote{padding:0 10px}.market-ticker-track{animation-duration:44s}}
+    @media(max-width:760px){
+      .date-card.has-market-ticker{display:flex!important;flex-direction:column!important}
+      .market-ticker{display:none!important}
+    }
+
 </style>
 </head>
 <body>
@@ -824,7 +906,7 @@
 
     <section class="wrap">
       <section class="snapshot">
-        <article class="date-card">
+        <article class="date-card has-market-ticker">
           <div class="date-control">
             <div class="label">Fecha SBS</div>
             <div class="date-stepper" role="group" aria-label="Navegar Fecha SBS">
@@ -837,6 +919,10 @@
               <button id="dateToday" class="date-today" type="button" title="Última disponible" aria-label="Última disponible">HOY</button>
             </div>
             <span id="vFecha" class="date-value">—</span>
+          </div>
+          <div class="market-ticker" aria-label="Ticker de mercado externo">
+            <div class="market-ticker-label">Mercado externo</div>
+            <div id="marketTickerBox" class="market-ticker-box"></div>
           </div>
         </article>
 
@@ -912,13 +998,73 @@
   function themeColors(){return {navy:cssVar("--navy3")||"#0b3654",ink:cssVar("--ink")||"#102033",muted:cssVar("--muted")||"#5f7283",line:cssVar("--line")||"#d9e3ec",grid:cssVar("--grid")||"#e8eef4",panel:cssVar("--panel")||"#fff",soft:cssVar("--soft")||"#f6f9fc",cyan:cssVar("--cyan")||"#00a3b5",green:cssVar("--green")||"#13966b",red:cssVar("--red")||"#bd2c22",amber:cssVar("--amber")||"#c17a18",blue:cssVar("--blue")||"#1f5eff",avg:cssVar("--avg")||"#7b61ff",tooltipBg:cssVar("--tooltip-bg")||"#051c2c",tooltipBorder:cssVar("--tooltip-border")||"#125078"};}
   function marker(color){return `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};box-shadow:0 0 0 2px rgba(255,255,255,.18),0 1px 4px rgba(0,0,0,.22);margin-right:7px;vertical-align:middle"></span>`;}
   function rgba(hex,alpha){const h=String(hex||"").trim(); const m=h.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i); if(!m) return `rgba(0,163,181,${alpha})`; return `rgba(${parseInt(m[1],16)},${parseInt(m[2],16)},${parseInt(m[3],16)},${alpha})`; }
+
+  const MARKET_TICKER_SYMBOLS = [
+    {symbol:"^TNX", label:"US10Y", kind:"yield"},
+    {symbol:"2YY=F", label:"US02Y", kind:"yield"},
+    {symbol:"DX-Y.NYB", label:"DXY", kind:"index"},
+    {symbol:"^GSPC", label:"S&P 500", kind:"index"},
+    {symbol:"^NDX", label:"Nasdaq 100", kind:"index"},
+    {symbol:"^VIX", label:"VIX", kind:"index"},
+    {symbol:"EURUSD=X", label:"EURUSD", kind:"fx"},
+    {symbol:"JPY=X", label:"USDJPY", kind:"fxjpy"},
+    {symbol:"GC=F", label:"Gold", kind:"commodity"},
+    {symbol:"JPM", label:"JPM", kind:"stock"},
+    {symbol:"NVDA", label:"NVDA", kind:"stock"}
+  ];
+
+  function fmtMarketNumber(n, kind){
+    if(!Number.isFinite(n)) return "—";
+    if(kind === "yield") return `${n.toFixed(2)}%`;
+    if(kind === "fx") return n.toFixed(4);
+    if(kind === "fxjpy") return n.toFixed(2);
+    if(Math.abs(n) >= 1000) return n.toLocaleString("en-US",{maximumFractionDigits:2});
+    return n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+  function fmtMarketPct(n){
+    if(!Number.isFinite(n)) return "—";
+    const sign = n > 0 ? "+" : "";
+    return `${sign}${n.toFixed(2)}%`;
+  }
+  function marketMessage(html){
+    const box = el("marketTickerBox");
+    if(box) box.innerHTML = `<div class="market-message">${html}</div>`;
+  }
+  async function renderMarketTicker(){
+    const box = el("marketTickerBox");
+    if(!box) return;
+    if(window.matchMedia && window.matchMedia("(max-width: 760px)").matches) return;
+    marketMessage('<i class="fa-solid fa-circle-notch fa-spin"></i><span>Cargando Yahoo Finance…</span>');
+    const symbols = MARKET_TICKER_SYMBOLS.map(x=>encodeURIComponent(x.symbol)).join(",");
+    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}&formatted=false&lang=en-US&region=US&corsDomain=finance.yahoo.com&_=${Date.now()}`;
+    try{
+      const r = await fetch(url,{cache:"no-store",mode:"cors"});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const payload = await r.json();
+      const results = payload?.quoteResponse?.result || [];
+      const bySymbol = new Map(results.map(q=>[q.symbol,q]));
+      const items = MARKET_TICKER_SYMBOLS.map(meta=>{
+        const q = bySymbol.get(meta.symbol) || {};
+        const price = Number(q.regularMarketPrice ?? q.postMarketPrice ?? q.preMarketPrice ?? q.bid ?? q.ask);
+        const pct = Number(q.regularMarketChangePercent ?? q.postMarketChangePercent ?? q.preMarketChangePercent);
+        const cls = Number.isFinite(pct) ? (pct > 0 ? "up" : pct < 0 ? "down" : "flat") : "flat";
+        return `<div class="market-quote ${cls}"><span class="mkt-symbol">${meta.label}</span><span class="mkt-price">${fmtMarketNumber(price,meta.kind)}</span><span class="mkt-change">${fmtMarketPct(pct)}</span></div>`;
+      }).join("");
+      if(!items) throw new Error("sin datos");
+      box.innerHTML = `<div class="market-ticker-mask"><div class="market-ticker-track"><div class="market-ticker-strip">${items}</div><div class="market-ticker-strip" aria-hidden="true">${items}</div></div></div>`;
+    }catch(e){
+      log(`Ticker Yahoo no disponible: ${e.message||e}`,"warn");
+      marketMessage('<i class="fa-solid fa-triangle-exclamation"></i><span>Yahoo Finance no disponible en esta red</span>');
+    }
+  }
+
   function applyTheme(theme){
     const value = theme === "dark" ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", value);
     try{localStorage.setItem(THEME_KEY,value);}catch(e){}
     const textNode=el("themeText"); if(textNode) textNode.textContent = value === "dark" ? "Modo claro" : "Modo oscuro";
     const icon=el("themeIcon"); if(icon) icon.className = value === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
-    setTimeout(()=>{renderCharts(); Object.values(state.charts).forEach(c=>c&&c.resize());},0);
+    setTimeout(()=>{renderCharts(); renderMarketTicker(); Object.values(state.charts).forEach(c=>c&&c.resize());},0);
   }
   function initTheme(){
     let saved=""; try{saved=localStorage.getItem(THEME_KEY)||"";}catch(e){}
@@ -1721,6 +1867,9 @@
     autoTimer = setInterval(()=>{
       if(document.visibilityState === "visible") runRefresh({auto:true});
     }, AUTO_REFRESH_MS);
+    setInterval(()=>{
+      if(document.visibilityState === "visible") renderMarketTicker();
+    }, 60 * 1000);
 
     const refreshIfStale = () => {
       if(document.visibilityState !== "visible") return;
