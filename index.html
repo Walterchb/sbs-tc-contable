@@ -802,6 +802,85 @@
       .chart.side{height:286px!important;}
     }
 
+
+    /* V46: Stockdio ticker sin título, con mayor área útil para las gráficas */
+    .date-card.market-enabled{
+      display:grid!important;
+      grid-template-columns:minmax(260px, 370px) minmax(560px,1fr)!important;
+      align-items:center!important;
+      gap:14px!important;
+      min-height:84px!important;
+    }
+    .date-card.market-enabled .date-control{
+      width:auto!important;
+      min-width:0!important;
+      max-width:370px!important;
+      padding-right:14px!important;
+      border-right:1px solid var(--line)!important;
+    }
+    .market-ticker-panel{
+      min-width:0;
+      width:100%;
+      height:58px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .market-ticker-title{
+      display:none!important;
+    }
+    .stockdio-shell{
+      position:relative;
+      width:100%;
+      height:58px;
+      min-height:58px;
+      overflow:hidden;
+      border-radius:5px;
+      background:var(--panel);
+    }
+    .stockdio-shell::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:3;
+      cursor:default;
+      background:transparent;
+    }
+    .stockdio-frame{
+      display:block;
+      width:100%;
+      height:100%;
+      border:0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    @media(max-width:1100px){
+      .date-card.market-enabled{
+        grid-template-columns:minmax(240px, 330px) minmax(460px,1fr)!important;
+        gap:12px!important;
+      }
+      .date-card.market-enabled .date-control{
+        max-width:330px!important;
+        padding-right:12px!important;
+      }
+    }
+    @media(max-width:900px){
+      .date-card.market-enabled{
+        display:flex!important;
+        flex-direction:column!important;
+        align-items:flex-start!important;
+        min-height:0!important;
+      }
+      .date-card.market-enabled .date-control{
+        width:100%!important;
+        max-width:100%!important;
+        padding-right:0!important;
+        border-right:0!important;
+      }
+      .market-ticker-panel{display:none!important;}
+    }
+
 </style>
 </head>
 <body>
@@ -824,7 +903,7 @@
 
     <section class="wrap">
       <section class="snapshot">
-        <article class="date-card">
+        <article class="date-card market-enabled">
           <div class="date-control">
             <div class="label">Fecha SBS</div>
             <div class="date-stepper" role="group" aria-label="Navegar Fecha SBS">
@@ -838,6 +917,19 @@
             </div>
             <span id="vFecha" class="date-value">—</span>
           </div>
+          <aside class="market-ticker-panel" aria-label="Mercado externo">
+            <div class="stockdio-shell" title="Cotizaciones externas">
+              <iframe
+                id="stockdioTicker"
+                class="stockdio-frame"
+                frameborder="0"
+                scrolling="no"
+                width="100%"
+                height="58"
+                src="https://api.stockdio.com/visualization/financial/charts/v1/Ticker?app-key=685548715F704DB7B5CAE2F628B22BAF&amp;stockExchange=USA&amp;symbols=SPY;QQQ;DIA;TLT;IEF;GLD;JPM;NVDA;AAPL;MSFT;GOOG;META;ORCL&amp;culture=Spanish-Spain&amp;palette=Financial-Light&amp;layoutType=8">
+              </iframe>
+            </div>
+          </aside>
         </article>
 
       </section>
