@@ -1,54 +1,471 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Blog · Treasury Hub</title>
-  <link rel="icon" href="/favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="shortcut icon" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
   <style>
-    body{
-      margin:0;
-      font-family: Arial, sans-serif;
-      background:#eef3f7;
-      color:#102033;
+    :root{
+      color-scheme: light;
+      --navy:#051c2c; --navy2:#08283f; --navy3:#0b3654;
+      --bg:#eef3f7; --panel:#ffffff; --panel2:#fbfdff; --soft:#f6f9fc;
+      --ink:#102033; --muted:#5f7283; --line:#d9e3ec; --line2:#c2d0dc; --grid:#e8eef4;
+      --blue:#1f5eff; --cyan:#00a3b5; --green:#13966b; --amber:#c17a18; --red:#bd2c22; --purple:#635bff; --avg:#7b61ff;
+      --tooltip-bg:#051c2c; --tooltip-border:#125078;
+      --shadow:0 10px 24px rgba(5,28,44,.08); --radius:7px;
+      --hero-a:#eef3f7; --hero-b:#dfeff2; --hero-c:#b8d8dc;
     }
-    header{
-      background:#051c2c;
-      color:white;
-      padding:24px;
+    :root[data-theme="dark"]{
+      color-scheme: dark;
+      --navy:#071827; --navy2:#0b2438; --navy3:#13415e;
+      --bg:#07111d; --panel:#0d1b2a; --panel2:#102236; --soft:#0a1725;
+      --ink:#e8f1f8; --muted:#8ea6b8; --line:#20384b; --line2:#2b4a61; --grid:#172b3d;
+      --blue:#4f7cff; --cyan:#13b9c8; --green:#2dc48a; --amber:#d99a30; --red:#ff6b61; --purple:#8e7cff; --avg:#b39cff;
+      --tooltip-bg:#081521; --tooltip-border:#285575;
+      --shadow:0 12px 28px rgba(0,0,0,.28);
+      --hero-a:#07111d; --hero-b:#0c1d2d; --hero-c:#102f3f;
     }
-    main{
-      max-width:900px;
-      margin:0 auto;
-      padding:32px 20px;
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;min-height:100vh;font-family:Manrope,Inter,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);letter-spacing:-.01em}
+    button,input,select{font:inherit} a{color:inherit;text-decoration:none}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+
+    /* Header heredado del dashboard raíz */
+    .topbar{background:var(--navy);color:#fff;border-bottom:3px solid #125078;position:sticky;top:0;z-index:30}
+    :root[data-theme="dark"] .topbar{border-bottom-color:#1f5b7e}
+    .topbar-inner{width:min(1500px,100%);margin:0 auto;padding:11px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:11px;min-width:0}
+    .logo{width:38px;height:38px;border-radius:7px;background:#fff;color:#051c2c;display:grid;place-items:center;font-weight:760;letter-spacing:-.055em;box-shadow:inset 0 -4px 0 rgba(5,28,44,.14);flex:0 0 auto}
+    .brand h1{margin:0;font-size:1.02rem;font-weight:650;letter-spacing:-.03em;line-height:1.05}
+    .brand p{margin:3px 0 0;color:#a4c0d4;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;font-weight:560;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .top-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+    .btn,button{min-height:34px;border:1px solid transparent;border-radius:var(--radius);background:var(--blue);color:#fff;padding:8px 11px;font-size:.8rem;font-weight:720;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:transform .12s ease,filter .12s ease,background .12s ease,border-color .12s ease}
+    .btn:hover,button:hover{transform:translateY(-1px);filter:brightness(1.03)}
+    .btn:active,button:active{transform:translateY(0)}
+    .btn.dark,button.dark{background:#0b324e;border-color:#1e5a80;color:#eaf7ff}
+    .btn.light,button.light{background:#fff;color:#051c2c;border-color:#bdd0df}
+    .btn.soft,button.soft{background:var(--soft);color:var(--ink);border-color:var(--line2)}
+    .icon-only{width:34px;padding-inline:0;min-width:34px}
+    .top-actions .btn,.top-actions button{height:34px!important;min-height:34px!important;width:34px!important;min-width:34px!important;padding:0!important;border-radius:var(--radius)!important;background:#0b324e!important;color:#eaf7ff!important;border-color:#1e5a80!important;box-shadow:none!important;flex:0 0 34px}
+    :root[data-theme="dark"] .top-actions .btn,:root[data-theme="dark"] .top-actions button{background:#102f47!important;color:#eaf7ff!important;border-color:#2b5570!important}
+
+    .crumbbar{height:39px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;box-shadow:0 2px 12px rgba(5,28,44,.04);position:relative;z-index:11}
+    .crumb-inner{width:min(1500px,100%);margin:0 auto;padding:0 18px;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.78rem;font-weight:650}
+    .crumb-inner a{color:var(--ink)}
+    .crumb-inner i{font-size:.74rem;color:var(--navy3)}
+    .slash{color:var(--line2)}
+
+    .hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#7e8890 0%,#c5ced3 44%,var(--hero-a) 100%);border-bottom:1px solid var(--line)}
+    .hero::before{content:"";position:absolute;left:-9%;right:-8%;top:108px;height:205px;background:radial-gradient(1200px 210px at 36% 10%,rgba(194,231,235,.98),rgba(231,241,244,.92) 52%,rgba(255,255,255,.0) 72%);border-radius:50%;opacity:.95;pointer-events:none}
+    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,28,44,.10),transparent 18%,transparent 82%,rgba(5,28,44,.08));pointer-events:none}
+    :root[data-theme="dark"] .hero{background:linear-gradient(180deg,#101b27 0%,#13283a 48%,var(--bg) 100%)}
+    :root[data-theme="dark"] .hero::before{background:radial-gradient(1200px 210px at 36% 10%,rgba(18,64,82,.62),rgba(13,31,45,.62) 54%,rgba(255,255,255,0) 76%)}
+    .hero-inner{position:relative;z-index:2;width:min(1500px,100%);margin:0 auto;padding:48px 18px 32px}
+    .hero-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:start;margin-bottom:24px}
+    .hero-kicker{display:inline-flex;align-items:center;gap:8px;min-height:28px;padding:5px 9px;border:1px solid rgba(255,255,255,.35);border-radius:5px;background:rgba(255,255,255,.18);color:#fff;font-size:.7rem;font-weight:720;text-transform:uppercase;letter-spacing:.1em;backdrop-filter:blur(12px)}
+    .hero h2{margin:11px 0 8px;color:#fff;font-size:clamp(2rem,4.3vw,4.35rem);line-height:.96;letter-spacing:-.075em;font-weight:760;max-width:880px;text-wrap:balance;text-shadow:0 8px 28px rgba(5,28,44,.24)}
+    .hero-copy{margin:0;color:rgba(255,255,255,.88);font-size:1.02rem;line-height:1.65;max-width:760px;font-weight:520;text-shadow:0 4px 22px rgba(5,28,44,.22)}
+    .hero-note{width:280px;min-height:138px;border:1px solid rgba(255,255,255,.38);border-radius:var(--radius);background:rgba(255,255,255,.18);backdrop-filter:blur(16px);box-shadow:0 18px 50px rgba(5,28,44,.16);padding:14px;color:#fff;display:grid;align-content:space-between}
+    .hero-note span{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;font-weight:760;color:rgba(255,255,255,.76)}
+    .hero-note strong{font-size:1.48rem;letter-spacing:-.055em;line-height:1;font-weight:760}
+    .hero-note small{color:rgba(255,255,255,.82);font-size:.76rem;line-height:1.45;font-weight:560}
+
+    .search-zone{width:min(620px,100%);margin:0 auto 64px;position:relative}
+    .search-box{height:38px;width:100%;border:1px solid rgba(255,255,255,.44);background:rgba(255,255,255,.92);box-shadow:0 12px 30px rgba(5,28,44,.12);border-radius:5px;display:flex;align-items:center;gap:10px;padding:0 13px;color:#102033}
+    .search-box i{color:#5f7283;font-size:.9rem}
+    .search-box input{width:100%;height:36px;border:0;outline:0;background:transparent;color:#102033;font-size:.9rem;font-weight:560}
+    .search-box input::placeholder{color:#6d7b86}
+    .category-strip{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:0;position:relative;z-index:3}
+    .cat-btn{min-height:38px;border-radius:5px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);box-shadow:0 4px 15px rgba(5,28,44,.05);padding:8px 14px;font-size:.92rem;font-weight:620;letter-spacing:.015em}
+    .cat-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
+    :root[data-theme="dark"] .cat-btn.active{background:#eaf2f8;border-color:#d3e1eb;color:#051c2c}
+    .cat-btn i{font-size:.82rem;color:currentColor;opacity:.86}
+
+    .wrap{width:min(1500px,100%);margin:0 auto;padding:0 18px 26px;position:relative;z-index:4;transform:translateY(-18px)}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:0 0 10px}
+    .section-title{display:flex;align-items:center;gap:9px;min-width:0}
+    .title-icon{width:25px;height:25px;border-radius:6px;display:grid;place-items:center;background:var(--soft);border:1px solid var(--line);color:var(--navy3);font-size:.78rem;flex:0 0 auto}
+    :root[data-theme="dark"] .title-icon{color:#95d9ee}
+    .section-title h3{margin:0;font-size:.96rem;letter-spacing:-.02em;font-weight:650;color:var(--ink)}
+    .section-title p{margin:2px 0 0;font-size:.72rem;color:var(--muted);font-weight:520;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tools{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+    select{border:1px solid var(--line2);background:var(--panel);border-radius:var(--radius);color:var(--ink);padding:8px 9px;min-height:34px;outline:none;font-size:.8rem;font-weight:650}
+
+    .featured-grid{display:grid;grid-template-columns:1.05fr 1.05fr 1fr;gap:10px;margin-bottom:16px}
+    .post-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-width:0;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;position:relative}
+    .post-card:hover{transform:translateY(-2px);border-color:var(--line2);box-shadow:0 16px 34px rgba(5,28,44,.11)}
+    :root[data-theme="dark"] .post-card:hover{box-shadow:0 18px 36px rgba(0,0,0,.33)}
+    .post-link{display:flex;flex-direction:column;height:100%;min-height:0}
+    .thumb{height:180px;background:linear-gradient(135deg,var(--navy),var(--navy3));position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+    .thumb::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(0deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:16px 16px;opacity:.7}
+    .thumb::after{content:"";position:absolute;right:-48px;bottom:-42px;width:230px;height:120px;background:radial-gradient(circle at 30% 60%,rgba(255,255,255,.86),rgba(255,255,255,.16) 30%,transparent 56%);transform:rotate(-13deg);opacity:.82}
+    .thumb .paper{position:absolute;right:50px;bottom:-18px;width:120px;height:142px;background:#f7fafc;border:1px solid rgba(5,28,44,.18);box-shadow:0 18px 38px rgba(0,0,0,.28);transform:rotate(12deg);border-radius:3px}
+    .thumb .paper::before{content:"";position:absolute;left:16px;right:16px;top:20px;height:8px;background:#c6d3dc;box-shadow:0 18px 0 #d8e2e9,0 36px 0 #d8e2e9,0 54px 0 #d8e2e9,0 72px 0 #d8e2e9}
+    .thumb .chart-line{position:absolute;left:25px;bottom:28px;width:118px;height:58px;border-left:1px solid rgba(255,255,255,.42);border-bottom:1px solid rgba(255,255,255,.42)}
+    .thumb .chart-line svg{position:absolute;inset:0;width:100%;height:100%}
+    .thumb .tag{position:absolute;right:14px;top:14px;z-index:2;background:rgba(255,255,255,.92);color:#102033;border-radius:5px;padding:5px 9px;font-size:.66rem;font-weight:760;text-transform:uppercase;letter-spacing:.09em}
+    .thumb.macro{background:linear-gradient(135deg,#152235,#0b3654 52%,#00a3b5)}
+    .thumb.markets{background:linear-gradient(135deg,#0b1b2a,#103d5f 48%,#635bff)}
+    .thumb.data{background:linear-gradient(135deg,#101820,#0b3654 45%,#13966b)}
+    .thumb.tools{background:linear-gradient(135deg,#111827,#17324d 45%,#c17a18)}
+    .thumb.productivity{background:linear-gradient(135deg,#09111d,#0b3654 48%,#8e7cff)}
+    .thumb.video{background:linear-gradient(135deg,#111827,#153d59 48%,#bd2c22)}
+    .post-body{padding:13px 14px 14px;display:flex;flex-direction:column;gap:8px;min-height:0;flex:1}
+    .post-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:.69rem;font-weight:650;line-height:1.2}
+    .pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--soft);border-radius:5px;padding:4px 7px;color:var(--muted);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.055em;line-height:1}
+    .post-body h4{margin:0;font-size:1.02rem;line-height:1.22;letter-spacing:-.045em;font-weight:650;color:var(--ink)}
+    .post-body p{margin:0;color:var(--muted);font-size:.82rem;line-height:1.55;font-weight:520}
+    .post-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:4px;color:var(--muted);font-size:.72rem;font-weight:650}
+    .read-more{display:inline-flex;align-items:center;gap:6px;color:var(--navy3);font-weight:760}
+    :root[data-theme="dark"] .read-more{color:#95d9ee}
+    .post-card.featured .thumb{height:180px}
+    .post-card.featured .post-body h4{font-size:1.08rem}
+
+    .content-layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:12px;align-items:start}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .panel-head{padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel2);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .panel-body{padding:12px}
+    .post-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .post-grid .thumb{height:124px}
+    .post-grid .post-body h4{font-size:.95rem}
+    .post-grid .post-body p{font-size:.78rem}
+
+    .side-stack{display:grid;gap:12px}
+    .mini-list{display:grid;gap:8px}
+    .mini-item{display:grid;grid-template-columns:36px minmax(0,1fr);gap:9px;align-items:start;padding:9px;border:1px solid var(--line);border-radius:5px;background:var(--panel);transition:background .12s,border-color .12s,transform .12s}
+    .mini-item:hover{background:var(--soft);border-color:var(--line2);transform:translateY(-1px)}
+    .mini-icon{width:36px;height:36px;border-radius:5px;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;color:var(--navy3)}
+    :root[data-theme="dark"] .mini-icon{color:#95d9ee}
+    .mini-item strong{display:block;font-size:.82rem;line-height:1.25;letter-spacing:-.025em;color:var(--ink);font-weight:680;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mini-item span{display:block;margin-top:2px;color:var(--muted);font-size:.7rem;font-weight:560;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .kpi{border:1px solid var(--line);border-left:4px solid var(--navy3);border-radius:5px;background:var(--soft);padding:10px;min-width:0}
+    .kpi span{display:block;color:var(--muted);font-size:.62rem;font-weight:760;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .kpi strong{display:block;margin-top:5px;color:var(--ink);font-size:1.15rem;line-height:1;font-weight:760;letter-spacing:-.055em}
+    .kpi.cyan{border-left-color:var(--cyan)}.kpi.green{border-left-color:var(--green)}
+
+    .newsletter{position:relative;overflow:hidden;border-radius:var(--radius);background:linear-gradient(135deg,var(--navy),var(--navy3));color:#fff;padding:14px;border:1px solid #125078;box-shadow:var(--shadow)}
+    .newsletter::after{content:"";position:absolute;right:-70px;top:-70px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.10)}
+    .newsletter h4{position:relative;margin:0 0 6px;font-size:1.02rem;letter-spacing:-.035em;font-weight:720}
+    .newsletter p{position:relative;margin:0 0 12px;color:#bdd6e6;font-size:.78rem;line-height:1.55}
+    .newsletter form{position:relative;display:grid;gap:7px}
+    .newsletter input{width:100%;height:34px;border-radius:5px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);color:#fff;padding:0 10px;outline:0;font-size:.8rem}
+    .newsletter input::placeholder{color:rgba(255,255,255,.65)}
+    .newsletter button{background:#fff;color:#051c2c;border-color:#dbe8f0;width:100%;height:34px}
+
+    .empty{display:none;border:1px dashed var(--line2);background:var(--soft);border-radius:var(--radius);padding:28px;text-align:center;color:var(--muted);font-weight:650}
+    .empty.show{display:block}
+    .hidden{display:none!important}
+
+    .site-footer{min-height:82px;margin-top:12px;background:var(--navy);border-top:4px solid #125078;box-shadow:0 -10px 24px rgba(5,28,44,.06)}
+    :root[data-theme="dark"] .site-footer{border-top-color:#1f5b7e;box-shadow:0 -10px 24px rgba(0,0,0,.22)}
+    .site-footer-inner{width:min(1500px,100%);min-height:82px;margin:0 auto;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:14px;color:#a4c0d4;font-size:.76rem;font-weight:560}
+    .footer-links{display:flex;gap:12px;flex-wrap:wrap}.footer-links a{color:#d9edf9}
+
+    @media(max-width:1260px){
+      .featured-grid{grid-template-columns:1fr 1fr}.featured-grid .post-card:nth-child(3){grid-column:1/-1}.content-layout{grid-template-columns:1fr}.post-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.side-stack{grid-template-columns:1fr 1fr}.newsletter{min-height:100%}
     }
-    a{
-      color:#1f5eff;
-      font-weight:600;
+    @media(max-width:900px){
+      .hero-top{grid-template-columns:1fr}.hero-note{width:100%}.search-zone{margin-bottom:42px}.category-strip{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;scrollbar-width:thin}.cat-btn{white-space:nowrap}.featured-grid,.post-grid,.side-stack{grid-template-columns:1fr}.wrap{transform:translateY(-12px)}
     }
-    .card{
-      background:white;
-      border:1px solid #d9e3ec;
-      border-radius:8px;
-      padding:20px;
-      margin-top:20px;
+    @media(max-width:760px){
+      .topbar-inner{align-items:flex-start;flex-direction:column;padding:10px 12px}.top-actions{justify-content:flex-start;width:100%;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}.crumb-inner{padding:0 12px}.hero-inner{padding:34px 12px 22px}.hero h2{font-size:2.2rem}.hero-copy{font-size:.9rem}.wrap{padding:0 12px 18px}.section-head{align-items:flex-start;flex-direction:column}.tools{justify-content:flex-start;width:100%}.tools select{width:100%;font-size:16px}.post-card.featured .thumb{height:154px}.thumb{height:154px}.post-grid .thumb{height:132px}.content-layout{gap:10px}.kpi-row{grid-template-columns:repeat(3,1fr);gap:6px}.kpi{padding:8px}.kpi strong{font-size:1rem}.site-footer{min-height:74px;margin-top:8px;border-top-width:3px}.site-footer-inner{min-height:74px;padding:14px 12px;align-items:flex-start;flex-direction:column}.search-box input{font-size:16px}
+    }
+    @media(max-width:420px){
+      .kpi-row{grid-template-columns:1fr}.post-footer{align-items:flex-start;flex-direction:column;gap:6px}.hero h2{font-size:2rem}.cat-btn{min-height:36px;padding-inline:11px;font-size:.84rem}
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Blog · Treasury Hub</h1>
-    <p>Notas, mercado, tipo de cambio y análisis financiero.</p>
-  </header>
+  <main class="app">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="/" aria-label="Volver al TC Contable SBS">
+          <div class="logo">BIF</div>
+          <div><h1>Blog Treasury Hub</h1><p>Mercado · Data · Finanzas aplicadas</p></div>
+        </a>
+        <div class="top-actions">
+          <a class="btn light icon-only" href="/" title="Volver al dashboard" aria-label="Volver al dashboard"><i class="fa-solid fa-chart-line"></i></a>
+          <button id="btnTheme" class="dark icon-only" title="Cambiar tema" aria-label="Cambiar tema"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
+        </div>
+      </div>
+    </header>
 
-  <main>
-    <p><a href="/">← Volver al TC Contable SBS</a></p>
+    <nav class="crumbbar" aria-label="Breadcrumb">
+      <div class="crumb-inner">
+        <i class="fa-solid fa-book-open"></i>
+        <a href="/">Inicio</a>
+        <span class="slash">/</span>
+        <span>Categorías</span>
+      </div>
+    </nav>
 
-    <div class="card">
-      <h2>Primer artículo</h2>
-      <p>Este será el espacio para publicar análisis, comentarios o notas internas.</p>
-      <a href="/blog/primer-articulo.html">Leer artículo</a>
-    </div>
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-top">
+          <div>
+            <span class="hero-kicker"><i class="fa-solid fa-sparkles"></i> Finapsi Intelligence</span>
+            <h2>Ideas financieras con estética ejecutiva.</h2>
+            <p class="hero-copy">Un espacio para convertir mercado, tipo de cambio, data y productividad en notas claras, visuales y accionables.</p>
+          </div>
+          <aside class="hero-note" aria-label="Resumen editorial">
+            <span>Radar de hoy</span>
+            <strong id="heroCount">— artículos</strong>
+            <small>Filtra por categoría o busca una idea específica para encontrar rápido el contenido útil.</small>
+          </aside>
+        </div>
+
+        <div class="search-zone">
+          <label class="search-box" for="searchInput">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input id="searchInput" type="search" placeholder="Ingrese palabras de interés..." autocomplete="off">
+          </label>
+        </div>
+
+        <div id="categoryStrip" class="category-strip" aria-label="Categorías del blog">
+          <button class="cat-btn active" data-category="Todo">Todo</button>
+          <button class="cat-btn" data-category="News">News</button>
+          <button class="cat-btn" data-category="Reportes">Reportes</button>
+          <button class="cat-btn" data-category="Data">Data</button>
+          <button class="cat-btn" data-category="Finanzas">Finanzas</button>
+          <button class="cat-btn" data-category="Economía">Economía</button>
+          <button class="cat-btn" data-category="Mercados">Mercados</button>
+          <button class="cat-btn" data-category="Productividad">Productividad</button>
+          <button class="cat-btn" data-category="Herramientas">Herramientas</button>
+          <button class="cat-btn" data-category="Videos"><i class="fa-solid fa-circle-play"></i> Videos</button>
+          <button class="cat-btn" data-category="Podcasts">Podcasts</button>
+          <button class="cat-btn" data-category="Recursos">(+) Recursos</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="title-icon"><i class="fa-solid fa-fire"></i></span>
+          <div><h3>Destacados</h3><p>Lecturas principales del hub</p></div>
+        </div>
+        <div class="tools">
+          <select id="sortSelect" aria-label="Ordenar artículos">
+            <option value="newest">Más recientes</option>
+            <option value="oldest">Más antiguos</option>
+            <option value="reading">Lectura rápida</option>
+          </select>
+        </div>
+      </div>
+      <div id="featuredGrid" class="featured-grid"></div>
+
+      <div class="content-layout">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="section-title">
+              <span class="title-icon"><i class="fa-solid fa-layer-group"></i></span>
+              <div><h3>Últimas publicaciones</h3><p id="resultLabel">—</p></div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="postGrid" class="post-grid"></div>
+            <div id="emptyState" class="empty">No encontré artículos con ese filtro. Prueba con otra categoría o palabra clave.</div>
+          </div>
+        </section>
+
+        <aside class="side-stack">
+          <section class="panel">
+            <div class="panel-head">
+              <div class="section-title">
+                <span class="title-icon"><i class="fa-solid fa-gauge-high"></i></span>
+                <div><h3>Resumen</h3><p>Estado del contenido</p></div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="kpi-row">
+                <div class="kpi"><span>Total</span><strong id="kTotal">—</strong></div>
+                <div class="kpi cyan"><span>Filtro</span><strong id="kFiltered">—</strong></div>
+                <div class="kpi green"><span>Tiempo</span><strong id="kMinutes">—</strong></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div class="section-title">
+                <span class="title-icon"><i class="fa-solid fa-compass"></i></span>
+                <div><h3>Rutas rápidas</h3><p>Accesos del blog</p></div>
+              </div>
+            </div>
+            <div class="panel-body mini-list">
+              <a class="mini-item" href="#" data-shortcut="Mercados"><span class="mini-icon"><i class="fa-solid fa-chart-line"></i></span><span><strong>Radar de mercados</strong><span>Lecturas de mercado y coyuntura</span></span></a>
+              <a class="mini-item" href="#" data-shortcut="Data"><span class="mini-icon"><i class="fa-solid fa-database"></i></span><span><strong>Data blueprints</strong><span>Plantillas, tableros y automatización</span></span></a>
+              <a class="mini-item" href="#" data-shortcut="Finanzas"><span class="mini-icon"><i class="fa-solid fa-coins"></i></span><span><strong>Finanzas aplicadas</strong><span>Casos, ratios y modelos</span></span></a>
+              <a class="mini-item" href="#" data-shortcut="Productividad"><span class="mini-icon"><i class="fa-solid fa-bolt"></i></span><span><strong>Productividad ejecutiva</strong><span>Sistemas, hábitos y foco</span></span></a>
+            </div>
+          </section>
+
+          <section class="newsletter">
+            <h4>Digest ejecutivo</h4>
+            <p>Espacio preparado para conectar luego un formulario, Google Sheet o backend ligero.</p>
+            <form onsubmit="event.preventDefault(); alert('Formulario demo. Luego puedes conectarlo a un backend o Google Form.');">
+              <input type="email" placeholder="correo@empresa.com" aria-label="Correo electrónico">
+              <button type="submit"><i class="fa-regular fa-envelope"></i> Recibir novedades</button>
+            </form>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <footer class="site-footer" aria-label="Footer">
+      <div class="site-footer-inner">
+        <span>Mercado de Capitales & Control de Gestión de Tesorería</span>
+        <div class="footer-links">
+          <a href="/">TC Contable SBS</a>
+          <a href="#categoryStrip">Categorías</a>
+          <a href="mailto:contacto@treasuryhub.app">Contacto</a>
+        </div>
+      </div>
+    </footer>
   </main>
+
+<script>
+(() => {
+  const THEME_KEY = "sbs_tc_theme_treasuryhub";
+  const POSTS_URL = "./posts.json";
+  const fallbackPosts = [
+    {title:"La Economía del Dólar: una aproximación a la yield del ciclo actual", excerpt:"Dimensional Vision Icons and strategic notes para entender cómo la tasa, la liquidez y el dólar ordenan el tablero financiero.", category:"Economía", tags:["Economía","Mercados","Reportes"], date:"2026-05-26", author:"Walter Chávez", minutes:6, type:"Reporte", href:"/blog/posts/economia-del-dolar.html", theme:"macro", featured:true},
+    {title:"Cómo leer el tipo de cambio SBS sin perder el contexto de mercado", excerpt:"Una guía práctica para conectar TC contable, tendencia, variación diaria y señales externas sin sobreinterpretar el movimiento.", category:"Finanzas", tags:["Finanzas","Data","Mercados"], date:"2026-05-25", author:"Walter Chávez", minutes:5, type:"Nota", href:"/blog/posts/tc-sbs-contexto-mercado.html", theme:"markets", featured:true},
+    {title:"Digital Blueprints: dashboards financieros que sí comunican", excerpt:"Arquitectura visual para convertir data operativa en decisiones: jerarquía, densidad útil, filtros y narrativa ejecutiva.", category:"Data", tags:["Data","Herramientas","Productividad"], date:"2026-05-24", author:"Walter Chávez", minutes:7, type:"Blueprint", href:"/blog/posts/digital-blueprints.html", theme:"data", featured:true},
+    {title:"Morning Market Brief: plantilla para empezar el día con foco", excerpt:"Un formato simple para resumir tasas, equity, dólar, commodities y eventos clave antes de la jornada.", category:"Mercados", tags:["Mercados","News","Recursos"], date:"2026-05-23", author:"Walter Chávez", minutes:4, type:"Recurso", href:"/blog/posts/morning-market-brief.html", theme:"markets"},
+    {title:"Checklist de cierre: control, conciliación y narrativa de resultados", excerpt:"Una lista accionable para pasar de números sueltos a explicación clara de variaciones, impactos y pendientes.", category:"Reportes", tags:["Reportes","Finanzas","Productividad"], date:"2026-05-22", author:"Walter Chávez", minutes:5, type:"Checklist", href:"/blog/posts/checklist-cierre.html", theme:"tools"},
+    {title:"Excel + IA: cómo documentar fórmulas complejas sin perder trazabilidad", excerpt:"Buenas prácticas para explicar supuestos, fórmulas, fuentes y validaciones en modelos que viven en Excel.", category:"Herramientas", tags:["Herramientas","Data","Productividad"], date:"2026-05-21", author:"Walter Chávez", minutes:6, type:"Guía", href:"/blog/posts/excel-ia-trazabilidad.html", theme:"productivity"},
+    {title:"Video: lectura rápida de un dashboard de tesorería", excerpt:"Qué mirar primero, qué ignorar y cómo formular una conclusión ejecutiva en menos de tres minutos.", category:"Videos", tags:["Videos","Data","Finanzas"], date:"2026-05-20", author:"Walter Chávez", minutes:3, type:"Video", href:"/blog/posts/video-dashboard-tesoreria.html", theme:"video"},
+    {title:"Podcast: comunicación ejecutiva para perfiles técnicos", excerpt:"Cómo explicar una idea financiera sin sobreadornar el mensaje ni perder precisión.", category:"Podcasts", tags:["Podcasts","Productividad"], date:"2026-05-19", author:"Walter Chávez", minutes:8, type:"Audio", href:"/blog/posts/podcast-comunicacion-ejecutiva.html", theme:"productivity"},
+    {title:"Plantilla: bitácora de aprendizaje financiero", excerpt:"Un sistema de notas para conectar conceptos, casos, fórmulas y preguntas pendientes en un solo flujo.", category:"Recursos", tags:["Recursos","Productividad","Finanzas"], date:"2026-05-18", author:"Walter Chávez", minutes:4, type:"Plantilla", href:"/blog/posts/bitacora-aprendizaje-financiero.html", theme:"tools"}
+  ];
+
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const state = {posts:fallbackPosts, category:"Todo", query:"", sort:"newest"};
+
+  function applyTheme(theme){
+    const value = theme === "dark" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", value);
+    try{localStorage.setItem(THEME_KEY,value);}catch(e){}
+    const icon = $("#themeIcon");
+    if(icon){ icon.className = value === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon"; }
+  }
+  function initTheme(){
+    let stored = "light";
+    try{stored = localStorage.getItem(THEME_KEY) || "light";}catch(e){}
+    applyTheme(stored);
+  }
+  function escapeHtml(str){
+    return String(str ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+  }
+  function fmtDate(iso){
+    const d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("es-PE", {day:"2-digit", month:"short", year:"numeric"});
+  }
+  function chartSvg(){
+    return `<span class="chart-line" aria-hidden="true"><svg viewBox="0 0 118 58" preserveAspectRatio="none"><path d="M2 48 C18 42, 22 28, 38 34 S60 46, 72 25 S94 16, 116 8" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="3"/><path d="M2 48 C18 42, 22 28, 38 34 S60 46, 72 25 S94 16, 116 8 L116 58 L2 58 Z" fill="rgba(255,255,255,.14)"/></svg></span>`;
+  }
+  function cardTemplate(post, featured=false){
+    const tags = (post.tags || [post.category]).slice(0,3).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join("");
+    const icon = post.category === "Videos" ? "fa-circle-play" : post.category === "Podcasts" ? "fa-podcast" : post.category === "Data" ? "fa-database" : post.category === "Mercados" ? "fa-chart-line" : "fa-bookmark";
+    return `
+      <article class="post-card ${featured ? "featured" : ""}" data-category="${escapeHtml(post.category)}" data-tags="${escapeHtml((post.tags||[]).join(" "))}" data-title="${escapeHtml(post.title)}">
+        <a class="post-link" href="${escapeHtml(post.href || "#")}">
+          <div class="thumb ${escapeHtml(post.theme || "macro")}">
+            <span class="tag"><i class="fa-solid ${icon}"></i> ${escapeHtml(post.type || post.category)}</span>
+            <span class="paper" aria-hidden="true"></span>
+            ${chartSvg()}
+          </div>
+          <div class="post-body">
+            <div class="post-meta">${tags}</div>
+            <h4>${escapeHtml(post.title)}</h4>
+            <p>${escapeHtml(post.excerpt)}</p>
+            <div class="post-footer">
+              <span>Autor: ${escapeHtml(post.author || "Treasury Hub")} · ${fmtDate(post.date)} · ${post.minutes || 4} min</span>
+              <span class="read-more">Leer <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+          </div>
+        </a>
+      </article>`;
+  }
+  function sortedPosts(posts){
+    const out = [...posts];
+    if(state.sort === "oldest") out.sort((a,b) => String(a.date).localeCompare(String(b.date)));
+    else if(state.sort === "reading") out.sort((a,b) => (a.minutes||99) - (b.minutes||99));
+    else out.sort((a,b) => String(b.date).localeCompare(String(a.date)));
+    return out;
+  }
+  function filteredPosts(){
+    const q = state.query.trim().toLowerCase();
+    return sortedPosts(state.posts).filter(post => {
+      const categoryOk = state.category === "Todo" || post.category === state.category || (post.tags || []).includes(state.category);
+      const haystack = `${post.title} ${post.excerpt} ${post.category} ${(post.tags||[]).join(" ")} ${post.author}`.toLowerCase();
+      return categoryOk && (!q || haystack.includes(q));
+    });
+  }
+  function render(){
+    const posts = filteredPosts();
+    const featured = posts.filter(p => p.featured).slice(0,3);
+    const featuredFallback = posts.slice(0,3);
+    const featuredPosts = featured.length ? featured : featuredFallback;
+    const latestPosts = posts.filter(p => !featuredPosts.includes(p));
+    $("#featuredGrid").innerHTML = featuredPosts.map(p => cardTemplate(p,true)).join("");
+    $("#postGrid").innerHTML = latestPosts.map(p => cardTemplate(p,false)).join("");
+    $("#emptyState").classList.toggle("show", posts.length === 0);
+    $("#resultLabel").textContent = `${posts.length} resultado${posts.length === 1 ? "" : "s"} · ${state.category}`;
+    $("#heroCount").textContent = `${state.posts.length} artículos`;
+    $("#kTotal").textContent = state.posts.length;
+    $("#kFiltered").textContent = posts.length;
+    const avg = posts.length ? Math.round(posts.reduce((s,p)=>s+(p.minutes||0),0)/posts.length) : 0;
+    $("#kMinutes").textContent = avg ? `${avg}m` : "—";
+  }
+  async function loadPosts(){
+    try{
+      const res = await fetch(POSTS_URL, {cache:"no-store"});
+      if(!res.ok) throw new Error("No posts.json");
+      const data = await res.json();
+      if(Array.isArray(data) && data.length){ state.posts = data; }
+      if(data && Array.isArray(data.posts) && data.posts.length){ state.posts = data.posts; }
+    }catch(e){
+      state.posts = fallbackPosts;
+    }
+    render();
+  }
+  function bind(){
+    $("#btnTheme")?.addEventListener("click", () => {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      applyTheme(isDark ? "light" : "dark");
+    });
+    $("#searchInput")?.addEventListener("input", e => {state.query = e.target.value; render();});
+    $("#sortSelect")?.addEventListener("change", e => {state.sort = e.target.value; render();});
+    $$(".cat-btn").forEach(btn => btn.addEventListener("click", () => {
+      $$(".cat-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.category = btn.dataset.category || "Todo";
+      render();
+    }));
+    $$('[data-shortcut]').forEach(link => link.addEventListener("click", e => {
+      e.preventDefault();
+      const cat = link.dataset.shortcut;
+      const btn = $(`.cat-btn[data-category="${CSS.escape(cat)}"]`);
+      if(btn) btn.click();
+      document.getElementById("categoryStrip")?.scrollIntoView({behavior:"smooth",block:"center"});
+    }));
+  }
+  initTheme();
+  bind();
+  loadPosts();
+})();
+</script>
 </body>
 </html>
