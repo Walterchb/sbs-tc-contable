@@ -1,0 +1,448 @@
+name: SBS TC Promedio Backfill Historico
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: "Fecha inicial en formato YYYY-MM-DD"
+        required: true
+        default: "2026-01-01"
+      end_date:
+        description: "Fecha final en formato YYYY-MM-DD"
+        required: true
+        default: "2026-05-26"
+      overwrite:
+        description: "Sobrescribir archivos diarios existentes"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sbs-tc-promedio-backfill
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Backfill SBS TC promedio ponderado
+        shell: bash
+        env:
+          START_DATE: ${{ inputs.start_date }}
+          END_DATE: ${{ inputs.end_date }}
+          OVERWRITE: ${{ inputs.overwrite }}
+        run: |
+          python - <<'PY'
+          import os, re, json, html, hashlib, time
+          from pathlib import Path
+          from datetime import datetime, date, timedelta, timezone
+          from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+
+          URL = "https://www.sbs.gob.pe/app/pp/sistip_portal/paginas/publicacion/tipocambiopromedio.aspx"
+          DATA = Path("data")
+          DATA.mkdir(parents=True, exist_ok=True)
+
+          START_DATE = os.environ["START_DATE"].strip()
+          END_DATE = os.environ["END_DATE"].strip()
+          OVERWRITE = os.environ.get("OVERWRITE", "false").lower() == "true"
+
+          CURRENCIES = [
+              "Dólar de N.A.", "Dolar de N.A.",
+              "Dólar Canadiense", "Dolar Canadiense",
+              "Libra Esterlina",
+              "Yen Japonés", "Yen Japones",
+              "Peso Mexicano",
+              "Franco Suizo",
+              "Euro",
+          ]
+
+          CANON = {
+              "dolar de n.a.": "Dólar de N.A.",
+              "dólar de n.a.": "Dólar de N.A.",
+              "dolar canadiense": "Dólar Canadiense",
+              "dólar canadiense": "Dólar Canadiense",
+              "libra esterlina": "Libra Esterlina",
+              "yen japones": "Yen Japonés",
+              "yen japonés": "Yen Japonés",
+              "peso mexicano": "Peso Mexicano",
+              "franco suizo": "Franco Suizo",
+              "euro": "Euro",
+          }
+
+          def norm(s=""):
+              s = str(s).replace("\xa0", " ")
+              return re.sub(r"\s+", " ", s).strip()
+
+          def canon_label(s):
+              return CANON.get(norm(s).lower(), norm(s))
+
+          def to_float(v):
+              if v is None:
+                  return None
+              s = norm(v).replace(",", ".")
+              if not s or s.upper() in {"S/M", "SM"}:
+                  return None
+              try:
+                  return float(s)
+              except Exception:
+                  return None
+
+          def csv_escape(v):
+              s = "" if v is None else str(v)
+              if any(c in s for c in [",", '"', "\n"]):
+                  s = '"' + s.replace('"', '""') + '"'
+              return s
+
+          def to_text(raw):
+              txt = html.unescape(raw or "")
+              txt = re.sub(r"<script[\s\S]*?</script>", " ", txt, flags=re.I)
+              txt = re.sub(r"<style[\s\S]*?</style>", " ", txt, flags=re.I)
+              txt = re.sub(r"<(br|/tr|/td|/th|/p|/div|/li|/h\d)[^>]*>", "\n", txt, flags=re.I)
+              txt = re.sub(r"<[^>]+>", " ", txt)
+              txt = html.unescape(txt)
+              return txt
+
+          def compact_text(raw):
+              return norm(to_text(raw))
+
+          def extract_date(compact):
+              m = re.search(r"Tipo\s+de\s+Cambio\s+al\s+(\d{2}/\d{2}/\d{4})", compact, flags=re.I)
+              if m:
+                  return m.group(1)
+              m = re.search(r"Tipo\s*de\s*Cambio.{0,120}?(\d{2}/\d{2}/\d{4})", compact, flags=re.I | re.S)
+              if m:
+                  return m.group(1)
+              return None
+
+          def get_block(compact, start_pattern, end_pattern):
+              m = re.search(start_pattern, compact, flags=re.I)
+              if not m:
+                  return ""
+              start = m.end()
+              n = re.search(end_pattern, compact[start:], flags=re.I)
+              end = start + n.start() if n else len(compact)
+              return compact[start:end]
+
+          def positions_for_labels(block, labels):
+              found = []
+              used = set()
+              for label in labels:
+                  for m in re.finditer(re.escape(label), block, flags=re.I):
+                      key = (m.start(), canon_label(label))
+                      if key not in used:
+                          used.add(key)
+                          found.append((m.start(), m.end(), canon_label(label)))
+              return sorted(found, key=lambda x: x[0])
+
+          def parse_oferta_demanda(compact):
+              block = get_block(
+                  compact,
+                  r"MONEDA\s*COMPRA\s*\(S/\)\s*VENTA\s*\(S/\)",
+                  r"Tipo\s+de\s+Cambio\s+Mesa\s+de\s+Negociaciones",
+              )
+              rows = []
+              pos = positions_for_labels(block, CURRENCIES)
+              for i, (_, end, label) in enumerate(pos):
+                  nxt = pos[i + 1][0] if i + 1 < len(pos) else len(block)
+                  piece = block[end:nxt]
+                  nums = re.findall(r"[-+]?\d+(?:[.,]\d+)?", piece)
+                  nums = [x for x in nums if to_float(x) is not None and 0 <= to_float(x) < 20]
+                  if not nums:
+                      continue
+                  if len(nums) == 1:
+                      compra, venta = None, to_float(nums[0])
+                  else:
+                      compra, venta = to_float(nums[0]), to_float(nums[1])
+                  rows.append({"moneda": label, "compra": compra, "venta": venta})
+
+              out, seen = [], set()
+              for r in rows:
+                  if r["moneda"] in seen:
+                      continue
+                  seen.add(r["moneda"])
+                  out.append(r)
+              return out
+
+          def parse_mesa_bcr(compact):
+              block = get_block(
+                  compact,
+                  r"Tipo\s+de\s+Cambio\s+Mesa\s+de\s+Negociaciones\s+del\s+BCR\s*\(S/\s*por\s*US\$\)",
+                  r"Tipo\s+de\s+Cambio\s+Mercado\s+Profesional",
+              )
+              rows = []
+              for op in ["VENTA", "COMPRA"]:
+                  m = re.search(rf"\b{op}\b\s+(S/M|[-+]?\d+(?:[.,]\d+)?)\s+(S/M|[-+]?\d+(?:[.,]\d+)?)\s+(S/M|[-+]?\d+(?:[.,]\d+)?)", block, flags=re.I)
+                  if m:
+                      rows.append({
+                          "operacion": op,
+                          "promedio_ponderado": to_float(m.group(1)),
+                          "minimo": to_float(m.group(2)),
+                          "maximo": to_float(m.group(3)),
+                      })
+              return rows
+
+          def parse_mercado_profesional(compact):
+              block = get_block(
+                  compact,
+                  r"Tipo\s+de\s+Cambio\s+Mercado\s+Profesional,\s*Promedio\s+Ponderado\s*\(S/\s*\)",
+                  r"Fuente:\s*BCRP|$",
+              )
+              rows = []
+              pos = positions_for_labels(block, ["Dólar de N.A.", "Dolar de N.A."])
+              for i, (_, end, label) in enumerate(pos):
+                  nxt = pos[i + 1][0] if i + 1 < len(pos) else len(block)
+                  piece = block[end:nxt]
+                  nums = re.findall(r"[-+]?\d+(?:[.,]\d+)?", piece)
+                  nums = [x for x in nums if to_float(x) is not None and 0 <= to_float(x) < 20]
+                  if nums:
+                      rows.append({"moneda": label, "promedio_ponderado": to_float(nums[0])})
+              return rows
+
+          def build_csv(payload):
+              cols = ["fecha_iso", "fecha_publicada", "tipo", "moneda", "operacion", "compra", "venta", "promedio_ponderado", "minimo", "maximo"]
+              lines = [",".join(cols)]
+              for r in payload["oferta_demanda"]:
+                  rec = {
+                      "fecha_iso": payload["fecha_iso"], "fecha_publicada": payload["fecha_publicada"],
+                      "tipo": "oferta_demanda", "moneda": r.get("moneda"), "operacion": "",
+                      "compra": r.get("compra"), "venta": r.get("venta"),
+                      "promedio_ponderado": "", "minimo": "", "maximo": "",
+                  }
+                  lines.append(",".join(csv_escape(rec.get(c, "")) for c in cols))
+              for r in payload["mesa_bcr"]:
+                  rec = {
+                      "fecha_iso": payload["fecha_iso"], "fecha_publicada": payload["fecha_publicada"],
+                      "tipo": "mesa_bcr", "moneda": "Dólar de N.A.", "operacion": r.get("operacion"),
+                      "compra": "", "venta": "", "promedio_ponderado": r.get("promedio_ponderado"),
+                      "minimo": r.get("minimo"), "maximo": r.get("maximo"),
+                  }
+                  lines.append(",".join(csv_escape(rec.get(c, "")) for c in cols))
+              for r in payload["mercado_profesional"]:
+                  rec = {
+                      "fecha_iso": payload["fecha_iso"], "fecha_publicada": payload["fecha_publicada"],
+                      "tipo": "mercado_profesional", "moneda": r.get("moneda"), "operacion": "",
+                      "compra": "", "venta": "", "promedio_ponderado": r.get("promedio_ponderado"),
+                      "minimo": "", "maximo": "",
+                  }
+                  lines.append(",".join(csv_escape(rec.get(c, "")) for c in cols))
+              return "\ufeff" + "\n".join(lines)
+
+          def write_payload(fecha_publicada, source_tag, compact):
+              dd, mm, yyyy = fecha_publicada.split("/")
+              fecha_iso = f"{yyyy}-{mm}-{dd}"
+              oferta_demanda = parse_oferta_demanda(compact)
+              mesa_bcr = parse_mesa_bcr(compact)
+              mercado_profesional = parse_mercado_profesional(compact)
+
+              if len(oferta_demanda) < 5:
+                  raise RuntimeError(f"pocas filas oferta/demanda: {len(oferta_demanda)}")
+              if not mercado_profesional:
+                  raise RuntimeError("no se encontró Mercado Profesional / TC FIX")
+
+              base_for_hash = {
+                  "fecha_publicada": fecha_publicada,
+                  "oferta_demanda": oferta_demanda,
+                  "mesa_bcr": mesa_bcr,
+                  "mercado_profesional": mercado_profesional,
+              }
+              hashv = hashlib.sha256(json.dumps(base_for_hash, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
+              payload = {
+                  "schema": "sbs_tc_promedio.v2",
+                  "source_url": URL,
+                  "fecha_publicada": fecha_publicada,
+                  "fecha_iso": fecha_iso,
+                  "generated_utc": datetime.now(timezone.utc).isoformat(),
+                  "source_used": source_tag,
+                  "hash": hashv,
+                  "tc_fix": mercado_profesional[0].get("promedio_ponderado") if mercado_profesional else None,
+                  "oferta_demanda": oferta_demanda,
+                  "mesa_bcr": mesa_bcr,
+                  "mercado_profesional": mercado_profesional,
+              }
+
+              daily_json = DATA / f"sbs_tc_promedio_{fecha_iso}.json"
+              daily_csv = DATA / f"sbs_tc_promedio_{fecha_iso}.csv"
+              if daily_json.exists() and not OVERWRITE:
+                  return "exists", fecha_iso, payload
+
+              daily_json.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+              daily_csv.write_text(build_csv(payload), encoding="utf-8")
+              return "written", fecha_iso, payload
+
+          def rebuild_history():
+              daily = sorted(DATA.glob("sbs_tc_promedio_????-??-??.json"))
+              dates, observations = [], []
+              for path in daily:
+                  try:
+                      obj = json.loads(path.read_text(encoding="utf-8"))
+                      dates.append({
+                          "fecha_iso": obj.get("fecha_iso"),
+                          "fecha_publicada": obj.get("fecha_publicada"),
+                          "file": path.name,
+                          "rows_oferta_demanda": len(obj.get("oferta_demanda", [])),
+                          "rows_mesa_bcr": len(obj.get("mesa_bcr", [])),
+                          "rows_mercado_profesional": len(obj.get("mercado_profesional", [])),
+                          "source_used": obj.get("source_used"),
+                      })
+                      for r in obj.get("oferta_demanda", []):
+                          observations.append({
+                              "fecha_iso": obj.get("fecha_iso"), "fecha_publicada": obj.get("fecha_publicada"),
+                              "tipo": "oferta_demanda", "moneda": r.get("moneda"), "operacion": None,
+                              "compra": r.get("compra"), "venta": r.get("venta"),
+                              "promedio_ponderado": None, "minimo": None, "maximo": None,
+                          })
+                      for r in obj.get("mesa_bcr", []):
+                          observations.append({
+                              "fecha_iso": obj.get("fecha_iso"), "fecha_publicada": obj.get("fecha_publicada"),
+                              "tipo": "mesa_bcr", "moneda": "Dólar de N.A.", "operacion": r.get("operacion"),
+                              "compra": None, "venta": None, "promedio_ponderado": r.get("promedio_ponderado"),
+                              "minimo": r.get("minimo"), "maximo": r.get("maximo"),
+                          })
+                      for r in obj.get("mercado_profesional", []):
+                          observations.append({
+                              "fecha_iso": obj.get("fecha_iso"), "fecha_publicada": obj.get("fecha_publicada"),
+                              "tipo": "mercado_profesional", "moneda": r.get("moneda"), "operacion": None,
+                              "compra": None, "venta": None, "promedio_ponderado": r.get("promedio_ponderado"),
+                              "minimo": None, "maximo": None,
+                          })
+                  except Exception as e:
+                      print(f"[history skip] {path.name}: {e}")
+
+              history = {
+                  "schema": "sbs_tc_promedio_history.v1",
+                  "generated_utc": datetime.now(timezone.utc).isoformat(),
+                  "count_dates": len(dates),
+                  "range": {"from": dates[0]["fecha_iso"] if dates else None, "to": dates[-1]["fecha_iso"] if dates else None},
+                  "dates": dates,
+                  "observations": observations,
+              }
+              (DATA / "sbs_tc_promedio_history.json").write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+              cols = ["fecha_iso", "fecha_publicada", "tipo", "moneda", "operacion", "compra", "venta", "promedio_ponderado", "minimo", "maximo"]
+              lines = [",".join(cols)]
+              for r in observations:
+                  lines.append(",".join(csv_escape(r.get(c, "")) for c in cols))
+              (DATA / "sbs_tc_promedio_history.csv").write_text("\ufeff" + "\n".join(lines), encoding="utf-8")
+
+          def daterange(start, end):
+              d = start
+              while d <= end:
+                  yield d
+                  d += timedelta(days=1)
+
+          def consulta_fecha(page, d):
+              ddmmyyyy = d.strftime("%d/%m/%Y")
+              page.goto(URL, wait_until="networkidle", timeout=60000)
+
+              # RadDatePicker de Telerik: normalmente hay un input de texto visible para la fecha.
+              inputs = page.locator("input[type='text']:visible")
+              if inputs.count() == 0:
+                  raise RuntimeError("no se encontró input visible de fecha")
+              inp = inputs.first
+              inp.click(timeout=15000)
+              inp.fill(ddmmyyyy, timeout=15000)
+              inp.press("Tab")
+
+              btn = page.locator("input[value='Consultar'], input[type='submit'][value*='Consultar'], button:has-text('Consultar'), text=Consultar").first
+              btn.click(timeout=20000)
+              try:
+                  page.wait_for_load_state("networkidle", timeout=60000)
+              except PlaywrightTimeoutError:
+                  pass
+              page.wait_for_timeout(800)
+
+              compact = compact_text(page.content())
+              fecha_publicada = extract_date(compact)
+              if fecha_publicada != ddmmyyyy:
+                  if "No existe información" in compact or "no existe información" in compact.lower():
+                      return "no_data", ddmmyyyy, None
+                  return "mismatch", ddmmyyyy, {"fecha_publicada": fecha_publicada}
+              status, fecha_iso, payload = write_payload(fecha_publicada, "playwright_date_query", compact)
+              return status, ddmmyyyy, {"fecha_iso": fecha_iso, "tc_fix": payload.get("tc_fix")}
+
+          start = date.fromisoformat(START_DATE)
+          end = date.fromisoformat(END_DATE)
+          if end < start:
+              raise SystemExit("END_DATE no puede ser menor que START_DATE")
+
+          results = []
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              context = browser.new_context(
+                  locale="es-PE",
+                  timezone_id="America/Lima",
+                  user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36",
+              )
+              page = context.new_page()
+              page.set_default_timeout(30000)
+
+              for d in daterange(start, end):
+                  try:
+                      status, requested, extra = consulta_fecha(page, d)
+                      print(f"[{status}] {requested} {extra or ''}")
+                      results.append({"date": d.isoformat(), "requested": requested, "status": status, "extra": extra})
+                  except Exception as e:
+                      print(f"[error] {d.isoformat()} {e}")
+                      results.append({"date": d.isoformat(), "requested": d.strftime("%d/%m/%Y"), "status": "error", "error": str(e)[:500]})
+                  time.sleep(0.35)
+
+              browser.close()
+
+          rebuild_history()
+          status_obj = {
+              "ok": True,
+              "schema": "sbs_tc_promedio_backfill_status.v1",
+              "source_url": URL,
+              "start_date": START_DATE,
+              "end_date": END_DATE,
+              "overwrite": OVERWRITE,
+              "generated_utc": datetime.now(timezone.utc).isoformat(),
+              "summary": {
+                  "written": sum(1 for r in results if r["status"] == "written"),
+                  "exists": sum(1 for r in results if r["status"] == "exists"),
+                  "no_data": sum(1 for r in results if r["status"] == "no_data"),
+                  "mismatch": sum(1 for r in results if r["status"] == "mismatch"),
+                  "error": sum(1 for r in results if r["status"] == "error"),
+              },
+              "results": results,
+          }
+          (DATA / "sbs_tc_promedio_backfill_status.json").write_text(json.dumps(status_obj, ensure_ascii=False, indent=2), encoding="utf-8")
+          print(json.dumps(status_obj["summary"], ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit if changed
+        shell: bash
+        run: |
+          echo "Estado de data/ antes del commit:"
+          git status --short -- data || true
+
+          if [ -z "$(git status --porcelain -- data)" ]; then
+            echo "Sin cambios en data/"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git commit -m "backfill: SBS TC promedio historico ${{ inputs.start_date }} to ${{ inputs.end_date }}"
+          git push
