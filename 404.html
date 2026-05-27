@@ -3,147 +3,257 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Página no encontrada | TreasuryHub</title>
+  <title>404 | Página no encontrada</title>
+
+  <!-- Si tienes una hoja global, déjala activa -->
+  <!-- Cambia /styles.css por la ruta real de tu CSS principal -->
+  <link rel="stylesheet" href="/styles.css" />
 
   <style>
-    :root {
-      --bg: #f6f8fb;
-      --card: rgba(255,255,255,.78);
-      --text: #101828;
-      --muted: #667085;
-      --accent: #0b2a3c;
-      --accent2: #1d6f8f;
-      --border: rgba(16, 24, 40, .10);
+    * {
+      box-sizing: border-box;
     }
-
-    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       min-height: 100vh;
+      font-family: var(--font, Inter, Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+      color: var(--text, #101828);
+      background:
+        radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--accent, #1d6f8f) 18%, transparent), transparent 28%),
+        radial-gradient(circle at 82% 80%, color-mix(in srgb, var(--primary, #051c2c) 15%, transparent), transparent 32%),
+        linear-gradient(var(--grid-line, rgba(16, 24, 40, 0.08)) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line, rgba(16, 24, 40, 0.08)) 1px, transparent 1px),
+        var(--bg, #f7f9fc);
+      background-size:
+        auto,
+        auto,
+        42px 42px,
+        42px 42px,
+        auto;
       display: grid;
       place-items: center;
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(29,111,143,.18), transparent 35%),
-        radial-gradient(circle at bottom right, rgba(11,42,60,.14), transparent 35%),
-        linear-gradient(135deg, #f8fafc, #eef3f7);
       padding: 24px;
+      overflow: hidden;
     }
 
-    .card {
-      width: min(720px, 100%);
-      padding: 42px;
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      background: var(--card);
-      backdrop-filter: blur(18px);
-      box-shadow: 0 24px 80px rgba(16, 24, 40, .12);
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at center, transparent 0%, var(--bg, #f7f9fc) 78%),
+        linear-gradient(to bottom, transparent, var(--bg, #f7f9fc) 92%);
+      pointer-events: none;
+    }
+
+    .not-found {
+      position: relative;
+      width: min(860px, 100%);
+      z-index: 1;
+    }
+
+    .not-found-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-xl, 34px);
+      border: 1px solid var(--border, rgba(16, 24, 40, 0.10));
+      background: color-mix(in srgb, var(--surface, #ffffff) 82%, transparent);
+      box-shadow: var(--shadow-lg, 0 30px 100px rgba(16, 24, 40, 0.14));
+      backdrop-filter: blur(22px);
+      padding: clamp(34px, 7vw, 72px);
       text-align: center;
     }
 
-    .eyebrow {
-      display: inline-flex;
-      padding: 8px 14px;
+    .not-found-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.34), transparent 34%),
+        radial-gradient(circle at top right, color-mix(in srgb, var(--accent, #1d6f8f) 20%, transparent), transparent 36%);
+      pointer-events: none;
+    }
+
+    .not-found-card::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -90px;
+      bottom: -100px;
       border-radius: 999px;
-      background: rgba(11,42,60,.08);
-      color: var(--accent);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: .04em;
+      background: color-mix(in srgb, var(--primary, #051c2c) 9%, transparent);
+      filter: blur(4px);
+      pointer-events: none;
+    }
+
+    .not-found-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .not-found-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 15px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--primary, #051c2c) 8%, transparent);
+      color: var(--primary, #051c2c);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.09em;
       text-transform: uppercase;
-      margin-bottom: 22px;
+      margin-bottom: 28px;
     }
 
-    h1 {
+    .not-found-badge span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent, #1d6f8f);
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent, #1d6f8f) 16%, transparent);
+    }
+
+    .not-found-code {
       margin: 0;
-      font-size: clamp(56px, 12vw, 120px);
-      line-height: .9;
-      letter-spacing: -0.08em;
-      color: var(--accent);
+      font-size: clamp(88px, 19vw, 180px);
+      line-height: 0.78;
+      font-weight: 950;
+      letter-spacing: -0.1em;
+      color: var(--primary, #051c2c);
     }
 
-    h2 {
-      margin: 18px 0 10px;
-      font-size: clamp(24px, 4vw, 38px);
-      letter-spacing: -0.04em;
+    .not-found-title {
+      margin: 28px 0 14px;
+      font-size: clamp(28px, 5vw, 48px);
+      line-height: 1.05;
+      letter-spacing: -0.055em;
+      color: var(--text, #101828);
     }
 
-    p {
-      max-width: 520px;
-      margin: 0 auto 28px;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.65;
+    .not-found-text {
+      max-width: 600px;
+      margin: 0 auto 34px;
+      color: var(--muted, #667085);
+      font-size: clamp(15px, 2vw, 17px);
+      line-height: 1.7;
     }
 
-    .actions {
+    .not-found-actions {
       display: flex;
       justify-content: center;
       gap: 12px;
       flex-wrap: wrap;
     }
 
-    a {
+    .not-found-actions a {
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 13px 22px;
+      border-radius: var(--radius-md, 16px);
       text-decoration: none;
-      font-weight: 700;
-      border-radius: 14px;
-      padding: 13px 18px;
-      transition: transform .2s ease, box-shadow .2s ease;
+      font-weight: 800;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
 
-    a:hover {
+    .not-found-actions a:hover {
       transform: translateY(-2px);
     }
 
-    .primary {
-      background: var(--accent);
-      color: white;
-      box-shadow: 0 12px 28px rgba(11,42,60,.22);
+    .btn-primary {
+      background: var(--primary, #051c2c);
+      color: var(--on-primary, #ffffff);
+      box-shadow: 0 16px 34px color-mix(in srgb, var(--primary, #051c2c) 24%, transparent);
     }
 
-    .secondary {
-      color: var(--accent);
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.55);
+    .btn-secondary {
+      color: var(--primary, #051c2c);
+      background: color-mix(in srgb, var(--surface, #ffffff) 74%, transparent);
+      border: 1px solid var(--border, rgba(16, 24, 40, 0.10));
     }
 
-    .footer {
+    .not-found-footer {
       margin-top: 28px;
+      color: var(--muted, #667085);
       font-size: 13px;
-      color: #98a2b3;
     }
 
-    @media (max-width: 520px) {
-      .card { padding: 30px 22px; }
-      .actions { flex-direction: column; }
-      a { width: 100%; }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background:
+          radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--accent, #69c7e8) 18%, transparent), transparent 28%),
+          radial-gradient(circle at 82% 80%, color-mix(in srgb, var(--primary, #f8fafc) 10%, transparent), transparent 32%),
+          linear-gradient(var(--grid-line-dark, rgba(255, 255, 255, 0.07)) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line-dark, rgba(255, 255, 255, 0.07)) 1px, transparent 1px),
+          var(--bg, #07111c);
+        background-size:
+          auto,
+          auto,
+          42px 42px,
+          42px 42px,
+          auto;
+      }
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 18px;
+        background-size:
+          auto,
+          auto,
+          30px 30px,
+          30px 30px,
+          auto;
+      }
+
+      .not-found-card {
+        border-radius: var(--radius-lg, 26px);
+        padding: 34px 22px;
+      }
+
+      .not-found-actions {
+        flex-direction: column;
+      }
+
+      .not-found-actions a {
+        width: 100%;
+      }
     }
   </style>
 </head>
 
 <body>
-  <main class="card">
-    <div class="eyebrow">Error 404</div>
+  <main class="not-found">
+    <section class="not-found-card">
+      <div class="not-found-content">
+        <div class="not-found-badge">
+          <span></span>
+          Página no encontrada
+        </div>
 
-    <h1>404</h1>
+        <p class="not-found-code">404</p>
 
-    <h2>Página no encontrada</h2>
+        <h1 class="not-found-title">Esta ruta ya no está disponible</h1>
 
-    <p>
-      La página que buscas fue eliminada, cambió de dirección o todavía no está disponible.
-      Puedes volver al inicio y seguir navegando.
-    </p>
+        <p class="not-found-text">
+          La página que buscas fue eliminada, cambió de dirección o todavía no está publicada.
+          Puedes volver al inicio y continuar navegando.
+        </p>
 
-    <div class="actions">
-      <a class="primary" href="/">Volver al inicio</a>
-      <a class="secondary" href="javascript:history.back()">Regresar</a>
-    </div>
+        <div class="not-found-actions">
+          <a class="btn-primary" href="/">Volver al inicio</a>
+          <a class="btn-secondary" href="javascript:history.back()">Regresar</a>
+        </div>
 
-    <div class="footer">
-      TreasuryHub · Financial intelligence & insights
-    </div>
+        <div class="not-found-footer">
+          TreasuryHub · Financial intelligence & insights
+        </div>
+      </div>
+    </section>
   </main>
 </body>
 </html>
