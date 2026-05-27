@@ -1,0 +1,67 @@
+{
+  "schema": "sbs_tc_promedio.v2",
+  "source_url": "https://www.sbs.gob.pe/app/pp/sistip_portal/paginas/publicacion/tipocambiopromedio.aspx",
+  "fecha_publicada": "05/02/2026",
+  "fecha_iso": "2026-02-05",
+  "generated_utc": "2026-05-27T18:46:07.147160+00:00",
+  "source_used": "playwright_date_query",
+  "hash": "fb11199584b54e3a295a03ae4241dd946156b90c45df747b76b818e9c8a92cc7",
+  "tc_fix": 3.3671,
+  "oferta_demanda": [
+    {
+      "moneda": "Dólar de N.A.",
+      "compra": 3.363,
+      "venta": 3.368
+    },
+    {
+      "moneda": "Dólar Canadiense",
+      "compra": 2.276,
+      "venta": 2.598
+    },
+    {
+      "moneda": "Libra Esterlina",
+      "compra": 4.63,
+      "venta": 4.637
+    },
+    {
+      "moneda": "Yen Japonés",
+      "compra": 0.02,
+      "venta": 0.022
+    },
+    {
+      "moneda": "Peso Mexicano",
+      "compra": 0.193,
+      "venta": 0.194
+    },
+    {
+      "moneda": "Franco Suizo",
+      "compra": null,
+      "venta": 4.075
+    },
+    {
+      "moneda": "Euro",
+      "compra": 3.702,
+      "venta": 4.137
+    }
+  ],
+  "mesa_bcr": [
+    {
+      "operacion": "VENTA",
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "operacion": "COMPRA",
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    }
+  ],
+  "mercado_profesional": [
+    {
+      "moneda": "Dólar de N.A.",
+      "promedio_ponderado": 3.3671
+    }
+  ]
+}
