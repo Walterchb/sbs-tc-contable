@@ -363,8 +363,26 @@ jobs:
               inp.fill(ddmmyyyy, timeout=15000)
               inp.press("Tab")
 
-              btn = page.locator("input[value='Consultar'], input[type='submit'][value*='Consultar'], button:has-text('Consultar'), text=Consultar").first
-              btn.click(timeout=20000)
+              # No mezclar selectores CSS con el motor text= en un mismo locator,
+              # porque Playwright intenta parsearlo como CSS y falla con: Unexpected token "=".
+              clicked = False
+              for sel in [
+                  "input[value='Consultar']",
+                  "input[type='submit'][value*='Consultar']",
+                  "input[type='button'][value*='Consultar']",
+                  "button:has-text('Consultar')",
+              ]:
+                  loc = page.locator(sel)
+                  try:
+                      if loc.count() > 0:
+                          loc.first.click(timeout=20000)
+                          clicked = True
+                          break
+                  except Exception:
+                      pass
+
+              if not clicked:
+                  page.get_by_text("Consultar", exact=True).click(timeout=20000)
               try:
                   page.wait_for_load_state("networkidle", timeout=60000)
               except PlaywrightTimeoutError:
