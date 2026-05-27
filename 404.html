@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>404 | Página no encontrada</title>
 
-  <!-- Usa tu CSS global si ya existe -->
+  <!-- Mantén tu CSS global si existe -->
   <link rel="stylesheet" href="/styles.css" />
 
   <style>
@@ -18,12 +18,70 @@
     }
 
     body {
+      --nf-bg: var(--bg, #f6f8fb);
+      --nf-text: var(--text, #101828);
+      --nf-muted: var(--muted, #667085);
+      --nf-primary: var(--primary, #051c2c);
+      --nf-accent: var(--accent, #1d6f8f);
+      --nf-border: var(--border, rgba(16, 24, 40, 0.12));
+      --nf-surface: var(--surface, rgba(255, 255, 255, 0.68));
+      --nf-grid: var(--grid-line, rgba(16, 24, 40, 0.075));
+      --nf-shadow: var(--shadow-lg, 0 18px 46px rgba(16, 24, 40, 0.14));
+      --nf-on-primary: var(--on-primary, #ffffff);
+
       margin: 0;
       min-height: 100vh;
       font-family: var(--font, Manrope, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
-      color: var(--text, #101828);
-      background: var(--bg, #f6f8fb);
+      color: var(--nf-text);
+      background: var(--nf-bg);
       overflow-x: hidden;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html:not([data-theme="light"]) body:not([data-theme="light"]) {
+        --nf-bg: var(--bg, #07111c);
+        --nf-text: var(--text, #f8fafc);
+        --nf-muted: var(--muted, #98a2b3);
+        --nf-primary: var(--primary, #f8fafc);
+        --nf-accent: var(--accent, #69c7e8);
+        --nf-border: var(--border, rgba(255, 255, 255, 0.12));
+        --nf-surface: var(--surface, rgba(9, 20, 32, 0.62));
+        --nf-grid: var(--grid-line, rgba(255, 255, 255, 0.075));
+        --nf-shadow: var(--shadow-lg, 0 24px 70px rgba(0, 0, 0, 0.36));
+        --nf-on-primary: var(--on-primary, #07111c);
+      }
+    }
+
+    html[data-theme="dark"] body,
+    body[data-theme="dark"],
+    html.dark body,
+    body.dark {
+      --nf-bg: var(--bg-dark, var(--bg, #07111c));
+      --nf-text: var(--text-dark, var(--text, #f8fafc));
+      --nf-muted: var(--muted-dark, var(--muted, #98a2b3));
+      --nf-primary: var(--primary-dark, var(--primary, #f8fafc));
+      --nf-accent: var(--accent-dark, var(--accent, #69c7e8));
+      --nf-border: var(--border-dark, rgba(255, 255, 255, 0.12));
+      --nf-surface: var(--surface-dark, rgba(9, 20, 32, 0.62));
+      --nf-grid: var(--grid-line-dark, rgba(255, 255, 255, 0.075));
+      --nf-shadow: var(--shadow-lg, 0 24px 70px rgba(0, 0, 0, 0.36));
+      --nf-on-primary: var(--on-primary-dark, #07111c);
+    }
+
+    html[data-theme="light"] body,
+    body[data-theme="light"],
+    html.light body,
+    body.light {
+      --nf-bg: var(--bg-light, var(--bg, #f6f8fb));
+      --nf-text: var(--text-light, var(--text, #101828));
+      --nf-muted: var(--muted-light, var(--muted, #667085));
+      --nf-primary: var(--primary-light, var(--primary, #051c2c));
+      --nf-accent: var(--accent-light, var(--accent, #1d6f8f));
+      --nf-border: var(--border-light, rgba(16, 24, 40, 0.12));
+      --nf-surface: var(--surface-light, rgba(255, 255, 255, 0.68));
+      --nf-grid: var(--grid-line-light, rgba(16, 24, 40, 0.075));
+      --nf-shadow: var(--shadow-lg, 0 18px 46px rgba(16, 24, 40, 0.14));
+      --nf-on-primary: var(--on-primary-light, #ffffff);
     }
 
     .not-found-page {
@@ -33,6 +91,8 @@
       align-items: center;
       padding: clamp(24px, 6vw, 72px);
       isolation: isolate;
+      overflow: hidden;
+      background: var(--nf-bg);
     }
 
     .not-found-page::before {
@@ -41,8 +101,8 @@
       inset: 0;
       z-index: -3;
       background:
-        linear-gradient(var(--grid-line, rgba(16, 24, 40, 0.07)) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid-line, rgba(16, 24, 40, 0.07)) 1px, transparent 1px);
+        linear-gradient(var(--nf-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--nf-grid) 1px, transparent 1px);
       background-size: 36px 36px;
       mask-image: radial-gradient(circle at 45% 50%, black 0%, black 42%, transparent 82%);
     }
@@ -53,9 +113,9 @@
       inset: 0;
       z-index: -2;
       background:
-        radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--accent, #1d6f8f) 18%, transparent), transparent 28%),
-        radial-gradient(circle at 85% 75%, color-mix(in srgb, var(--primary, #051c2c) 12%, transparent), transparent 30%),
-        linear-gradient(to bottom, transparent 0%, var(--bg, #f6f8fb) 95%);
+        radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--nf-accent) 18%, transparent), transparent 28%),
+        radial-gradient(circle at 85% 75%, color-mix(in srgb, var(--nf-primary) 11%, transparent), transparent 30%),
+        linear-gradient(to bottom, transparent 0%, var(--nf-bg) 95%);
       pointer-events: none;
     }
 
@@ -69,13 +129,15 @@
       line-height: 0.8;
       font-weight: 950;
       letter-spacing: -0.14em;
-      color: color-mix(in srgb, var(--primary, #051c2c) 7%, transparent);
+      color: color-mix(in srgb, var(--nf-primary) 7%, transparent);
       user-select: none;
       pointer-events: none;
     }
 
     .content {
       width: min(760px, 100%);
+      position: relative;
+      z-index: 1;
     }
 
     .brand-row {
@@ -88,21 +150,21 @@
     .brand-mark {
       width: 42px;
       height: 42px;
-      border-radius: 14px;
+      border-radius: var(--radius-sm, 14px);
       display: grid;
       place-items: center;
-      background: var(--primary, #051c2c);
-      color: var(--on-primary, #ffffff);
+      background: var(--nf-primary);
+      color: var(--nf-on-primary);
       font-size: 13px;
       font-weight: 900;
-      box-shadow: 0 14px 34px color-mix(in srgb, var(--primary, #051c2c) 22%, transparent);
+      box-shadow: var(--nf-shadow);
     }
 
     .brand-name {
       font-size: 14px;
       font-weight: 850;
       letter-spacing: -0.03em;
-      color: var(--text, #101828);
+      color: var(--nf-text);
     }
 
     .eyebrow {
@@ -110,7 +172,7 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 18px;
-      color: var(--muted, #667085);
+      color: var(--nf-muted);
       font-size: 12px;
       font-weight: 850;
       letter-spacing: 0.1em;
@@ -121,7 +183,7 @@
       content: "";
       width: 36px;
       height: 1px;
-      background: var(--accent, #1d6f8f);
+      background: var(--nf-accent);
     }
 
     h1 {
@@ -130,13 +192,13 @@
       font-size: clamp(46px, 8vw, 94px);
       line-height: 0.92;
       letter-spacing: -0.08em;
-      color: var(--text, #101828);
+      color: var(--nf-text);
     }
 
     .lead {
       max-width: 560px;
       margin: 24px 0 0;
-      color: var(--muted, #667085);
+      color: var(--nf-muted);
       font-size: clamp(16px, 2vw, 19px);
       line-height: 1.75;
     }
@@ -145,11 +207,7 @@
       width: min(560px, 100%);
       height: 1px;
       margin: 36px 0;
-      background: linear-gradient(
-        90deg,
-        var(--border, rgba(16, 24, 40, 0.12)),
-        transparent
-      );
+      background: linear-gradient(90deg, var(--nf-border), transparent);
     }
 
     .actions {
@@ -177,15 +235,15 @@
     }
 
     .btn-primary {
-      background: var(--primary, #051c2c);
-      color: var(--on-primary, #ffffff);
-      box-shadow: 0 16px 38px color-mix(in srgb, var(--primary, #051c2c) 24%, transparent);
+      background: var(--nf-primary);
+      color: var(--nf-on-primary);
+      box-shadow: var(--nf-shadow);
     }
 
     .btn-secondary {
-      color: var(--text, #101828);
-      border: 1px solid var(--border, rgba(16, 24, 40, 0.12));
-      background: color-mix(in srgb, var(--surface, #ffffff) 72%, transparent);
+      color: var(--nf-text);
+      border: 1px solid var(--nf-border);
+      background: var(--nf-surface);
       backdrop-filter: blur(14px);
     }
 
@@ -195,9 +253,9 @@
       max-width: min(560px, 100%);
       padding: 11px 14px;
       border-radius: 999px;
-      border: 1px solid var(--border, rgba(16, 24, 40, 0.10));
-      background: color-mix(in srgb, var(--surface, #ffffff) 64%, transparent);
-      color: var(--muted, #667085);
+      border: 1px solid var(--nf-border);
+      background: var(--nf-surface);
+      color: var(--nf-muted);
       font-size: 13px;
       backdrop-filter: blur(14px);
     }
@@ -206,24 +264,6 @@
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      body {
-        background: var(--bg, #07111c);
-        color: var(--text, #f8fafc);
-      }
-
-      .not-found-page::before {
-        background:
-          linear-gradient(var(--grid-line, rgba(255, 255, 255, 0.07)) 1px, transparent 1px),
-          linear-gradient(90deg, var(--grid-line, rgba(255, 255, 255, 0.07)) 1px, transparent 1px);
-        background-size: 36px 36px;
-      }
-
-      .ghost-number {
-        color: color-mix(in srgb, var(--text, #f8fafc) 8%, transparent);
-      }
     }
 
     @media (max-width: 680px) {
