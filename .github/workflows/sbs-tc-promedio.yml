@@ -3,7 +3,7 @@ name: SBS TC Promedio Ponderado Update
 on:
   workflow_dispatch:
   schedule:
-    # Cada hora, todos los días. Minuto 7 para evitar la congestión del minuto 0 en GitHub Actions.
+    # Cada hora, todos los días. GitHub Actions usa UTC.
     - cron: "7 * * * *"
 
 permissions:
@@ -24,7 +24,7 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import re, json, hashlib, subprocess, urllib.parse
+          import re, json, hashlib, subprocess, urllib.parse, html
           from pathlib import Path
           from datetime import datetime, timezone
 
@@ -32,15 +32,44 @@ jobs:
           DATA = Path("data")
           DATA.mkdir(parents=True, exist_ok=True)
 
+          CURRENCIES = [
+              "Dólar de N.A.",
+              "Dolar de N.A.",
+              "Dólar Canadiense",
+              "Dolar Canadiense",
+              "Libra Esterlina",
+              "Yen Japonés",
+              "Yen Japones",
+              "Peso Mexicano",
+              "Franco Suizo",
+              "Euro",
+          ]
+
+          CANON = {
+              "dolar de n.a.": "Dólar de N.A.",
+              "dólar de n.a.": "Dólar de N.A.",
+              "dolar canadiense": "Dólar Canadiense",
+              "dólar canadiense": "Dólar Canadiense",
+              "libra esterlina": "Libra Esterlina",
+              "yen japones": "Yen Japonés",
+              "yen japonés": "Yen Japonés",
+              "peso mexicano": "Peso Mexicano",
+              "franco suizo": "Franco Suizo",
+              "euro": "Euro",
+          }
+
           def norm(s=""):
               s = str(s).replace("\xa0", " ")
               return re.sub(r"\s+", " ", s).strip()
+
+          def canon_label(s):
+              return CANON.get(norm(s).lower(), norm(s))
 
           def to_float(v):
               if v is None:
                   return None
               s = norm(v).replace(",", ".")
-              if not s or s.upper() == "S/M":
+              if not s or s.upper() in {"S/M", "SM"}:
                   return None
               try:
                   return float(s)
@@ -62,7 +91,7 @@ jobs:
                   "-H", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                   "-e", "https://www.sbs.gob.pe/",
                   "--compressed",
-                  url
+                  url,
               ]
               p = subprocess.run(cmd, capture_output=True, text=True)
               if p.returncode != 0:
@@ -94,178 +123,173 @@ jobs:
               raise RuntimeError(" | ".join(errors))
 
           def to_text(raw):
-              txt = raw
+              txt = html.unescape(raw)
               txt = re.sub(r"<script[\s\S]*?</script>", " ", txt, flags=re.I)
               txt = re.sub(r"<style[\s\S]*?</style>", " ", txt, flags=re.I)
-              txt = re.sub(r"<br\s*/?>", "\n", txt, flags=re.I)
-              txt = re.sub(r"</(p|div|tr|li|h\d|td|th)>", "\n", txt, flags=re.I)
+              txt = re.sub(r"<(br|/tr|/td|/th|/p|/div|/li|/h\d)[^>]*>", "\n", txt, flags=re.I)
               txt = re.sub(r"<[^>]+>", " ", txt)
-              entities = {
-                  "&nbsp;": " ",
-                  "&amp;": "&",
-                  "&quot;": '"',
-                  "&#39;": "'",
-                  "&aacute;": "á",
-                  "&eacute;": "é",
-                  "&iacute;": "í",
-                  "&oacute;": "ó",
-                  "&uacute;": "ú",
-                  "&ntilde;": "ñ",
-              }
-              for k, v in entities.items():
-                  txt = txt.replace(k, v)
+              txt = html.unescape(txt)
               return txt
 
-          def extract_date(text):
-              m = re.search(r"Tipo\s+de\s+Cambio\s+al\s+(\d{2}/\d{2}/\d{4})", text, flags=re.I)
+          def compact_text(raw):
+              return norm(to_text(raw))
+
+          def extract_date(compact):
+              m = re.search(r"Tipo\s+de\s+Cambio\s+al\s+(\d{2}/\d{2}/\d{4})", compact, flags=re.I)
               if m:
                   return m.group(1)
-              m = re.search(r"Tipo\s*de\s*Cambio.{0,100}?(\d{2}/\d{2}/\d{4})", text, flags=re.I | re.S)
+              m = re.search(r"Tipo\s*de\s*Cambio.{0,120}?(\d{2}/\d{2}/\d{4})", compact, flags=re.I | re.S)
               if m:
                   return m.group(1)
               raise RuntimeError("No se encontró la fecha publicada")
 
-          def section(text, start_pattern, end_pattern):
-              m = re.search(start_pattern + r"([\s\S]*?)(?:" + end_pattern + r")", text, flags=re.I)
-              return m.group(1) if m else ""
+          def get_block(compact, start_pattern, end_pattern):
+              m = re.search(start_pattern, compact, flags=re.I)
+              if not m:
+                  return ""
+              start = m.end()
+              n = re.search(end_pattern, compact[start:], flags=re.I)
+              end = start + n.start() if n else len(compact)
+              return compact[start:end]
 
-          def parse_oferta_demanda(text):
-              block = section(
-                  text,
-                  r"MONEDA\s+COMPRA\s*\(S/\)\s*VENTA\s*\(S/\)",
-                  r"\*\s*Columns|Tipo\s+de\s+Cambio\s+Mesa\s+de\s+Negociaciones"
+          def positions_for_labels(block, labels):
+              found = []
+              used = set()
+              for label in labels:
+                  for m in re.finditer(re.escape(label), block, flags=re.I):
+                      key = (m.start(), canon_label(label))
+                      if key not in used:
+                          used.add(key)
+                          found.append((m.start(), m.end(), canon_label(label)))
+              return sorted(found, key=lambda x: x[0])
+
+          def parse_oferta_demanda(compact):
+              block = get_block(
+                  compact,
+                  r"MONEDA\s*COMPRA\s*\(S/\)\s*VENTA\s*\(S/\)",
+                  r"Tipo\s+de\s+Cambio\s+Mesa\s+de\s+Negociaciones",
               )
               rows = []
-              for ln in [norm(x) for x in re.split(r"\r?\n+", block) if norm(x)]:
-                  up = ln.upper()
-                  if any(x in up for x in ["MONEDA", "COMPRA", "VENTA", "COLUMNS"]):
-                      continue
-                  nums = re.findall(r"[-+]?\d+(?:[.,]\d+)?", ln)
+              pos = positions_for_labels(block, CURRENCIES)
+              for i, (_, end, label) in enumerate(pos):
+                  nxt = pos[i + 1][0] if i + 1 < len(pos) else len(block)
+                  piece = block[end:nxt]
+                  nums = re.findall(r"[-+]?\d+(?:[.,]\d+)?", piece)
+                  nums = [x for x in nums if to_float(x) is not None and 0 <= to_float(x) < 20]
                   if not nums:
                       continue
-                  moneda = norm(re.sub(r"[-+]?\d+(?:[.,]\d+)?", " ", ln))
                   if len(nums) == 1:
-                      # En la página el Yen puede venir con COMPRA vacío y solo VENTA.
-                      compra = None
-                      venta = to_float(nums[-1])
+                      compra, venta = None, to_float(nums[0])
                   else:
-                      compra = to_float(nums[-2])
-                      venta = to_float(nums[-1])
-                  if moneda:
-                      rows.append({"moneda": moneda, "compra": compra, "venta": venta})
-              return rows
+                      compra, venta = to_float(nums[0]), to_float(nums[1])
+                  rows.append({"moneda": label, "compra": compra, "venta": venta})
 
-          def parse_mesa_bcr(text):
-              block = section(
-                  text,
+              # Fallback por filas si el HTML sí viene separado por saltos de línea.
+              if len(rows) < 5:
+                  text = to_text(compact)
+                  for ln in [norm(x) for x in re.split(r"\r?\n+", text) if norm(x)]:
+                      if any(canon_label(c).lower() in ln.lower() for c in CURRENCIES):
+                          nums = re.findall(r"[-+]?\d+(?:[.,]\d+)?", ln)
+                          nums = [x for x in nums if to_float(x) is not None and 0 <= to_float(x) < 20]
+                          label = None
+                          for c in CURRENCIES:
+                              if c.lower() in ln.lower():
+                                  label = canon_label(c)
+                                  break
+                          if label and nums:
+                              if len(nums) == 1:
+                                  compra, venta = None, to_float(nums[0])
+                              else:
+                                  compra, venta = to_float(nums[0]), to_float(nums[1])
+                              rows.append({"moneda": label, "compra": compra, "venta": venta})
+
+              # Deduplicar por moneda, conservando el primer registro válido.
+              out, seen = [], set()
+              for r in rows:
+                  if r["moneda"] in seen:
+                      continue
+                  seen.add(r["moneda"])
+                  out.append(r)
+              return out
+
+          def parse_mesa_bcr(compact):
+              block = get_block(
+                  compact,
                   r"Tipo\s+de\s+Cambio\s+Mesa\s+de\s+Negociaciones\s+del\s+BCR\s*\(S/\s*por\s*US\$\)",
-                  r"\*\s*Columns|Tipo\s+de\s+Cambio\s+Mercado\s+Profesional"
+                  r"Tipo\s+de\s+Cambio\s+Mercado\s+Profesional",
               )
               rows = []
-              for ln in [norm(x) for x in re.split(r"\r?\n+", block) if norm(x)]:
-                  up = ln.upper()
-                  if any(x in up for x in ["PROMEDIO", "MINIMO", "MAXIMO", "COLUMNS"]):
-                      continue
-                  if not re.match(r"^(VENTA|COMPRA)\b", ln, flags=re.I):
-                      continue
-                  parts = ln.split()
-                  vals = [to_float(x) for x in parts[1:]]
-                  while len(vals) < 3:
-                      vals.append(None)
-                  rows.append({
-                      "operacion": parts[0].upper(),
-                      "promedio_ponderado": vals[0],
-                      "minimo": vals[1],
-                      "maximo": vals[2],
-                  })
+              for op in ["VENTA", "COMPRA"]:
+                  m = re.search(rf"\b{op}\b\s+(S/M|[-+]?\d+(?:[.,]\d+)?)\s+(S/M|[-+]?\d+(?:[.,]\d+)?)\s+(S/M|[-+]?\d+(?:[.,]\d+)?)", block, flags=re.I)
+                  if m:
+                      rows.append({
+                          "operacion": op,
+                          "promedio_ponderado": to_float(m.group(1)),
+                          "minimo": to_float(m.group(2)),
+                          "maximo": to_float(m.group(3)),
+                      })
               return rows
 
-          def parse_mercado_profesional(text):
-              block = section(
-                  text,
+          def parse_mercado_profesional(compact):
+              block = get_block(
+                  compact,
                   r"Tipo\s+de\s+Cambio\s+Mercado\s+Profesional,\s*Promedio\s+Ponderado\s*\(S/\s*\)",
-                  r"\*\s*Columns|Fuente:|$"
+                  r"Fuente:\s*BCRP|$",
               )
               rows = []
-              for ln in [norm(x) for x in re.split(r"\r?\n+", block) if norm(x)]:
-                  up = ln.upper()
-                  if any(x in up for x in ["MONEDA", "PROMEDIO", "COLUMNS", "FUENTE"]):
-                      continue
-                  nums = re.findall(r"[-+]?\d+(?:[.,]\d+)?", ln)
-                  if not nums:
-                      continue
-                  moneda = norm(re.sub(r"[-+]?\d+(?:[.,]\d+)?", " ", ln))
-                  if moneda:
-                      rows.append({"moneda": moneda, "promedio_ponderado": to_float(nums[-1])})
+              pos = positions_for_labels(block, ["Dólar de N.A.", "Dolar de N.A."])
+              for i, (_, end, label) in enumerate(pos):
+                  nxt = pos[i + 1][0] if i + 1 < len(pos) else len(block)
+                  piece = block[end:nxt]
+                  nums = re.findall(r"[-+]?\d+(?:[.,]\d+)?", piece)
+                  nums = [x for x in nums if to_float(x) is not None and 0 <= to_float(x) < 20]
+                  if nums:
+                      rows.append({"moneda": label, "promedio_ponderado": to_float(nums[0])})
               return rows
 
           def build_csv(payload):
-              cols = [
-                  "fecha_iso", "fecha_publicada", "tipo", "moneda", "operacion",
-                  "compra", "venta", "promedio_ponderado", "minimo", "maximo"
-              ]
+              cols = ["fecha_iso", "fecha_publicada", "tipo", "moneda", "operacion", "compra", "venta", "promedio_ponderado", "minimo", "maximo"]
               lines = [",".join(cols)]
-
               for r in payload["oferta_demanda"]:
                   rec = {
-                      "fecha_iso": payload["fecha_iso"],
-                      "fecha_publicada": payload["fecha_publicada"],
-                      "tipo": "oferta_demanda",
-                      "moneda": r.get("moneda"),
-                      "operacion": "",
-                      "compra": r.get("compra"),
-                      "venta": r.get("venta"),
-                      "promedio_ponderado": "",
-                      "minimo": "",
-                      "maximo": "",
+                      "fecha_iso": payload["fecha_iso"], "fecha_publicada": payload["fecha_publicada"],
+                      "tipo": "oferta_demanda", "moneda": r.get("moneda"), "operacion": "",
+                      "compra": r.get("compra"), "venta": r.get("venta"),
+                      "promedio_ponderado": "", "minimo": "", "maximo": "",
                   }
                   lines.append(",".join(csv_escape(rec.get(c, "")) for c in cols))
-
               for r in payload["mesa_bcr"]:
                   rec = {
-                      "fecha_iso": payload["fecha_iso"],
-                      "fecha_publicada": payload["fecha_publicada"],
-                      "tipo": "mesa_bcr",
-                      "moneda": "Dólar de N.A.",
-                      "operacion": r.get("operacion"),
-                      "compra": "",
-                      "venta": "",
-                      "promedio_ponderado": r.get("promedio_ponderado"),
-                      "minimo": r.get("minimo"),
-                      "maximo": r.get("maximo"),
+                      "fecha_iso": payload["fecha_iso"], "fecha_publicada": payload["fecha_publicada"],
+                      "tipo": "mesa_bcr", "moneda": "Dólar de N.A.", "operacion": r.get("operacion"),
+                      "compra": "", "venta": "", "promedio_ponderado": r.get("promedio_ponderado"),
+                      "minimo": r.get("minimo"), "maximo": r.get("maximo"),
                   }
                   lines.append(",".join(csv_escape(rec.get(c, "")) for c in cols))
-
               for r in payload["mercado_profesional"]:
                   rec = {
-                      "fecha_iso": payload["fecha_iso"],
-                      "fecha_publicada": payload["fecha_publicada"],
-                      "tipo": "mercado_profesional",
-                      "moneda": r.get("moneda"),
-                      "operacion": "",
-                      "compra": "",
-                      "venta": "",
-                      "promedio_ponderado": r.get("promedio_ponderado"),
-                      "minimo": "",
-                      "maximo": "",
+                      "fecha_iso": payload["fecha_iso"], "fecha_publicada": payload["fecha_publicada"],
+                      "tipo": "mercado_profesional", "moneda": r.get("moneda"), "operacion": "",
+                      "compra": "", "venta": "", "promedio_ponderado": r.get("promedio_ponderado"),
+                      "minimo": "", "maximo": "",
                   }
                   lines.append(",".join(csv_escape(rec.get(c, "")) for c in cols))
-
               return "\ufeff" + "\n".join(lines)
 
-          def write_status(ok, message, source=None):
+          def write_status(ok, message, source=None, extra=None):
               status = {
                   "ok": ok,
                   "message": message,
                   "source": source,
-                  "generated_utc": datetime.now(timezone.utc).isoformat()
+                  "generated_utc": datetime.now(timezone.utc).isoformat(),
               }
+              if extra:
+                  status.update(extra)
               (DATA / "sbs_tc_promedio_status.json").write_text(json.dumps(status, ensure_ascii=False, indent=2), encoding="utf-8")
 
           def build_history():
               daily = sorted(DATA.glob("sbs_tc_promedio_????-??-??.json"))
-              dates = []
-              observations = []
+              dates, observations = [], []
               for path in daily:
                   try:
                       obj = json.loads(path.read_text(encoding="utf-8"))
@@ -280,99 +304,62 @@ jobs:
                       })
                       for r in obj.get("oferta_demanda", []):
                           observations.append({
-                              "fecha_iso": obj.get("fecha_iso"),
-                              "fecha_publicada": obj.get("fecha_publicada"),
-                              "tipo": "oferta_demanda",
-                              "moneda": r.get("moneda"),
-                              "operacion": None,
-                              "compra": r.get("compra"),
-                              "venta": r.get("venta"),
-                              "promedio_ponderado": None,
-                              "minimo": None,
-                              "maximo": None,
+                              "fecha_iso": obj.get("fecha_iso"), "fecha_publicada": obj.get("fecha_publicada"),
+                              "tipo": "oferta_demanda", "moneda": r.get("moneda"), "operacion": None,
+                              "compra": r.get("compra"), "venta": r.get("venta"),
+                              "promedio_ponderado": None, "minimo": None, "maximo": None,
                           })
                       for r in obj.get("mesa_bcr", []):
                           observations.append({
-                              "fecha_iso": obj.get("fecha_iso"),
-                              "fecha_publicada": obj.get("fecha_publicada"),
-                              "tipo": "mesa_bcr",
-                              "moneda": "Dólar de N.A.",
-                              "operacion": r.get("operacion"),
-                              "compra": None,
-                              "venta": None,
-                              "promedio_ponderado": r.get("promedio_ponderado"),
-                              "minimo": r.get("minimo"),
-                              "maximo": r.get("maximo"),
+                              "fecha_iso": obj.get("fecha_iso"), "fecha_publicada": obj.get("fecha_publicada"),
+                              "tipo": "mesa_bcr", "moneda": "Dólar de N.A.", "operacion": r.get("operacion"),
+                              "compra": None, "venta": None, "promedio_ponderado": r.get("promedio_ponderado"),
+                              "minimo": r.get("minimo"), "maximo": r.get("maximo"),
                           })
                       for r in obj.get("mercado_profesional", []):
                           observations.append({
-                              "fecha_iso": obj.get("fecha_iso"),
-                              "fecha_publicada": obj.get("fecha_publicada"),
-                              "tipo": "mercado_profesional",
-                              "moneda": r.get("moneda"),
-                              "operacion": None,
-                              "compra": None,
-                              "venta": None,
-                              "promedio_ponderado": r.get("promedio_ponderado"),
-                              "minimo": None,
-                              "maximo": None,
+                              "fecha_iso": obj.get("fecha_iso"), "fecha_publicada": obj.get("fecha_publicada"),
+                              "tipo": "mercado_profesional", "moneda": r.get("moneda"), "operacion": None,
+                              "compra": None, "venta": None, "promedio_ponderado": r.get("promedio_ponderado"),
+                              "minimo": None, "maximo": None,
                           })
                   except Exception as e:
                       print(f"[history skip] {path.name}: {e}")
-
               history = {
                   "schema": "sbs_tc_promedio_history.v1",
                   "generated_utc": datetime.now(timezone.utc).isoformat(),
                   "count_dates": len(dates),
-                  "range": {
-                      "from": dates[0]["fecha_iso"] if dates else None,
-                      "to": dates[-1]["fecha_iso"] if dates else None,
-                  },
+                  "range": {"from": dates[0]["fecha_iso"] if dates else None, "to": dates[-1]["fecha_iso"] if dates else None},
                   "dates": dates,
                   "observations": observations,
               }
               (DATA / "sbs_tc_promedio_history.json").write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
-
               cols = ["fecha_iso", "fecha_publicada", "tipo", "moneda", "operacion", "compra", "venta", "promedio_ponderado", "minimo", "maximo"]
               lines = [",".join(cols)]
               for r in observations:
                   lines.append(",".join(csv_escape(r.get(c, "")) for c in cols))
               (DATA / "sbs_tc_promedio_history.csv").write_text("\ufeff" + "\n".join(lines), encoding="utf-8")
 
-          # Seed mínimo para que el front no se rompa en un primer run fallido.
-          if not (DATA / "sbs_tc_promedio_latest.json").exists():
-              seed = {
-                  "schema": "sbs_tc_promedio.v1",
-                  "source_url": URL,
-                  "fecha_publicada": None,
-                  "fecha_iso": None,
-                  "generated_utc": None,
-                  "source_used": None,
-                  "hash": None,
-                  "oferta_demanda": [],
-                  "mesa_bcr": [],
-                  "mercado_profesional": [],
-              }
-              (DATA / "sbs_tc_promedio_latest.json").write_text(json.dumps(seed, ensure_ascii=False, indent=2), encoding="utf-8")
-              (DATA / "sbs_tc_promedio_latest.csv").write_text("\ufefffecha_iso,fecha_publicada,tipo,moneda,operacion,compra,venta,promedio_ponderado,minimo,maximo\n", encoding="utf-8")
-
           try:
               raw, source = fetch_any()
-              text = to_text(raw)
-              fecha = extract_date(text)
+              compact = compact_text(raw)
+              fecha = extract_date(compact)
               dd, mm, yyyy = fecha.split("/")
               fecha_iso = f"{yyyy}-{mm}-{dd}"
 
-              oferta_demanda = parse_oferta_demanda(text)
-              mesa_bcr = parse_mesa_bcr(text)
-              mercado_profesional = parse_mercado_profesional(text)
+              oferta_demanda = parse_oferta_demanda(compact)
+              mesa_bcr = parse_mesa_bcr(compact)
+              mercado_profesional = parse_mercado_profesional(compact)
+
+              print(f"[debug] fecha={fecha} | oferta_demanda={len(oferta_demanda)} | mesa_bcr={len(mesa_bcr)} | mercado_profesional={len(mercado_profesional)}")
+              print("[debug] oferta_demanda sample=", oferta_demanda[:2])
+              print("[debug] mercado_profesional sample=", mercado_profesional[:1])
 
               if len(oferta_demanda) < 5:
                   raise RuntimeError(f"Se parsearon pocas filas de oferta/demanda: {len(oferta_demanda)}")
               if not mercado_profesional:
                   raise RuntimeError("No se encontró el bloque de Mercado Profesional / TC FIX")
 
-              generated_utc = datetime.now(timezone.utc).isoformat()
               base_for_hash = {
                   "fecha_publicada": fecha,
                   "oferta_demanda": oferta_demanda,
@@ -380,39 +367,37 @@ jobs:
                   "mercado_profesional": mercado_profesional,
               }
               hashv = hashlib.sha256(json.dumps(base_for_hash, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
+              generated_utc = datetime.now(timezone.utc).isoformat()
 
               payload = {
-                  "schema": "sbs_tc_promedio.v1",
+                  "schema": "sbs_tc_promedio.v2",
                   "source_url": URL,
                   "fecha_publicada": fecha,
                   "fecha_iso": fecha_iso,
                   "generated_utc": generated_utc,
                   "source_used": source,
                   "hash": hashv,
+                  "tc_fix": mercado_profesional[0].get("promedio_ponderado") if mercado_profesional else None,
                   "oferta_demanda": oferta_demanda,
                   "mesa_bcr": mesa_bcr,
                   "mercado_profesional": mercado_profesional,
               }
 
               csv_txt = build_csv(payload)
-
               (DATA / "sbs_tc_promedio_latest.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
               (DATA / "sbs_tc_promedio_latest.csv").write_text(csv_txt, encoding="utf-8")
               (DATA / f"sbs_tc_promedio_{fecha_iso}.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
               (DATA / f"sbs_tc_promedio_{fecha_iso}.csv").write_text(csv_txt, encoding="utf-8")
 
-              msg = (
-                  f"OK | source={source} | fecha={fecha} | "
-                  f"oferta_demanda={len(oferta_demanda)} | mesa_bcr={len(mesa_bcr)} | mercado_profesional={len(mercado_profesional)}"
-              )
+              msg = f"OK | source={source} | fecha={fecha} | oferta_demanda={len(oferta_demanda)} | mesa_bcr={len(mesa_bcr)} | mercado_profesional={len(mercado_profesional)}"
               print(msg)
               write_status(True, msg, source=source)
 
           except Exception as e:
-              err = f"WARNING: No se pudo actualizar SBS TC Promedio. Se conserva data previa. Detalle: {e}"
+              err = f"WARNING: No se pudo actualizar SBS TC Promedio. Detalle: {e}"
               print(err)
               (DATA / "sbs_tc_promedio_last_error.txt").write_text(err, encoding="utf-8")
-              write_status(False, err, source=None)
+              write_status(False, err, source=None, extra={"hint": "Revisar logs [debug] del paso de scraping."})
 
           try:
               build_history()
@@ -421,14 +406,18 @@ jobs:
               print(err)
               (DATA / "sbs_tc_promedio_history_error.txt").write_text(err, encoding="utf-8")
 
-          # No tumbar el workflow por bloqueos temporales del origen.
           raise SystemExit(0)
           PY
 
       - name: Commit if changed
         shell: bash
         run: |
-          if git diff --quiet -- data; then
+          echo "Estado de data/ antes del commit:"
+          git status --short -- data || true
+
+          # git diff no detecta archivos nuevos no trackeados.
+          # git status --porcelain sí detecta archivos nuevos, modificados y eliminados.
+          if [ -z "$(git status --porcelain -- data)" ]; then
             echo "Sin cambios en data/"
             exit 0
           fi
