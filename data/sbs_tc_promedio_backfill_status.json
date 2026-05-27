@@ -1,0 +1,53 @@
+{
+  "ok": true,
+  "schema": "sbs_tc_promedio_backfill_status.v1",
+  "source_url": "https://www.sbs.gob.pe/app/pp/sistip_portal/paginas/publicacion/tipocambiopromedio.aspx",
+  "start_date": "2026-01-01",
+  "end_date": "2026-01-05",
+  "overwrite": false,
+  "generated_utc": "2026-05-27T16:39:48.120213+00:00",
+  "summary": {
+    "written": 1,
+    "exists": 0,
+    "no_data": 0,
+    "mismatch": 1,
+    "error": 3
+  },
+  "results": [
+    {
+      "date": "2026-01-01",
+      "requested": "01/01/2026",
+      "status": "mismatch",
+      "extra": {
+        "fecha_publicada": "26/05/2026"
+      }
+    },
+    {
+      "date": "2026-01-02",
+      "requested": "02/01/2026",
+      "status": "error",
+      "error": "pocas filas oferta/demanda: 0"
+    },
+    {
+      "date": "2026-01-03",
+      "requested": "03/01/2026",
+      "status": "error",
+      "error": "Page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.sbs.gob.pe/app/pp/sistip_portal/paginas/publicacion/tipocambiopromedio.aspx\", waiting until \"networkidle\"\n"
+    },
+    {
+      "date": "2026-01-04",
+      "requested": "04/01/2026",
+      "status": "error",
+      "error": "pocas filas oferta/demanda: 0"
+    },
+    {
+      "date": "2026-01-05",
+      "requested": "05/01/2026",
+      "status": "written",
+      "extra": {
+        "fecha_iso": "2026-01-05",
+        "tc_fix": 3.3636
+      }
+    }
+  ]
+}

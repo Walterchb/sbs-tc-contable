@@ -1,4 +1,14 @@
 ﻿fecha_iso,fecha_publicada,tipo,moneda,operacion,compra,venta,promedio_ponderado,minimo,maximo
+2026-01-05,05/01/2026,oferta_demanda,Dólar de N.A.,,3.356,3.372,,,
+2026-01-05,05/01/2026,oferta_demanda,Dólar Canadiense,,,2.461,,,
+2026-01-05,05/01/2026,oferta_demanda,Libra Esterlina,,4.198,4.602,,,
+2026-01-05,05/01/2026,oferta_demanda,Yen Japonés,,,0.024,,,
+2026-01-05,05/01/2026,oferta_demanda,Peso Mexicano,,,0.179,,,
+2026-01-05,05/01/2026,oferta_demanda,Franco Suizo,,3.889,4.823,,,
+2026-01-05,05/01/2026,oferta_demanda,Euro,,3.652,4.104,,,
+2026-01-05,05/01/2026,mesa_bcr,Dólar de N.A.,VENTA,,,,,
+2026-01-05,05/01/2026,mesa_bcr,Dólar de N.A.,COMPRA,,,3.362,3.362,3.362
+2026-01-05,05/01/2026,mercado_profesional,Dólar de N.A.,,,,3.3636,,
 2026-05-26,26/05/2026,oferta_demanda,Dólar de N.A.,,3.412,3.42,,,
 2026-05-26,26/05/2026,oferta_demanda,Dólar Canadiense,,2.296,2.48,,,
 2026-05-26,26/05/2026,oferta_demanda,Libra Esterlina,,4.214,4.615,,,
