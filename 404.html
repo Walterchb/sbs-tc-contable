@@ -226,7 +226,10 @@
       gap: 10px;
       padding: 14px 22px;
       border-radius: 0;
-      font-weight: 850;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       text-decoration: none;
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
@@ -246,25 +249,6 @@
       border: 1px solid var(--nf-border);
       background: var(--nf-surface);
       backdrop-filter: blur(14px);
-    }
-
-    .route {
-      margin-top: 34px;
-      display: inline-flex;
-      max-width: min(560px, 100%);
-      padding: 11px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--nf-border);
-      background: var(--nf-surface);
-      color: var(--nf-muted);
-      font-size: 13px;
-      backdrop-filter: blur(14px);
-    }
-
-    .route span {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
     }
 
     @media (max-width: 680px) {
@@ -343,13 +327,6 @@
         min-height: 50px;
         border-radius: 0;
       }
-
-      .route {
-        width: 100%;
-        max-width: 100%;
-        margin-top: 24px;
-        border-radius: 0;
-      }
     }
 
     @media (max-width: 380px) {
@@ -402,19 +379,7 @@
         <a class="btn btn-primary" href="/">Volver al inicio</a>
         <a class="btn btn-secondary" href="javascript:history.back()">Regresar</a>
       </div>
-
-      <div class="route">
-        <span id="current-route">Ruta no disponible</span>
-      </div>
     </section>
   </main>
-
-  <script>
-    const currentRoute = document.getElementById("current-route");
-
-    if (currentRoute) {
-      currentRoute.textContent = window.location.pathname || "/";
-    }
-  </script>
 </body>
 </html>
