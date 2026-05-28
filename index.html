@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -1621,7 +1622,7 @@
     const isDarkTheme = document.documentElement.getAttribute("data-theme") === "dark";
     const trendLineWidth = 1.25;
     const todayLineColor = isDarkTheme ? "#ffffff" : t.navy;
-    const trendGridBorder = "#1c7ff2";
+    const trendAreaBorder = "#1c7ff2";
     const legendPill=(label,value,color)=>`<span class="legend-pill"><span class="legend-dot" style="background:${color}"></span>${label}<strong>${fmt(value,4)}</strong></span>`;
     if(legend) legend.innerHTML=[legendPill("Hoy",last,todayLineColor),legendPill("Prom",avg,t.avg),legendPill("Máx",max,t.green),legendPill("Mín",min,t.amber)].join("");
     const refLine = (label,value,color,type="dashed",width=trendLineWidth,opacity=.75) => ({
@@ -1630,13 +1631,13 @@
       label:{show:false}
     });
     chart.setOption({
-      color:[t.navy], animationDuration:540,
-      grid:{left:isMobile?10:14,right:isMobile?10:18,top:52,bottom:66,containLabel:true,show:true,borderColor:trendGridBorder,borderWidth:1},
+      color:[trendAreaBorder], animationDuration:540,
+      grid:{left:isMobile?10:14,right:isMobile?10:18,top:52,bottom:66,containLabel:true,show:false},
       tooltip:{trigger:"axis",axisPointer:{type:"line",lineStyle:{color:t.muted,width:1,opacity:.55}},backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff",fontWeight:500},formatter:params=>{
         const arr=Array.isArray(params)?params:[params];
         const p=arr.find(x=>x.seriesName===name)||arr[0];
         const val=Array.isArray(p.value)?p.value[1]:p.value;
-        return `<div style="font-weight:650;margin-bottom:5px">${p.axisValue||""}</div>${marker(t.navy)}<span style="display:inline-block;min-width:72px">${name}</span><b>${fmt(val,4)}</b><br>${marker(t.avg)}<span style="display:inline-block;min-width:72px">Prom</span><b>${fmt(avg,4)}</b><br>${marker(t.green)}<span style="display:inline-block;min-width:72px">Máx</span><b>${fmt(max,4)}</b><br>${marker(t.amber)}<span style="display:inline-block;min-width:72px">Mín</span><b>${fmt(min,4)}</b>`;
+        return `<div style="font-weight:650;margin-bottom:5px">${p.axisValue||""}</div>${marker(trendAreaBorder)}<span style="display:inline-block;min-width:72px">${name}</span><b>${fmt(val,4)}</b><br>${marker(t.avg)}<span style="display:inline-block;min-width:72px">Prom</span><b>${fmt(avg,4)}</b><br>${marker(t.green)}<span style="display:inline-block;min-width:72px">Máx</span><b>${fmt(max,4)}</b><br>${marker(t.amber)}<span style="display:inline-block;min-width:72px">Mín</span><b>${fmt(min,4)}</b>`;
       }},
       toolbox:{right:12,top:7,itemSize:14,itemGap:9,iconStyle:{borderColor:t.muted},emphasis:{iconStyle:{borderColor:t.ink}},feature:{dataZoom:{yAxisIndex:"none",title:{zoom:"Zoom",back:"Atrás"}},restore:{title:"Restaurar"},saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Tendencia_${name}_${fileStamp()}`)}}},
       dataZoom:[{type:"inside",throttle:60},{type:"slider",height:22,bottom:18,borderColor:t.line,fillerColor:rgba(t.cyan,.20),handleStyle:{color:t.navy},textStyle:{color:t.muted,fontWeight:500,fontSize:10},backgroundColor:t.soft}],
@@ -1644,11 +1645,11 @@
       yAxis:{type:"value",position:isMobile?"left":"right",scale:true,axisLabel:{color:t.muted,formatter:v=>fmt(v,4),fontWeight:500,fontSize:10,margin:isMobile?6:8,hideOverlap:true},axisLine:{show:false},axisTick:{show:false},splitLine:{lineStyle:{color:t.grid}}},
       series:[{
         name,type:"line",data:values,smooth:true,showSymbol:false,symbol:"circle",symbolSize:6,
-        lineStyle:{width:trendLineWidth,color:t.navy,shadowBlur:2,shadowColor:rgba(t.navy,.12)},
+        lineStyle:{width:trendLineWidth,color:trendAreaBorder,shadowBlur:2,shadowColor:rgba(trendAreaBorder,.12)},
         areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:areaTop},{offset:.56,color:areaMid},{offset:1,color:areaLow}])},
-        emphasis:{focus:"series",scale:1.04,lineStyle:{width:1.65},itemStyle:{color:t.panel,borderColor:t.navy,borderWidth:2,shadowBlur:8,shadowColor:rgba(t.navy,.28)}},
+        emphasis:{focus:"series",scale:1.04,lineStyle:{width:1.65,color:trendAreaBorder},itemStyle:{color:t.panel,borderColor:trendAreaBorder,borderWidth:2,shadowBlur:8,shadowColor:rgba(trendAreaBorder,.28)}},
         markLine:{silent:true,symbol:"none",precision:4,data:[refLine("Hoy",last,todayLineColor,"dashed",trendLineWidth,.78),refLine("Prom",avg,t.avg,"dashed",trendLineWidth,.78),refLine("Máx",max,t.green,"dashed",trendLineWidth,.78),refLine("Mín",min,t.amber,"dashed",trendLineWidth,.78)]},
-        markPoint:{symbol:"circle",symbolSize:8,label:{show:false},itemStyle:{color:t.panel,borderColor:t.navy,borderWidth:2,shadowBlur:6,shadowColor:rgba(t.navy,.24)},emphasis:{scale:1.35,label:{show:true,position:"top",distance:7,color:t.ink,backgroundColor:t.panel,borderColor:t.line,borderWidth:1,borderRadius:4,padding:[3,6],fontSize:10,fontWeight:560,formatter:p=>`${p.name} ${fmt(p.value,4)}`}},data:[{type:"max",name:"Máx",itemStyle:{borderColor:t.green}},{type:"min",name:"Mín",itemStyle:{borderColor:t.amber}}]}
+        markPoint:{symbol:"circle",symbolSize:8,label:{show:false},itemStyle:{color:t.panel,borderColor:trendAreaBorder,borderWidth:2,shadowBlur:6,shadowColor:rgba(trendAreaBorder,.24)},emphasis:{scale:1.35,label:{show:true,position:"top",distance:7,color:t.ink,backgroundColor:t.panel,borderColor:t.line,borderWidth:1,borderRadius:4,padding:[3,6],fontSize:10,fontWeight:560,formatter:p=>`${p.name} ${fmt(p.value,4)}`}},data:[{type:"max",name:"Máx",itemStyle:{borderColor:t.green}},{type:"min",name:"Mín",itemStyle:{borderColor:t.amber}}]}
       }]
     },true);
   }
