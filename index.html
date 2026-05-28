@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -1052,7 +1051,7 @@
   const THEME_KEY = "sbs_tc_theme_treasuryhub";
   const NOTIFY_LAST_DATE_KEY = "sbs_tc_notify_last_seen_date";
   const el = id => document.getElementById(id);
-  const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestRates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestDate:"",selectedDate:"",history:[],trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
+  const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestRates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestDate:"",selectedDate:"",history:[],historyVersion:0,seriesCache:new Map(),trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
 
   function cssVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
   function themeColors(){return {navy:cssVar("--navy3")||"#0b3654",ink:cssVar("--ink")||"#102033",muted:cssVar("--muted")||"#5f7283",line:cssVar("--line")||"#d9e3ec",grid:cssVar("--grid")||"#e8eef4",panel:cssVar("--panel")||"#fff",soft:cssVar("--soft")||"#f6f9fc",cyan:cssVar("--cyan")||"#00a3b5",green:cssVar("--green")||"#13966b",red:cssVar("--red")||"#bd2c22",amber:cssVar("--amber")||"#c17a18",blue:cssVar("--blue")||"#1f5eff",avg:cssVar("--avg")||"#7b61ff",tooltipBg:cssVar("--tooltip-bg")||"#051c2c",tooltipBorder:cssVar("--tooltip-border")||"#125078"};}
@@ -1134,8 +1133,6 @@
     s.className = `status ${cls}`.trim();
     const label=s.querySelector("span:last-child"); if(label) label.textContent = text;
   }
-  function perf(text,pct=0){
-  }
   function normText(v){return String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().trim();}
   function toNum(v){
     if(typeof v==="number") return Number.isFinite(v)?v:NaN;
@@ -1200,18 +1197,13 @@
     const dk=dateKey(dateStr); if(!dk) return null;
     return state.history.find(s=>dateKey(s.date)===dk) || null;
   }
-  function dateObjectParts(dateStr){
-    const d=parseDate(dateStr); if(!d) return null;
-    const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
-    return {ymd:`${y}-${m}-${day}`,compact:`${y}${m}${day}`};
-  }
   async function fetchSnapshotForDate(dateStr){
     // Con el nuevo workflow, el histórico debe venir consolidado en tc_contable_history.json.
     // No buscamos archivo por archivo para evitar lentitud y errores de rutas.
     const dk=dateKey(dateStr);
     if(!dk) return null;
     try{
-      if(!state.history.length) await loadHistoryConsolidated({fresh:true}).then(snaps=>{state.history=mergeHistory(snaps); saveCache();});
+      if(!state.history.length) await loadHistoryConsolidated({fresh:true}).then(snaps=>{setHistory(snaps); saveCache();});
       return findSnapshotByDate(dk);
     }catch(e){
       return null;
@@ -1230,7 +1222,7 @@
     let snap=findSnapshotByDate(dk);
     if(!snap) snap=await fetchSnapshotForDate(dk);
     if(snap){
-      if(!findSnapshotByDate(dk)){state.history=mergeHistory([...state.history,snap]); saveCache();}
+      if(!findSnapshotByDate(dk)){setHistory([...state.history,snap]); saveCache();}
       applySnapshot(snap); setStatus("Fecha OK","ok");
     }else{
       setDateLabels(); setStatus("Sin fecha","warn");
@@ -1268,7 +1260,7 @@
       if(step>0 && max && dk > max) break;
       const snap=await fetchSnapshotForDate(dk);
       if(snap){
-        if(!findSnapshotByDate(dk)){state.history=mergeHistory([...state.history,snap]); saveCache(); setDatePickerBounds();}
+        if(!findSnapshotByDate(dk)){setHistory([...state.history,snap]); saveCache(); setDatePickerBounds();}
         applySnapshot(snap); setStatus("Fecha OK","ok"); return;
       }
     }
@@ -1303,11 +1295,6 @@
     const blob=new Blob([text],{type}); const url=URL.createObjectURL(blob); const a=document.createElement("a");
     a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),800);
   }
-  function downloadHistoricalCsv(){
-    const csv=buildHistoricalCsv();
-    downloadTextFile(safeName(`TC_Contable_SBS_historico_${fileStamp()}`)+".csv",csv);
-  }
-
   function fileStamp(){
     const d=new Date(), pad=n=>String(n).padStart(2,"0");
     return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
@@ -1508,27 +1495,24 @@
     return out.sort((a,b)=>a.date.localeCompare(b.date));
   }
 
-  function manifestEntries(payload){
-    const out=[]; const add=x=>{if(!x)return; if(typeof x==="string") out.push(x); else if(typeof x==="object"){const emb=snapshotFromPayload(x,x.date||x.fecha||x.fecha_publicada); if(emb) out.push({embedded:emb}); else out.push(x.url||x.path||x.file||x.filename||x.href||"");}};
-    if(Array.isArray(payload)) payload.forEach(add); else if(payload&&typeof payload==="object"){["files","history","snapshots","items","data"].forEach(k=>Array.isArray(payload[k])&&payload[k].forEach(add)); const emb=snapshotFromPayload(payload); if(emb) out.push({embedded:emb});}
-    return out.filter(Boolean).map(x=>typeof x==="object"?x:(/^https?:\/\//i.test(String(x))||String(x).startsWith("./")?String(x):"./data/"+String(x).replace(/^data\//,"")));
-  }
-  async function mapLimit(items,limit,fn,onProgress){
-    const results=[]; let i=0,done=0;
-    async function worker(){while(i<items.length){const idx=i++; try{results[idx]=await fn(items[idx],idx);}catch(e){results[idx]=null;} done++; if(onProgress) onProgress(done,items.length);}}
-    await Promise.all(Array.from({length:Math.min(limit,items.length)},worker)); return results;
-  }
   function mergeHistory(snaps){
     const by=new Map(); for(const s of snaps){const dk=dateKey(s.date); if(dk&&s.rates) by.set(dk,{date:dk,rates:s.rates});}
     const latestDate=state.latestDate||dateKey(state.meta?.fecha_publicada||state.meta?.fecha||new Date()); const latest={}; const src=(state.latestRates&&state.latestRates.size>1)?state.latestRates:state.rates; for(const [code,obj] of src) if(code!=="PEN") latest[code]=obj.rate;
     if(Object.keys(latest).length&&latestDate) by.set(latestDate,{date:latestDate,rates:latest});
     return [...by.values()].sort((a,b)=>a.date.localeCompare(b.date));
   }
+
+  function setHistory(snaps){
+    setHistory(snaps);
+    state.historyVersion++;
+    state.seriesCache.clear();
+    return state.history;
+  }
   function loadCache(){
     try{
       const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
       if(c?.history?.length){
-        state.history=mergeHistory(c.history);
+        setHistory(c.history);
         state.cacheAge=Date.now()-(c.savedAt||0);
         updateHistorySubtitle();
         setDatePickerBounds();
@@ -1548,10 +1532,9 @@
   }
   async function loadHistory(force=false){
     setStatus("Actualizando","");
-    perf("Leyendo histórico consolidado…",35);
     try{
       const snaps=await loadHistoryConsolidated({fresh:force});
-      state.history=mergeHistory(snaps);
+      setHistory(snaps);
       saveCache();
       updateHistorySubtitle();
       setDatePickerBounds();
@@ -1561,7 +1544,6 @@
       }
       setStatus("Actualizado","ok");
       renderStatic();
-      renderDeltas();
       return true;
     }catch(e){
       log(`Histórico consolidado no disponible: ${e.message||e}`,"warn");
@@ -1569,7 +1551,6 @@
       updateHistorySubtitle();
       setStatus(usedCache?"Actualizado":"Sin histórico",usedCache?"ok":"warn");
       renderStatic();
-      renderDeltas();
       return usedCache;
     }
   }
@@ -1578,10 +1559,15 @@
     dom.classList.remove("empty"); if(!state.charts[id]) state.charts[id]=echarts.init(dom,null,{renderer:"canvas"}); return state.charts[id];
   }
   function seriesFor(code){
-    return state.history.map(s=>({date:s.date,value:shownRate(code,s.rates)})).filter(x=>Number.isFinite(x.value));
+    const key=`${code}|${state.historyVersion}|${state.history.length}`;
+    const cached=state.seriesCache.get(key);
+    if(cached) return cached;
+    const data=state.history.map(s=>({date:s.date,value:shownRate(code,s.rates)})).filter(x=>Number.isFinite(x.value));
+    state.seriesCache.set(key,data);
+    return data;
   }
   function prevChange(code,dateStr=state.selectedDate){
-    const s=seriesFor(code).sort((a,b)=>dateKey(a.date).localeCompare(dateKey(b.date)));
+    const s=seriesFor(code);
     if(s.length<2) return NaN;
 
     const target=dateKey(dateStr || state.selectedDate || state.latestDate);
@@ -1604,13 +1590,19 @@
   }
   function renderDeltas(){
     for(const [code,id] of [["USD","dUsd"],["EUR","dEur"],["GBP","dGbp"],["CNH","dCnh"],["JPY","dJpy"],["CHF","dCover"]]){
-      const v=prevChange(code), node=el(id); node.textContent=pct(v); node.className=`delta ${!Number.isFinite(v)||Math.abs(v)<0.005?"flat":v>0?"pos":"neg"}`;
+      const v=prevChange(code), node=el(id);
+      if(!node) continue;
+      node.textContent=pct(v);
+      node.className=`delta ${!Number.isFinite(v)||Math.abs(v)<0.005?"flat":v>0?"pos":"neg"}`;
     }
+  }
+  function isMobileView(){
+    return !!(window.matchMedia && window.matchMedia("(max-width: 760px)").matches);
   }
   function renderTrend(){
     const chart=ensureChart("trendChart"); if(!chart) return;
     const code=state.trend, data=seriesFor(code).slice(-state.range); const name=pair(code); const t=themeColors();
-    const isMobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
+    const isMobile = isMobileView();
     const legend=el("trendLegend");
     if(!data.length){
       if(legend) legend.innerHTML="";
@@ -1669,7 +1661,6 @@
       series:[{name:"Var. diaria",type:"bar",data:changes.map(x=>({value:x.value,itemStyle:{color:x.value>=0?t.green:t.red,borderRadius:[3,3,0,0]}})),barMaxWidth:20,markLine:{symbol:"none",data:[{yAxis:0}],lineStyle:{color:t.muted,type:"dashed"}}}]
     },true);
   }
-  function renderBar(){}
   function renderCharts(){renderTrend(); renderChange(); renderStats(); renderDeltas();}
   function altRows(code){
     const usd=getRaw("USD"), raw=getRaw(code);
@@ -1755,7 +1746,6 @@
     const a=parseAmountInput(el("amount").value), from=el("fromCcy").value, to=el("toCcy").value, val=convert(a,from,to);
     el("convResult").textContent=Number.isFinite(val)?`${fmt(val,2)} ${to}`:"—";
     el("convSub").textContent=Number.isFinite(val)?`${fmt(a,2)} ${from} → Vía USD · ${fmt(getRaw(from),4)} / ${fmt(getRaw(to),4)}`:"No hay tasa suficiente";
-    renderQuickPairs();
   }
   function renderQuickPairs(){
     const pairs=["USD","EUR","GBP","CNH","JPY","CHF"].filter(c=>Number.isFinite(shownRate(c)));
@@ -1833,11 +1823,22 @@
     const rangeTabs=el("rangeTabs");
     if(rangeTabs) rangeTabs.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{rangeTabs.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.range=Number(b.dataset.range); renderCharts();}));
     on("btnZoomReset","click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
-    window.addEventListener("resize",()=>{Object.values(state.charts).forEach(c=>c&&c.resize()); clearTimeout(window.__fxResizeTimer); window.__fxResizeTimer=setTimeout(renderCharts,160);});
+    let lastMobileView=isMobileView();
+    window.addEventListener("resize",()=>{
+      clearTimeout(window.__fxResizeTimer);
+      window.__fxResizeTimer=setTimeout(()=>{
+        const nowMobileView=isMobileView();
+        Object.values(state.charts).forEach(c=>c&&c.resize());
+        if(nowMobileView!==lastMobileView){
+          lastMobileView=nowMobileView;
+          renderCharts();
+        }
+      },120);
+    });
   }
-  function renderStatic(){setDateLabels(); setDatePickerBounds(); updateHistorySubtitle(); renderKpis(); populateSelectors(); renderConverter(); renderTable(); renderCharts();}
+  function renderStatic(){setDateLabels(); setDatePickerBounds(); updateHistorySubtitle(); renderKpis(); populateSelectors(); renderConverter(); renderQuickPairs(); renderTable(); renderCharts();}
   async function refresh(forceHistory=false){
-    setStatus("Consultando",""); perf("Leyendo latest…",5);
+    setStatus("Consultando","");
     try{
       await loadMeta(); await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(true); return true;
     }catch(e){
