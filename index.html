@@ -1548,8 +1548,27 @@
   function seriesFor(code){
     return state.history.map(s=>({date:s.date,value:shownRate(code,s.rates)})).filter(x=>Number.isFinite(x.value));
   }
-  function prevChange(code){
-    const s=seriesFor(code); if(s.length<2) return NaN; const a=s.at(-2).value,b=s.at(-1).value; return a?((b/a)-1)*100:NaN;
+  function prevChange(code,dateStr=state.selectedDate){
+    const s=seriesFor(code).sort((a,b)=>dateKey(a.date).localeCompare(dateKey(b.date)));
+    if(s.length<2) return NaN;
+
+    const target=dateKey(dateStr || state.selectedDate || state.latestDate);
+    let idx = target ? s.findIndex(x=>dateKey(x.date)===target) : -1;
+
+    // Si la fecha seleccionada aún no está en el histórico consolidado,
+    // usamos el TC actualmente visible en el KPI como punto temporal virtual.
+    if(idx<0 && target){
+      const current=shownRate(code);
+      if(Number.isFinite(current)){
+        const previous=s.filter(x=>dateKey(x.date)<target).at(-1);
+        return previous?.value ? ((current/previous.value)-1)*100 : NaN;
+      }
+    }
+
+    if(idx<0) idx=s.length-1;
+    if(idx<1) return NaN;
+    const a=s[idx-1].value,b=s[idx].value;
+    return a?((b/a)-1)*100:NaN;
   }
   function renderDeltas(){
     for(const [code,id] of [["USD","dUsd"],["EUR","dEur"],["GBP","dGbp"],["CNH","dCnh"],["JPY","dJpy"],["CHF","dCover"]]){
