@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -1503,7 +1504,7 @@
   }
 
   function setHistory(snaps){
-    setHistory(snaps);
+    state.history = mergeHistory(snaps || []);
     state.historyVersion++;
     state.seriesCache.clear();
     return state.history;
