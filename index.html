@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -901,6 +902,210 @@
         border-right:0!important;
       }
       .market-ticker-panel{display:none!important;}
+    }
+
+
+
+    /* V48: dark mode tipo terminal financiero / Koyfin-inspired
+       - Menos azul IA/neón
+       - Más charcoal, slate y contraste sobrio
+       - Sin recargar el iframe de Stockdio para no consumir vistas adicionales */
+    :root[data-theme="dark"]{
+      color-scheme:dark;
+      --navy:#111820;
+      --navy2:#151d27;
+      --navy3:#2d5f8f;
+      --bg:#0f141a;
+      --panel:#171d25;
+      --panel2:#1b232d;
+      --soft:#121821;
+      --ink:#e6eaef;
+      --muted:#8f9aa7;
+      --line:#2a333f;
+      --line2:#364252;
+      --grid:#232b36;
+      --blue:#5b7fb3;
+      --cyan:#5aa7b1;
+      --green:#63b889;
+      --amber:#d2a255;
+      --red:#df6f6a;
+      --purple:#8b7ed8;
+      --avg:#9b8fe3;
+      --tooltip-bg:#151b24;
+      --tooltip-border:#334357;
+      --shadow:0 1px 0 rgba(255,255,255,.025),0 12px 28px rgba(0,0,0,.20);
+    }
+    :root[data-theme="dark"] body{
+      background:
+        radial-gradient(circle at 18% 0%,rgba(62,86,115,.12),transparent 34%),
+        linear-gradient(180deg,#10161d 0%,#0f141a 42%,#0d1218 100%);
+    }
+    :root[data-theme="dark"] .topbar,
+    :root[data-theme="dark"] .site-footer{
+      background:#10161d!important;
+      border-color:#26313d!important;
+      box-shadow:0 1px 0 rgba(255,255,255,.035),0 10px 26px rgba(0,0,0,.22)!important;
+    }
+    :root[data-theme="dark"] .brand p{color:#7f8c99!important;}
+    :root[data-theme="dark"] .logo{
+      background:#e8edf2!important;
+      color:#111820!important;
+      box-shadow:inset 0 -3px 0 rgba(17,24,32,.22)!important;
+    }
+    :root[data-theme="dark"] .date-card,
+    :root[data-theme="dark"] .download-card,
+    :root[data-theme="dark"] .panel,
+    :root[data-theme="dark"] .kpi{
+      background:linear-gradient(180deg,#19212b 0%,#161d26 100%)!important;
+      border-color:#2a333f!important;
+      box-shadow:var(--shadow)!important;
+    }
+    :root[data-theme="dark"] .panel-head{
+      background:#1b232d!important;
+      border-bottom-color:#2a333f!important;
+    }
+    :root[data-theme="dark"] .kpi::before,
+    :root[data-theme="dark"] .date-card{
+      border-left-color:#30465d!important;
+    }
+    :root[data-theme="dark"] .kpi.accent::before{background:#5aa7b1!important;}
+    :root[data-theme="dark"] .kpi.green::before{background:#63b889!important;}
+    :root[data-theme="dark"] .kpi.purple::before{background:#8b7ed8!important;}
+    :root[data-theme="dark"] .kpi.amber::before{background:#d2a255!important;}
+    :root[data-theme="dark"] .kpi:hover,
+    :root[data-theme="dark"] .pair-card:hover{
+      border-color:#3b4858!important;
+      background:#1b232d!important;
+      transform:translateY(-1px);
+    }
+    :root[data-theme="dark"] .panel-title .title-icon,
+    :root[data-theme="dark"] .kpi-top span .fa-solid{
+      color:#aeb8c4!important;
+      background:#121821!important;
+      border-color:#2a333f!important;
+    }
+    :root[data-theme="dark"] .btn.light,
+    :root[data-theme="dark"] button.light,
+    :root[data-theme="dark"] .btn.soft,
+    :root[data-theme="dark"] button.soft,
+    :root[data-theme="dark"] .date-nav,
+    :root[data-theme="dark"] .date-today,
+    :root[data-theme="dark"] #swapBtn,
+    :root[data-theme="dark"] #btnZoomReset{
+      background:#18202a!important;
+      color:#dce3ea!important;
+      border-color:#344052!important;
+      box-shadow:none!important;
+    }
+    :root[data-theme="dark"] .top-actions .btn,
+    :root[data-theme="dark"] .top-actions button{
+      background:#151d27!important;
+      color:#dce3ea!important;
+      border-color:#344052!important;
+    }
+    :root[data-theme="dark"] .top-actions .btn:hover,
+    :root[data-theme="dark"] .top-actions button:hover,
+    :root[data-theme="dark"] .btn.light:hover,
+    :root[data-theme="dark"] button.light:hover,
+    :root[data-theme="dark"] .btn.soft:hover,
+    :root[data-theme="dark"] button.soft:hover,
+    :root[data-theme="dark"] .date-nav:hover,
+    :root[data-theme="dark"] .date-today:hover,
+    :root[data-theme="dark"] #swapBtn:hover,
+    :root[data-theme="dark"] #btnZoomReset:hover{
+      background:#202a36!important;
+      border-color:#46556a!important;
+      filter:none!important;
+    }
+    :root[data-theme="dark"] .status{
+      background:#151d27!important;
+      border-color:#344052!important;
+      color:#c9d2dc!important;
+    }
+    :root[data-theme="dark"] select,
+    :root[data-theme="dark"] input{
+      background:#111820!important;
+      color:#e6eaef!important;
+      border-color:#344052!important;
+      box-shadow:none!important;
+    }
+    :root[data-theme="dark"] input:focus,
+    :root[data-theme="dark"] select:focus{
+      border-color:#53657a!important;
+      box-shadow:0 0 0 3px rgba(91,127,179,.15)!important;
+    }
+    :root[data-theme="dark"] .tab,
+    :root[data-theme="dark"] .pair-btn,
+    :root[data-theme="dark"] .chip,
+    :root[data-theme="dark"] .legend-pill,
+    :root[data-theme="dark"] .result-box,
+    :root[data-theme="dark"] .pair-card,
+    :root[data-theme="dark"] .flip-row{
+      background:#121821!important;
+      border-color:#2a333f!important;
+      color:#8f9aa7!important;
+    }
+    :root[data-theme="dark"] .tab.active,
+    :root[data-theme="dark"] .pair-btn.active,
+    :root[data-theme="dark"] .pair-card.active{
+      background:#243246!important;
+      border-color:#4a5d77!important;
+      color:#eef2f6!important;
+    }
+    :root[data-theme="dark"] table,
+    :root[data-theme="dark"] .table-wrap th:first-child,
+    :root[data-theme="dark"] .table-wrap td:first-child{
+      background:#171d25!important;
+    }
+    :root[data-theme="dark"] th{
+      background:#1b232d!important;
+      color:#98a4b1!important;
+      border-bottom-color:#2a333f!important;
+    }
+    :root[data-theme="dark"] td{border-bottom-color:#232b36!important;}
+    :root[data-theme="dark"] tbody tr:hover,
+    :root[data-theme="dark"] .table-wrap tbody tr:hover td:first-child{
+      background:#1b232d!important;
+    }
+    :root[data-theme="dark"] td.code{color:#b7c4d1!important;}
+    :root[data-theme="dark"] .delta{
+      background:#121821!important;
+      border-color:#2f3947!important;
+      color:#98a4b1!important;
+    }
+    :root[data-theme="dark"] .delta.pos{
+      background:rgba(99,184,137,.13)!important;
+      border-color:rgba(99,184,137,.28)!important;
+      color:#78c99b!important;
+    }
+    :root[data-theme="dark"] .delta.neg{
+      background:rgba(223,111,106,.12)!important;
+      border-color:rgba(223,111,106,.30)!important;
+      color:#ee8581!important;
+    }
+    :root[data-theme="dark"] .fx-card .kpi-back{
+      background:linear-gradient(180deg,#19212b,#141b24)!important;
+    }
+    :root[data-theme="dark"] .chart.empty{
+      background:#121821!important;
+      border-color:#2a333f!important;
+    }
+    :root[data-theme="dark"] .stockdio-shell{
+      background:#171d25!important;
+      border:1px solid #2a333f!important;
+    }
+    :root[data-theme="dark"] .stockdio-shell::before{
+      background:linear-gradient(90deg,#171d25 0,transparent var(--ticker-fade),transparent calc(100% - var(--ticker-fade)),#171d25 100%)!important;
+    }
+    :root[data-theme="dark"] .stockdio-frame{
+      filter:invert(1) hue-rotate(180deg) brightness(.78) contrast(.92) saturate(.82);
+      opacity:.88;
+    }
+    :root[data-theme="dark"] .toast{
+      background:#171d25!important;
+      color:#e6eaef!important;
+      border-color:#3b4858!important;
+      box-shadow:0 14px 34px rgba(0,0,0,.38)!important;
     }
 
 </style>
