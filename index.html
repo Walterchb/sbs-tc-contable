@@ -893,7 +893,28 @@
       will-change:transform;
       animation:marketTickerScroll var(--ticker-duration) linear infinite;
     }
-    .market-ticker-shell:hover .market-ticker-track{animation-play-state:paused}
+    /* V51: interacción manual del ticker: pausa solo al presionar, sin selección de texto */
+    .market-ticker-panel,
+    .market-ticker-shell,
+    .market-ticker-viewport,
+    .market-ticker-track,
+    .market-ticker-item,
+    .market-ticker-item *{
+      -webkit-user-select:none!important;
+      -moz-user-select:none!important;
+      -ms-user-select:none!important;
+      user-select:none!important;
+      -webkit-touch-callout:none!important;
+    }
+    .market-ticker-shell{
+      cursor:grab;
+    }
+    .market-ticker-shell.is-pressing{
+      cursor:grabbing;
+    }
+    .market-ticker-viewport{
+      touch-action:pan-y;
+    }
     .market-ticker-seq{
       display:flex;
       align-items:center;
@@ -1103,7 +1124,7 @@
             <span id="vFecha" class="date-value">—</span>
           </div>
           <aside class="market-ticker-panel" aria-label="Mercado externo">
-            <div class="market-ticker-shell" title="Cotizaciones externas">
+            <div class="market-ticker-shell" title="Cotizaciones externas" draggable="false">
               <div class="market-ticker-viewport">
                 <div id="marketTickerTrack" class="market-ticker-track">
                   <div class="market-ticker-loading">Cargando mercado…</div>
@@ -2038,6 +2059,18 @@
   const MARKET_TICKER_URL = "./data/yfinance/latest.json";
   const MARKET_TICKER_REFRESH_MS = 5 * 60 * 1000;
   let marketTickerTimer = null;
+  let marketTickerRaf = null;
+  let marketTickerLastTs = 0;
+  let marketTickerOffset = 0;
+  let marketTickerHalfWidth = 0;
+  let marketTickerSpeed = 28;
+  let marketTickerDurationSec = 42;
+  let marketTickerPaused = false;
+  let marketTickerDragging = false;
+  let marketTickerStartX = 0;
+  let marketTickerStartOffset = 0;
+  let marketTickerDragBound = false;
+  let marketTickerResizeObserver = null;
 
   const marketEl = id => document.getElementById(id);
 
@@ -2132,23 +2165,150 @@
     });
   }
 
+  function marketWrapOffset(value){
+    if(!marketTickerHalfWidth) return 0;
+    let next = value % marketTickerHalfWidth;
+    if(next < 0) next += marketTickerHalfWidth;
+    return next;
+  }
+
+  function marketApplyOffset(){
+    const track = marketEl('marketTickerTrack');
+    if(!track) return;
+    track.style.transform = `translate3d(${-marketTickerOffset}px,0,0)`;
+  }
+
+  function marketMeasureTicker(){
+    const track = marketEl('marketTickerTrack');
+    if(!track) return;
+    const seq = track.querySelector('.market-ticker-seq');
+    if(!seq){
+      marketTickerHalfWidth = 0;
+      marketTickerOffset = 0;
+      track.style.transform = 'translate3d(0,0,0)';
+      return;
+    }
+    marketTickerHalfWidth = Math.max(1, seq.getBoundingClientRect().width);
+    marketTickerSpeed = marketTickerHalfWidth / Math.max(1, marketTickerDurationSec);
+    marketTickerOffset = marketWrapOffset(marketTickerOffset);
+    marketApplyOffset();
+  }
+
+  function marketStopTickerLoop(){
+    if(marketTickerRaf){
+      cancelAnimationFrame(marketTickerRaf);
+      marketTickerRaf = null;
+    }
+    marketTickerLastTs = 0;
+  }
+
+  function marketTickerStep(ts){
+    if(!marketTickerLastTs) marketTickerLastTs = ts;
+    const dt = Math.min(64, ts - marketTickerLastTs) / 1000;
+    marketTickerLastTs = ts;
+    if(marketTickerHalfWidth && !marketTickerPaused && !marketTickerDragging && document.visibilityState === 'visible'){
+      marketTickerOffset = marketWrapOffset(marketTickerOffset + marketTickerSpeed * dt);
+      marketApplyOffset();
+    }
+    marketTickerRaf = requestAnimationFrame(marketTickerStep);
+  }
+
+  function marketStartTickerLoop(){
+    marketStopTickerLoop();
+    marketTickerRaf = requestAnimationFrame(marketTickerStep);
+  }
+
+  function marketSetupResizeObserver(){
+    const track = marketEl('marketTickerTrack');
+    if(!track) return;
+    if(marketTickerResizeObserver){
+      marketTickerResizeObserver.disconnect();
+      marketTickerResizeObserver = null;
+    }
+    if('ResizeObserver' in window){
+      marketTickerResizeObserver = new ResizeObserver(() => marketMeasureTicker());
+      marketTickerResizeObserver.observe(track);
+      const seq = track.querySelector('.market-ticker-seq');
+      if(seq) marketTickerResizeObserver.observe(seq);
+    }else{
+      window.addEventListener('resize', marketMeasureTicker, {passive:true});
+    }
+  }
+
+  function marketBindTickerDrag(){
+    const shell = document.querySelector('.market-ticker-shell');
+    if(!shell || marketTickerDragBound) return;
+    marketTickerDragBound = true;
+
+    const finishDrag = (event) => {
+      if(!marketTickerDragging) return;
+      marketTickerDragging = false;
+      marketTickerPaused = false;
+      marketTickerLastTs = 0;
+      shell.classList.remove('is-pressing');
+      if(event?.pointerId !== undefined && shell.hasPointerCapture?.(event.pointerId)){
+        try{ shell.releasePointerCapture(event.pointerId); }catch(_){/* noop */}
+      }
+    };
+
+    shell.addEventListener('pointerdown', (event) => {
+      if(event.button !== undefined && event.button !== 0) return;
+      if(!marketTickerHalfWidth) return;
+      event.preventDefault();
+      marketTickerPaused = true;
+      marketTickerDragging = true;
+      marketTickerStartX = event.clientX;
+      marketTickerStartOffset = marketTickerOffset;
+      shell.classList.add('is-pressing');
+      if(shell.setPointerCapture){
+        try{ shell.setPointerCapture(event.pointerId); }catch(_){/* noop */}
+      }
+    });
+
+    shell.addEventListener('pointermove', (event) => {
+      if(!marketTickerDragging) return;
+      event.preventDefault();
+      const deltaX = event.clientX - marketTickerStartX;
+      marketTickerOffset = marketWrapOffset(marketTickerStartOffset - deltaX);
+      marketApplyOffset();
+    });
+
+    shell.addEventListener('pointerup', finishDrag);
+    shell.addEventListener('pointercancel', finishDrag);
+    shell.addEventListener('lostpointercapture', finishDrag);
+    shell.addEventListener('dragstart', event => event.preventDefault());
+    document.addEventListener('selectstart', (event) => {
+      if(shell.contains(event.target)) event.preventDefault();
+    });
+  }
+
   function renderMarketTicker(payload){
     const track = marketEl('marketTickerTrack');
     if(!track) return;
     const data = Array.isArray(payload?.data) ? payload.data.filter(x => x && x.status === 'ok') : [];
     if(!data.length){
+      marketStopTickerLoop();
+      marketTickerHalfWidth = 0;
+      marketTickerOffset = 0;
       track.innerHTML = '<div class="market-ticker-empty">No hay data de mercado disponible.</div>';
       track.style.animation = 'none';
+      track.style.transform = 'translate3d(0,0,0)';
       return;
     }
     const items = marketSortedData(data).map(marketTickerItem).join('');
     const sequence = `<div class="market-ticker-seq">${items}</div>`;
+    const previousOffset = marketTickerOffset;
     track.innerHTML = sequence + sequence;
-    const duration = Math.max(28, Math.min(60, data.length * 4.1));
-    track.style.setProperty('--ticker-duration', `${duration}s`);
+    marketTickerDurationSec = Math.max(28, Math.min(60, data.length * 4.1));
+    track.style.setProperty('--ticker-duration', `${marketTickerDurationSec}s`);
     track.style.animation = 'none';
-    void track.offsetWidth;
-    track.style.animation = `marketTickerScroll ${duration}s linear infinite`;
+    track.style.willChange = 'transform';
+    marketTickerOffset = previousOffset;
+    requestAnimationFrame(() => {
+      marketMeasureTicker();
+      marketSetupResizeObserver();
+      marketStartTickerLoop();
+    });
   }
 
   async function loadMarketTicker(){
@@ -2168,6 +2328,7 @@
   }
 
   function startMarketTicker(){
+    marketBindTickerDrag();
     loadMarketTicker();
     if(marketTickerTimer) clearInterval(marketTickerTimer);
     marketTickerTimer = setInterval(()=>{
