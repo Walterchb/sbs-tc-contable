@@ -1,3 +1,5 @@
+
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -809,7 +811,7 @@
       grid-template-columns:minmax(265px, 385px) minmax(0,1fr)!important;
       align-items:center!important;
       gap:0!important;
-      min-height:86px!important;
+      min-height:72px!important;
     }
     .date-card.market-enabled .date-control{
       position:relative!important;
@@ -827,8 +829,8 @@
       top:50%;
       transform:translateY(-50%);
       width:1px;
-      height:58px;
-      background:var(--line);
+      height:64px;
+      background:#dfe9f1;
       opacity:.95;
     }
     .market-ticker-panel{
@@ -851,8 +853,8 @@
       border-radius:0!important;
       box-shadow:none!important;
       isolation:isolate;
-      --ticker-fade:38px;
-      --ticker-duration:42s;
+      --ticker-fade:26px;
+      --ticker-duration:38s;
     }
     .market-ticker-shell::before,
     .market-ticker-shell::after{
@@ -901,12 +903,14 @@
     .market-ticker-item{
       position:relative;
       flex:0 0 auto;
-      min-width:148px;
-      max-width:176px;
-      padding:6px 15px 6px 15px;
+      width:132px;
+      min-width:132px;
+      max-width:132px;
+      height:64px;
+      padding:7px 12px 6px 13px;
       display:flex;
       align-items:center;
-      gap:10px;
+      gap:8px;
       color:var(--ink);
       background:transparent!important;
       border:0!important;
@@ -921,8 +925,8 @@
       top:50%;
       transform:translateY(-50%);
       width:1px;
-      height:54px;
-      background:var(--line);
+      height:58px;
+      background:#dfe9f1;
       opacity:.9;
     }
     .market-ticker-text{
@@ -944,9 +948,9 @@
     .market-ticker-name{
       flex:1 1 auto;
       min-width:0;
-      font-size:.72rem;
-      line-height:1.08;
-      font-weight:760;
+      font-size:.685rem;
+      line-height:1.05;
+      font-weight:800;
       letter-spacing:-.02em;
       color:var(--ink);
       overflow:hidden;
@@ -955,9 +959,9 @@
     }
     .market-ticker-change{
       flex:0 0 auto;
-      font-size:.72rem;
+      font-size:.665rem;
       line-height:1;
-      font-weight:760;
+      font-weight:800;
       font-variant-numeric:tabular-nums;
       letter-spacing:-.02em;
     }
@@ -966,7 +970,7 @@
     .market-ticker-change.is-flat,.market-ticker-pct.is-flat{color:var(--muted)}
     .market-ticker-price{
       flex:0 1 auto;
-      font-size:.74rem;
+      font-size:.665rem;
       font-weight:560;
       color:var(--muted);
       font-variant-numeric:tabular-nums;
@@ -975,19 +979,19 @@
     }
     .market-ticker-pct{
       flex:0 0 auto;
-      font-size:.69rem;
+      font-size:.645rem;
       font-weight:720;
       font-variant-numeric:tabular-nums;
       white-space:nowrap;
     }
     .market-ticker-spark{
-      flex:0 0 46px;
-      width:46px;
-      height:34px;
+      flex:0 0 42px;
+      width:42px;
+      height:35px;
       display:block;
       overflow:visible;
     }
-    .market-ticker-spark svg{display:block;width:46px;height:34px;overflow:visible}
+    .market-ticker-spark svg{display:block;width:42px;height:35px;overflow:visible}
     .market-ticker-spark .spark-area.up{fill:rgba(19,150,107,.18)}
     .market-ticker-spark .spark-line.up{stroke:#2aae75}
     .market-ticker-spark .spark-area.down{fill:rgba(189,44,34,.16)}
@@ -1012,7 +1016,7 @@
     @media(max-width:1160px){
       .date-card.market-enabled{grid-template-columns:minmax(255px,340px) minmax(0,1fr)!important}
       .date-card.market-enabled .date-control{max-width:340px!important;padding-right:15px!important;margin-right:13px!important}
-      .market-ticker-item{min-width:138px;max-width:164px;padding-inline:13px}
+      .market-ticker-item{width:128px;min-width:128px;max-width:128px;padding-inline:11px}
       .market-ticker-shell,.market-ticker-panel,.market-ticker-viewport,.market-ticker-track{height:60px}
       .market-ticker-item::after{height:50px}
     }
@@ -1035,7 +1039,7 @@
       .market-ticker-shell,
       .market-ticker-viewport,
       .market-ticker-track{height:58px}
-      .market-ticker-item{min-width:134px;max-width:148px;padding:6px 12px 6px 12px;gap:8px}
+      .market-ticker-item{width:132px;min-width:132px;max-width:132px;padding:6px 12px 6px 12px;gap:8px}
       .market-ticker-item::after{height:46px}
       .market-ticker-name{font-size:.68rem}
       .market-ticker-price{font-size:.7rem}
@@ -1059,6 +1063,25 @@
     }
     :root[data-theme="dark"] .market-ticker-item::after,
     :root[data-theme="dark"] .date-card.market-enabled .date-control::after{background:var(--line2)!important;opacity:.82}
+
+
+
+    /* V51: afinado pixel-perfect tipo Stockdio */
+    .market-ticker-text{transform:translateY(-1px)}
+    .market-ticker-head{height:15px}
+    .market-ticker-meta{height:14px;justify-content:flex-start;gap:4px}
+    .market-ticker-spark{margin-top:10px;transform:translateY(1px)}
+    .market-ticker-track{backface-visibility:hidden}
+    .market-ticker-shell{contain:layout paint}
+    .market-ticker-item:first-child{padding-left:14px}
+    :root[data-theme="dark"] .market-ticker-item::after,
+    :root[data-theme="dark"] .date-card.market-enabled .date-control::after{background:#25445a!important}
+    @media(max-width:900px){
+      .market-ticker-text{transform:none}
+      .market-ticker-head{height:auto}
+      .market-ticker-meta{height:auto}
+      .market-ticker-spark{margin-top:5px;transform:none}
+    }
 
 
     /* V49: ajustes gráfico Tendencia */
@@ -2037,6 +2060,20 @@
   const MARKET_TICKER_REFRESH_MS = 5 * 60 * 1000;
   let marketTickerTimer = null;
 
+  const MARKET_DISPLAY_NAMES = {
+    "^GSPC": "S&P 500",
+    "^IXIC": "Nasdaq",
+    "^DJI": "SPDR Dow Jo...",
+    "^TNX": "US 10Y",
+    "^VIX": "VIX",
+    "GC=F": "Gold Fut...",
+    "CL=F": "WTI Crude...",
+    "HG=F": "Copper Fut...",
+    "USDPEN=X": "USD/PEN",
+    "EURUSD=X": "EUR/USD",
+    "BTC-USD": "Bitcoin"
+  };
+
   const marketEl = id => document.getElementById(id);
 
   function marketFormatNumber(value, digits = 2, locale = "en-US"){
@@ -2079,7 +2116,7 @@
   function marketSparklineSvg(values, direction){
     const clean = Array.isArray(values) ? values.map(v => Number(v)).filter(v => Number.isFinite(v)) : [];
     const pts = clean.length >= 2 ? clean : [0, 0.2, 0.35, 0.25, 0.45, 0.4];
-    const w = 46, h = 34, padX = 2, padY = 2;
+    const w = 42, h = 35, padX = 2, padY = 2;
     const min = Math.min(...pts), max = Math.max(...pts);
     const span = max - min || 1;
     const step = (w - padX * 2) / Math.max(pts.length - 1, 1);
@@ -2103,7 +2140,7 @@
     const changeAbsNum = Number(item.change);
     const changePct = Number.isFinite(changePctNum) ? `${marketSign(changePctNum)}${marketFormatNumber(Math.abs(changePctNum), 2, "en-US")}%` : "—";
     const changeAbs = Number.isFinite(changeAbsNum) ? `${marketSign(changeAbsNum)}${marketFormatNumber(Math.abs(changeAbsNum), Math.min(marketPriceDigits(item), 2), "en-US")}` : "—";
-    const name = marketClampName(item.name || item.symbol);
+    const name = marketClampName(MARKET_DISPLAY_NAMES[item.symbol] || item.name || item.symbol);
     return `<div class="market-ticker-item" title="${name}">
       <div class="market-ticker-text">
         <div class="market-ticker-head">
@@ -2142,7 +2179,7 @@
     const items = marketSortedData(data).map(marketTickerItem).join('');
     const sequence = `<div class="market-ticker-seq">${items}</div>`;
     track.innerHTML = sequence + sequence;
-    const duration = Math.max(28, Math.min(60, data.length * 4.1));
+    const duration = Math.max(24, Math.min(44, data.length * 3.05));
     track.style.setProperty('--ticker-duration', `${duration}s`);
     track.style.animation = 'none';
     void track.offsetWidth;
