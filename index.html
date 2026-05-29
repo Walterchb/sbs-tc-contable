@@ -804,13 +804,13 @@
       .chart.side{height:286px!important;}
     }
 
-    /* V50: Market ticker propio con yfinance, sin iframe ni consumo de vistas externas */
+    /* V51: Ticker yfinance con apariencia tipo Stockdio: carrusel limpio, sin iframe, sin bordes ni bloques */
     .date-card.market-enabled{
       display:grid!important;
       grid-template-columns:minmax(260px, 370px) minmax(560px,1fr)!important;
       align-items:center!important;
       gap:14px!important;
-      min-height:86px!important;
+      min-height:84px!important;
     }
     .date-card.market-enabled .date-control{
       width:auto!important;
@@ -822,26 +822,31 @@
     .market-ticker-panel{
       min-width:0;
       width:100%;
-      height:62px;
+      height:58px;
+      min-height:58px;
       display:flex;
       flex-direction:column;
       justify-content:center;
       overflow:hidden;
+      background:transparent!important;
+      border:0!important;
+      border-radius:0!important;
+      box-shadow:none!important;
     }
     .market-live-shell{
       --market-fade:58px;
       --market-speed:52s;
       position:relative;
       width:100%;
-      height:62px;
-      min-height:62px;
+      height:58px;
+      min-height:58px;
       overflow:hidden;
-      border-radius:5px;
-      border:1px solid var(--line);
-      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
       color:var(--ink);
       isolation:isolate;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
+      box-shadow:none!important;
     }
     .market-live-shell::before{
       content:"";
@@ -852,63 +857,13 @@
       background:
         linear-gradient(90deg,
           var(--panel) 0,
-          transparent var(--market-fade),
-          transparent calc(100% - var(--market-fade)),
+          rgba(255,255,255,0) var(--market-fade),
+          rgba(255,255,255,0) calc(100% - var(--market-fade)),
           var(--panel) 100%);
     }
-    .market-live-head{
-      position:absolute;
-      left:10px;
-      top:8px;
-      z-index:5;
-      display:flex;
-      align-items:center;
-      gap:6px;
-      height:18px;
-      padding:0 8px;
-      border-radius:5px;
-      background:rgba(255,255,255,.76);
-      border:1px solid rgba(194,208,220,.8);
-      color:var(--muted);
-      font-size:.58rem;
-      font-weight:760;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      backdrop-filter:blur(8px);
-      white-space:nowrap;
-      pointer-events:none;
-    }
-    .market-live-dot{
-      width:6px;
-      height:6px;
-      border-radius:50%;
-      background:var(--amber);
-      box-shadow:0 0 0 3px rgba(193,122,24,.12);
-      flex:0 0 auto;
-    }
-    .market-live-shell.is-ok .market-live-dot{
-      background:var(--green);
-      box-shadow:0 0 0 3px rgba(19,150,107,.12);
-    }
-    .market-live-shell.is-error .market-live-dot{
-      background:var(--red);
-      box-shadow:0 0 0 3px rgba(189,44,34,.12);
-    }
+    .market-live-head,
     .market-live-updated{
-      position:absolute;
-      right:10px;
-      bottom:7px;
-      z-index:5;
-      color:var(--muted);
-      font-size:.58rem;
-      font-weight:650;
-      background:rgba(255,255,255,.68);
-      border:1px solid rgba(194,208,220,.65);
-      border-radius:5px;
-      padding:2px 6px;
-      backdrop-filter:blur(8px);
-      white-space:nowrap;
-      pointer-events:none;
+      display:none!important;
     }
     .market-live-viewport{
       width:100%;
@@ -916,7 +871,7 @@
       overflow:hidden;
       display:flex;
       align-items:center;
-      padding-top:2px;
+      padding:0!important;
       -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 var(--market-fade), #000 calc(100% - var(--market-fade)), transparent 100%);
       mask-image:linear-gradient(90deg, transparent 0, #000 var(--market-fade), #000 calc(100% - var(--market-fade)), transparent 100%);
       -webkit-mask-repeat:no-repeat;
@@ -927,45 +882,58 @@
     .market-live-track{
       display:flex;
       align-items:center;
-      gap:8px;
+      gap:0;
       width:max-content;
+      min-width:max-content;
       will-change:transform;
-      animation:marketLiveMarquee var(--market-speed) linear infinite;
-      padding-left:92px;
+      animation:marketLiveMarquee var(--market-speed) linear infinite!important;
+      padding-left:0!important;
+      transform:translate3d(0,0,0);
     }
     .market-live-shell:hover .market-live-track{
-      animation-play-state:paused;
+      animation-play-state:paused!important;
     }
     .market-live-item{
-      display:inline-grid;
-      grid-template-columns:auto auto auto 56px;
+      position:relative;
+      display:inline-flex;
       align-items:center;
       gap:7px;
-      height:38px;
+      height:58px;
       min-width:max-content;
-      padding:6px 9px;
-      border:1px solid var(--line);
-      border-radius:5px;
-      background:rgba(255,255,255,.62);
-      box-shadow:0 4px 12px rgba(5,28,44,.035);
+      padding:0 16px!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
       white-space:nowrap;
+      color:var(--ink);
+    }
+    .market-live-item::after{
+      content:"";
+      position:absolute;
+      right:0;
+      top:50%;
+      width:1px;
+      height:17px;
+      transform:translateY(-50%);
+      background:rgba(95,114,131,.24);
     }
     .market-live-name{
       color:var(--ink);
-      font-size:.72rem;
+      font-size:.73rem;
       font-weight:760;
       letter-spacing:-.025em;
     }
     .market-live-price{
       color:var(--ink);
-      font-size:.74rem;
-      font-weight:760;
+      font-size:.73rem;
+      font-weight:720;
       letter-spacing:-.025em;
       font-variant-numeric:tabular-nums;
     }
     .market-live-change{
-      min-width:58px;
-      text-align:right;
+      min-width:auto;
+      text-align:left;
       font-size:.66rem;
       font-weight:760;
       font-variant-numeric:tabular-nums;
@@ -977,29 +945,30 @@
     .market-live-item.is-flat .market-live-change,
     .market-live-item.is-flat .market-live-spark{color:var(--muted)}
     .market-live-spark{
-      width:56px;
-      height:22px;
+      width:54px;
+      height:18px;
       display:block;
       color:var(--muted);
-      opacity:.95;
+      opacity:.92;
+      margin-left:2px;
     }
     .market-live-spark svg{
-      width:56px;
-      height:22px;
+      width:54px;
+      height:18px;
       display:block;
       overflow:visible;
     }
     .market-live-spark path{
       fill:none;
       stroke:currentColor;
-      stroke-width:2;
+      stroke-width:1.8;
       stroke-linecap:round;
       stroke-linejoin:round;
       vector-effect:non-scaling-stroke;
     }
     .market-live-message{
       width:100%;
-      height:100%;
+      height:58px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -1010,11 +979,17 @@
       text-align:center;
     }
     @keyframes marketLiveMarquee{
-      from{transform:translateX(0)}
-      to{transform:translateX(-50%)}
+      from{transform:translate3d(0,0,0)}
+      to{transform:translate3d(-33.333333%,0,0)}
     }
     @media(prefers-reduced-motion:reduce){
-      .market-live-track{animation:none;overflow-x:auto;width:100%;padding-left:92px;padding-right:12px}
+      .market-live-track{
+        animation:none!important;
+        overflow-x:auto;
+        width:100%;
+        padding-left:0!important;
+        padding-right:12px;
+      }
     }
     @media(max-width:1100px){
       .date-card.market-enabled{
@@ -1026,7 +1001,6 @@
         padding-right:12px!important;
       }
       .market-live-shell{--market-fade:44px;--market-speed:46s}
-      .market-live-track{padding-left:82px}
     }
     @media(max-width:900px){
       .date-card.market-enabled{
@@ -1044,23 +1018,27 @@
       .market-ticker-panel{
         display:flex!important;
         width:100%!important;
-        height:54px!important;
+        height:42px!important;
+        min-height:42px!important;
         margin-top:2px!important;
       }
       .market-live-shell{
-        height:54px!important;
-        min-height:54px!important;
+        height:42px!important;
+        min-height:42px!important;
         --market-fade:30px;
         --market-speed:38s;
       }
-      .market-live-head{display:none!important}
-      .market-live-updated{display:none!important}
-      .market-live-track{padding-left:8px;gap:6px}
-      .market-live-item{height:34px;grid-template-columns:auto auto auto;gap:6px;padding:5px 8px}
+      .market-live-item{
+        height:42px!important;
+        gap:6px;
+        padding:0 12px!important;
+      }
       .market-live-spark{display:none!important}
       .market-live-name,.market-live-price{font-size:.68rem}
-      .market-live-change{font-size:.62rem;min-width:50px}
+      .market-live-change{font-size:.62rem}
+      .market-live-message{height:42px!important;font-size:.72rem}
     }
+    :root[data-theme="dark"] .market-ticker-panel,
     :root[data-theme="dark"] .market-live-shell{
       background:#081422!important;
       color:#f6f8fb!important;
@@ -1072,20 +1050,17 @@
       background:
         linear-gradient(90deg,
           #081422 0,
-          transparent var(--market-fade),
-          transparent calc(100% - var(--market-fade)),
+          rgba(8,20,34,0) var(--market-fade),
+          rgba(8,20,34,0) calc(100% - var(--market-fade)),
           #081422 100%)!important;
     }
-    :root[data-theme="dark"] .market-live-head,
-    :root[data-theme="dark"] .market-live-updated{
-      background:rgba(8,20,34,.76)!important;
-      border-color:rgba(43,74,97,.72)!important;
-      color:#8ea6b8!important;
-    }
     :root[data-theme="dark"] .market-live-item{
-      background:rgba(255,255,255,.045)!important;
-      border-color:rgba(255,255,255,.07)!important;
+      background:transparent!important;
+      border:0!important;
       box-shadow:none!important;
+    }
+    :root[data-theme="dark"] .market-live-item::after{
+      background:rgba(246,248,251,.18)!important;
     }
     :root[data-theme="dark"] .market-live-name,
     :root[data-theme="dark"] .market-live-price{color:#f6f8fb!important}
@@ -2061,7 +2036,7 @@
 
 
 
-  /* Ticker propio: consume ./data/yfinance/latest.json generado por GitHub Actions */
+  /* Ticker tipo Stockdio propio: consume ./data/yfinance/latest.json generado por GitHub Actions */
   const MARKET_TICKER_REFRESH_MS = 5 * 60 * 1000;
   let marketTickerTimer = null;
 
@@ -2191,11 +2166,12 @@
     }
 
     const htmlItems = items.map(marketItemHtml).join("");
-    const seconds = Math.max(34, Math.min(82, items.length * 4.8));
+    const seconds = Math.max(36, Math.min(88, items.length * 5.2));
     shell.style.setProperty("--market-speed", `${seconds}s`);
     shell.classList.remove("is-error","is-loading");
     shell.classList.add("is-ok");
-    track.innerHTML = htmlItems + htmlItems;
+    // Tres vueltas para un carrusel continuo y sin salto visible.
+    track.innerHTML = htmlItems + htmlItems + htmlItems;
     if(status) status.textContent = `Mercado · ${items.length}`;
     if(updated) updated.textContent = marketUpdatedLabel(payload.fetched_at_lima || payload.fetched_at_utc);
   }
