@@ -805,23 +805,21 @@
     }
 
 
-    /* V52: ticker propio yfinance estilo Stockdio, carrusel controlable */
+    /* V50: ticker propio estilo Stockdio, sin iframes, con carrusel continuo */
     .date-card.market-enabled{
       display:grid!important;
-      grid-template-columns:minmax(248px, 258px) minmax(0,1fr)!important;
+      grid-template-columns:minmax(265px, 385px) minmax(0,1fr)!important;
       align-items:center!important;
       gap:0!important;
-      min-height:72px!important;
-      padding-top:7px!important;
-      padding-bottom:7px!important;
+      min-height:86px!important;
     }
     .date-card.market-enabled .date-control{
       position:relative!important;
       width:auto!important;
       min-width:0!important;
-      max-width:258px!important;
-      padding-right:17px!important;
-      margin-right:14px!important;
+      max-width:385px!important;
+      padding-right:18px!important;
+      margin-right:16px!important;
       border-right:0!important;
     }
     .date-card.market-enabled .date-control::after{
@@ -831,41 +829,32 @@
       top:50%;
       transform:translateY(-50%);
       width:1px;
-      height:66px;
-      background:#dfe9f1;
-      opacity:1;
+      height:58px;
+      background:var(--line);
+      opacity:.95;
     }
     .market-ticker-panel{
       min-width:0;
       width:100%;
-      height:60px;
+      height:64px;
       display:flex;
       align-items:center;
       overflow:hidden;
-      background:transparent!important;
-      border:0!important;
-      border-radius:0!important;
-      box-shadow:none!important;
-    }
-    .market-ticker-shell,
-    .market-ticker-shell *{
-      -webkit-user-select:none!important;
-      user-select:none!important;
-      -webkit-touch-callout:none!important;
+      background:transparent;
     }
     .market-ticker-shell{
       position:relative;
       width:100%;
-      height:60px;
-      min-height:60px;
+      height:64px;
+      min-height:64px;
       overflow:hidden;
-      background:transparent!important;
+      background:transparent;
       border:0!important;
       border-radius:0!important;
       box-shadow:none!important;
       isolation:isolate;
-      cursor:pointer;
-      --ticker-fade:24px;
+      --ticker-fade:38px;
+      --ticker-duration:42s;
     }
     .market-ticker-shell::before,
     .market-ticker-shell::after{
@@ -874,52 +863,58 @@
       top:0;
       bottom:0;
       width:var(--ticker-fade);
-      z-index:5;
+      z-index:3;
       pointer-events:none;
     }
-    .market-ticker-shell::before{left:0;background:linear-gradient(90deg,var(--panel) 0%,rgba(255,255,255,0) 100%)}
-    .market-ticker-shell::after{right:0;background:linear-gradient(270deg,var(--panel) 0%,rgba(255,255,255,0) 100%)}
+    .market-ticker-shell::before{
+      left:0;
+      background:linear-gradient(90deg,var(--panel) 0%, rgba(255,255,255,0) 100%);
+    }
+    .market-ticker-shell::after{
+      right:0;
+      background:linear-gradient(270deg,var(--panel) 0%, rgba(255,255,255,0) 100%);
+    }
     .market-ticker-viewport{
       position:relative;
       width:100%;
-      height:60px;
       min-width:0;
       overflow:hidden;
+      height:64px;
     }
     .market-ticker-track{
       position:absolute;
       left:0;
       top:0;
-      height:60px;
+      height:64px;
       display:flex;
       align-items:center;
       gap:0;
       width:max-content;
       will-change:transform;
-      transform:translate3d(0,0,0);
+      animation:marketTickerScroll var(--ticker-duration) linear infinite;
     }
+    .market-ticker-shell:hover .market-ticker-track{animation-play-state:paused}
     .market-ticker-seq{
       display:flex;
       align-items:center;
       gap:0;
       flex:0 0 auto;
-      height:60px;
     }
     .market-ticker-item{
       position:relative;
-      flex:0 0 136px;
-      width:136px;
-      height:60px;
-      padding:6px 11px 5px 12px;
-      display:grid;
-      grid-template-columns:minmax(0,1fr) 42px;
+      flex:0 0 auto;
+      min-width:148px;
+      max-width:176px;
+      padding:6px 15px 6px 15px;
+      display:flex;
       align-items:center;
-      column-gap:8px;
+      gap:10px;
       color:var(--ink);
       background:transparent!important;
       border:0!important;
       border-radius:0!important;
       box-shadow:none!important;
+      white-space:normal;
     }
     .market-ticker-item::after{
       content:"";
@@ -929,155 +924,107 @@
       transform:translateY(-50%);
       width:1px;
       height:54px;
-      background:#dfe9f1;
-      opacity:1;
+      background:var(--line);
+      opacity:.9;
     }
     .market-ticker-text{
       min-width:0;
+      flex:1 1 auto;
       display:flex;
       flex-direction:column;
       justify-content:center;
       gap:3px;
-      transform:translateY(-1px);
     }
     .market-ticker-head,
     .market-ticker-meta{
-      min-width:0;
       display:flex;
       align-items:center;
-      gap:6px;
+      justify-content:space-between;
+      gap:8px;
+      min-width:0;
     }
-    .market-ticker-head{height:15px;justify-content:space-between}
-    .market-ticker-meta{height:14px;justify-content:flex-start;gap:4px}
     .market-ticker-name{
       flex:1 1 auto;
       min-width:0;
+      font-size:.72rem;
+      line-height:1.08;
+      font-weight:760;
+      letter-spacing:-.02em;
       color:var(--ink);
-      font-size:.69rem;
-      line-height:1;
-      font-weight:800;
-      letter-spacing:-.025em;
       overflow:hidden;
       text-overflow:ellipsis;
       white-space:nowrap;
     }
     .market-ticker-change{
       flex:0 0 auto;
-      font-size:.66rem;
+      font-size:.72rem;
       line-height:1;
-      font-weight:800;
+      font-weight:760;
       font-variant-numeric:tabular-nums;
       letter-spacing:-.02em;
-      white-space:nowrap;
-    }
-    .market-ticker-price{
-      flex:0 0 auto;
-      color:var(--muted);
-      font-size:.65rem;
-      line-height:1;
-      font-weight:560;
-      font-variant-numeric:tabular-nums;
-      white-space:nowrap;
-    }
-    .market-ticker-pct{
-      flex:0 0 auto;
-      font-size:.64rem;
-      line-height:1;
-      font-weight:700;
-      font-variant-numeric:tabular-nums;
-      white-space:nowrap;
     }
     .market-ticker-change.is-up,.market-ticker-pct.is-up{color:var(--green)}
     .market-ticker-change.is-down,.market-ticker-pct.is-down{color:var(--red)}
     .market-ticker-change.is-flat,.market-ticker-pct.is-flat{color:var(--muted)}
+    .market-ticker-price{
+      flex:0 1 auto;
+      font-size:.74rem;
+      font-weight:560;
+      color:var(--muted);
+      font-variant-numeric:tabular-nums;
+      letter-spacing:-.01em;
+      white-space:nowrap;
+    }
+    .market-ticker-pct{
+      flex:0 0 auto;
+      font-size:.69rem;
+      font-weight:720;
+      font-variant-numeric:tabular-nums;
+      white-space:nowrap;
+    }
     .market-ticker-spark{
-      width:42px;
+      flex:0 0 46px;
+      width:46px;
       height:34px;
       display:block;
-      align-self:end;
-      margin-bottom:5px;
       overflow:visible;
-      pointer-events:none;
     }
-    .market-ticker-spark svg{display:block;width:42px;height:34px;overflow:visible}
+    .market-ticker-spark svg{display:block;width:46px;height:34px;overflow:visible}
     .market-ticker-spark .spark-area.up{fill:rgba(19,150,107,.18)}
     .market-ticker-spark .spark-line.up{stroke:#2aae75}
     .market-ticker-spark .spark-area.down{fill:rgba(189,44,34,.16)}
     .market-ticker-spark .spark-line.down{stroke:#d65b51}
-    .market-ticker-spark .spark-area.flat{fill:rgba(95,114,131,.13)}
+    .market-ticker-spark .spark-area.flat{fill:rgba(95,114,131,.14)}
     .market-ticker-spark .spark-line.flat{stroke:#8fa4b6}
     .market-ticker-loading,
     .market-ticker-empty{
       display:flex;
       align-items:center;
-      height:60px;
+      height:64px;
+      padding:0 2px;
       color:var(--muted);
-      font-size:.75rem;
+      font-size:.78rem;
       font-weight:600;
       white-space:nowrap;
     }
-    .market-ticker-nav{
-      position:absolute;
-      top:50%;
-      transform:translateY(-50%);
-      z-index:8;
-      width:28px!important;
-      min-width:28px!important;
-      height:28px!important;
-      min-height:28px!important;
-      padding:0!important;
-      border-radius:5px!important;
-      background:rgba(255,255,255,.92)!important;
-      color:#051c2c!important;
-      border:1px solid #d7e3ec!important;
-      box-shadow:0 8px 20px rgba(5,28,44,.12)!important;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .14s ease, transform .14s ease;
+    @keyframes marketTickerScroll{
+      from{transform:translate3d(0,0,0)}
+      to{transform:translate3d(-50%,0,0)}
     }
-    .market-ticker-prev{left:4px}.market-ticker-next{right:4px}
-    .market-ticker-shell.is-paused .market-ticker-nav,
-    .market-ticker-shell:hover .market-ticker-nav{
-      opacity:1;
-      pointer-events:auto;
-    }
-    .market-ticker-shell.is-paused .market-ticker-nav:hover,
-    .market-ticker-shell:hover .market-ticker-nav:hover{transform:translateY(-50%) scale(1.03);filter:none!important}
-    .market-ticker-pause-badge{
-      position:absolute;
-      left:50%;
-      bottom:2px;
-      transform:translateX(-50%);
-      z-index:7;
-      height:16px;
-      padding:2px 7px;
-      border-radius:999px;
-      background:rgba(5,28,44,.78);
-      color:#fff;
-      font-size:.56rem;
-      font-weight:750;
-      letter-spacing:.05em;
-      text-transform:uppercase;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .14s ease;
-    }
-    .market-ticker-shell.is-paused .market-ticker-pause-badge{opacity:1}
     @media(max-width:1160px){
-      .date-card.market-enabled{grid-template-columns:minmax(236px, 250px) minmax(0,1fr)!important}
-      .date-card.market-enabled .date-control{max-width:250px!important;padding-right:14px!important;margin-right:12px!important}
-      .market-ticker-item{flex-basis:130px;width:130px;grid-template-columns:minmax(0,1fr) 39px;padding-inline:10px;column-gap:7px}
-      .market-ticker-spark,.market-ticker-spark svg{width:39px;height:32px}
+      .date-card.market-enabled{grid-template-columns:minmax(255px,340px) minmax(0,1fr)!important}
+      .date-card.market-enabled .date-control{max-width:340px!important;padding-right:15px!important;margin-right:13px!important}
+      .market-ticker-item{min-width:138px;max-width:164px;padding-inline:13px}
+      .market-ticker-shell,.market-ticker-panel,.market-ticker-viewport,.market-ticker-track{height:60px}
+      .market-ticker-item::after{height:50px}
     }
     @media(max-width:900px){
       .date-card.market-enabled{
         display:flex!important;
         flex-direction:column!important;
         align-items:stretch!important;
-        gap:7px!important;
+        gap:8px!important;
         min-height:0!important;
-        padding-top:10px!important;
-        padding-bottom:10px!important;
       }
       .date-card.market-enabled .date-control{
         width:100%!important;
@@ -1085,27 +1032,36 @@
         padding-right:0!important;
         margin-right:0!important;
       }
-      .date-card.market-enabled .date-control::after{display:none!important}
-      .market-ticker-panel,.market-ticker-shell,.market-ticker-viewport,.market-ticker-track,.market-ticker-seq{height:56px}
-      .market-ticker-item{flex-basis:132px;width:132px;height:56px;grid-template-columns:minmax(0,1fr) 38px;padding:5px 10px 5px 10px;column-gap:7px}
+      .date-card.market-enabled .date-control::after{display:none}
+      .market-ticker-panel,
+      .market-ticker-shell,
+      .market-ticker-viewport,
+      .market-ticker-track{height:58px}
+      .market-ticker-item{min-width:134px;max-width:148px;padding:6px 12px 6px 12px;gap:8px}
       .market-ticker-item::after{height:46px}
-      .market-ticker-text{transform:none;gap:3px}
-      .market-ticker-head,.market-ticker-meta{height:auto}
-      .market-ticker-name{font-size:.66rem}
-      .market-ticker-price,.market-ticker-change,.market-ticker-pct{font-size:.62rem}
-      .market-ticker-spark{width:38px;height:30px;margin-bottom:5px}.market-ticker-spark svg{width:38px;height:30px}
-      .market-ticker-shell{--ticker-fade:14px}
-      .market-ticker-pause-badge{display:none}
-      .market-ticker-nav{width:26px!important;min-width:26px!important;height:26px!important;min-height:26px!important}
+      .market-ticker-name{font-size:.68rem}
+      .market-ticker-price{font-size:.7rem}
+      .market-ticker-change,.market-ticker-pct{font-size:.66rem}
+      .market-ticker-spark{flex-basis:40px;width:40px;height:30px}
+      .market-ticker-spark svg{width:40px;height:30px}
+      .market-ticker-shell{--ticker-fade:16px;--ticker-duration:34s}
     }
     :root[data-theme="dark"] .market-ticker-panel,
-    :root[data-theme="dark"] .market-ticker-shell{background:#081422!important;border:0!important;border-radius:0!important;box-shadow:none!important}
-    :root[data-theme="dark"] .market-ticker-shell::before{background:linear-gradient(90deg,#081422 0%,rgba(8,20,34,0) 100%)!important}
-    :root[data-theme="dark"] .market-ticker-shell::after{background:linear-gradient(270deg,#081422 0%,rgba(8,20,34,0) 100%)!important}
+    :root[data-theme="dark"] .market-ticker-shell{
+      background:#081422!important;
+      border:0!important;
+      border-radius:0!important;
+      box-shadow:none!important;
+    }
+    :root[data-theme="dark"] .market-ticker-shell::before{
+      background:linear-gradient(90deg,#081422 0%, rgba(8,20,34,0) 100%)!important;
+    }
+    :root[data-theme="dark"] .market-ticker-shell::after{
+      background:linear-gradient(270deg,#081422 0%, rgba(8,20,34,0) 100%)!important;
+    }
     :root[data-theme="dark"] .market-ticker-item::after,
-    :root[data-theme="dark"] .date-card.market-enabled .date-control::after{background:#25445a!important;opacity:.9}
-    :root[data-theme="dark"] .market-ticker-nav{background:rgba(8,20,34,.92)!important;color:#e8f1f8!important;border-color:#25445a!important}
-    :root[data-theme="dark"] .market-ticker-pause-badge{background:rgba(248,251,253,.88);color:#081422}
+    :root[data-theme="dark"] .date-card.market-enabled .date-control::after{background:var(--line2)!important;opacity:.82}
+
 
     /* V49: ajustes gráfico Tendencia */
     #trendLegend.chart-legend{margin-bottom:0!important}
@@ -1147,15 +1103,12 @@
             <span id="vFecha" class="date-value">—</span>
           </div>
           <aside class="market-ticker-panel" aria-label="Mercado externo">
-            <div id="marketTickerShell" class="market-ticker-shell" title="Click para pausar/reanudar. Usa las flechas para avanzar o retroceder.">
+            <div class="market-ticker-shell" title="Cotizaciones externas">
               <div class="market-ticker-viewport">
                 <div id="marketTickerTrack" class="market-ticker-track">
                   <div class="market-ticker-loading">Cargando mercado…</div>
                 </div>
               </div>
-              <button id="marketTickerPrev" class="market-ticker-nav market-ticker-prev" type="button" title="Retroceder" aria-label="Retroceder ticker"><i class="fa-solid fa-chevron-left"></i></button>
-              <button id="marketTickerNext" class="market-ticker-nav market-ticker-next" type="button" title="Avanzar" aria-label="Avanzar ticker"><i class="fa-solid fa-chevron-right"></i></button>
-              <div class="market-ticker-pause-badge">Pausado</div>
             </div>
           </aside>
         </article>
@@ -2084,78 +2037,52 @@
 (() => {
   const MARKET_TICKER_URL = "./data/yfinance/latest.json";
   const MARKET_TICKER_REFRESH_MS = 5 * 60 * 1000;
-  const MARKET_SPEED_PX_PER_SEC = 22;
+  let marketTickerTimer = null;
 
-  const MARKET_DISPLAY_NAMES = {
-    "^GSPC": "S&P 500",
-    "^IXIC": "Nasdaq",
-    "^DJI": "SPDR Dow Jo...",
-    "^TNX": "US 10Y",
-    "^VIX": "VIX",
-    "GC=F": "Gold Fut...",
-    "CL=F": "WTI Crude...",
-    "HG=F": "Copper Fut...",
-    "USDPEN=X": "USD/PEN",
-    "EURUSD=X": "EUR/USD",
-    "DX-Y.NYB": "US Dollar...",
-    "BTC-USD": "Bitcoin"
-  };
+  const marketEl = id => document.getElementById(id);
 
-  const MARKET_ORDER = ["^GSPC","^IXIC","^DJI","^TNX","^VIX","GC=F","CL=F","HG=F","DX-Y.NYB","USDPEN=X","EURUSD=X","BTC-USD"];
-
-  let tickerTimer = null;
-  let rafId = null;
-  let paused = false;
-  let position = 0;
-  let seqWidth = 0;
-  let itemWidth = 136;
-  let lastTs = 0;
-
-  const $ = id => document.getElementById(id);
-
-  function fmt(value, digits = 2, locale = "en-US"){
+  function marketFormatNumber(value, digits = 2, locale = "en-US"){
     const n = Number(value);
     if(!Number.isFinite(n)) return "—";
-    return new Intl.NumberFormat(locale,{minimumFractionDigits:0,maximumFractionDigits:digits}).format(n);
+    return new Intl.NumberFormat(locale, {minimumFractionDigits: 0, maximumFractionDigits: digits}).format(n);
   }
 
-  function priceDigits(item){
+  function marketPriceDigits(item){
     const symbol = item?.symbol || "";
     const price = Math.abs(Number(item?.price || 0));
     if(symbol === "BTC-USD") return 0;
-    if(symbol.includes("=X")) return 4;
+    if(symbol.includes("=X")) return symbol === "USDPEN=X" ? 4 : 4;
     if(symbol === "^TNX") return 2;
+    if(price >= 1000) return 2;
+    if(price >= 100) return 2;
     if(price >= 10) return 2;
     return 4;
   }
 
-  function sign(value){
+  function marketDirectionClass(direction, pct){
+    if(direction === "up") return "is-up";
+    if(direction === "down") return "is-down";
+    const n = Number(pct);
+    if(Number.isFinite(n)) return n > 0 ? "is-up" : n < 0 ? "is-down" : "is-flat";
+    return "is-flat";
+  }
+
+  function marketSign(value){
     const n = Number(value);
-    if(!Number.isFinite(n) || n === 0) return "";
-    return n > 0 ? "+" : "−";
+    if(!Number.isFinite(n)) return "";
+    return n > 0 ? "+" : n < 0 ? "−" : "";
   }
 
-  function dirClass(item){
-    if(item.direction === "up") return "is-up";
-    if(item.direction === "down") return "is-down";
-    const pct = Number(item.change_pct);
-    return pct > 0 ? "is-up" : pct < 0 ? "is-down" : "is-flat";
+  function marketClampName(name){
+    if(!name) return "Activo";
+    return String(name).replace(/\s+/g, ' ').trim();
   }
 
-  function dirName(cls){
-    return cls === "is-up" ? "up" : cls === "is-down" ? "down" : "flat";
-  }
-
-  function label(item){
-    return String(MARKET_DISPLAY_NAMES[item.symbol] || item.name || item.symbol || "Activo").replace(/\s+/g," ").trim();
-  }
-
-  function sparkSvg(values, direction){
-    const clean = Array.isArray(values) ? values.map(Number).filter(Number.isFinite) : [];
-    const pts = clean.length >= 2 ? clean : [0, .2, .1, .28, .22, .36, .31];
-    const w = 42, h = 34, padX = 2, padY = 3;
-    const min = Math.min(...pts);
-    const max = Math.max(...pts);
+  function marketSparklineSvg(values, direction){
+    const clean = Array.isArray(values) ? values.map(v => Number(v)).filter(v => Number.isFinite(v)) : [];
+    const pts = clean.length >= 2 ? clean : [0, 0.2, 0.35, 0.25, 0.45, 0.4];
+    const w = 46, h = 34, padX = 2, padY = 2;
+    const min = Math.min(...pts), max = Math.max(...pts);
     const span = max - min || 1;
     const step = (w - padX * 2) / Math.max(pts.length - 1, 1);
     const coords = pts.map((v, i) => {
@@ -2163,150 +2090,93 @@
       const y = h - padY - ((v - min) / span) * (h - padY * 2 - 4) - 2;
       return [x, y];
     });
-    const line = coords.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(" ");
-    const area = `${line} L${coords.at(-1)[0].toFixed(2)},${(h-padY).toFixed(2)} L${coords[0][0].toFixed(2)},${(h-padY).toFixed(2)} Z`;
-    return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true" focusable="false"><path class="spark-area ${direction}" d="${area}"></path><path class="spark-line ${direction}" d="${line}" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
+    const line = coords.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(' ');
+    const area = `${line} L${coords[coords.length-1][0].toFixed(2)},${(h-padY).toFixed(2)} L${coords[0][0].toFixed(2)},${(h-padY).toFixed(2)} Z`;
+    return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true" focusable="false">
+      <path class="spark-area ${direction}" d="${area}"></path>
+      <path class="spark-line ${direction}" d="${line}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>`;
   }
 
-  function itemHtml(item){
-    const cls = dirClass(item);
-    const dname = dirName(cls);
-    const pDigits = priceDigits(item);
-    const price = fmt(item.price, pDigits);
-    const pct = Number(item.change_pct);
-    const chg = Number(item.change);
-    const pctText = Number.isFinite(pct) ? `${sign(pct)}${fmt(Math.abs(pct),2)}%` : "—";
-    const chgText = Number.isFinite(chg) ? `${sign(chg)}${fmt(Math.abs(chg), Math.min(pDigits, 2))}` : "—";
-    const name = label(item);
+  function marketTickerItem(item){
+    const dir = marketDirectionClass(item.direction, item.change_pct);
+    const price = marketFormatNumber(item.price, marketPriceDigits(item), "en-US");
+    const changePctNum = Number(item.change_pct);
+    const changeAbsNum = Number(item.change);
+    const changePct = Number.isFinite(changePctNum) ? `${marketSign(changePctNum)}${marketFormatNumber(Math.abs(changePctNum), 2, "en-US")}%` : "—";
+    const changeAbs = Number.isFinite(changeAbsNum) ? `${marketSign(changeAbsNum)}${marketFormatNumber(Math.abs(changeAbsNum), Math.min(marketPriceDigits(item), 2), "en-US")}` : "—";
+    const name = marketClampName(item.name || item.symbol);
     return `<div class="market-ticker-item" title="${name}">
       <div class="market-ticker-text">
-        <div class="market-ticker-head"><span class="market-ticker-name">${name}</span><span class="market-ticker-change ${cls}">${chgText}</span></div>
-        <div class="market-ticker-meta"><span class="market-ticker-price">${price}</span><span class="market-ticker-pct ${cls}">${pctText}</span></div>
+        <div class="market-ticker-head">
+          <span class="market-ticker-name">${name}</span>
+          <span class="market-ticker-change ${dir}">${changeAbs}</span>
+        </div>
+        <div class="market-ticker-meta">
+          <span class="market-ticker-price">${price}</span>
+          <span class="market-ticker-pct ${dir}">${changePct}</span>
+        </div>
       </div>
-      <div class="market-ticker-spark">${sparkSvg(item.sparkline, dname)}</div>
+      <div class="market-ticker-spark">${marketSparklineSvg(item.sparkline, dir.replace('is-',''))}</div>
     </div>`;
   }
 
-  function sortData(data){
-    const order = new Map(MARKET_ORDER.map((s,i)=>[s,i]));
-    return [...data].sort((a,b)=>{
+  function marketSortedData(data){
+    const preferred = ["^GSPC","^IXIC","^DJI","^TNX","^VIX","GC=F","CL=F","HG=F","USDPEN=X","EURUSD=X","BTC-USD"];
+    const order = new Map(preferred.map((s,i)=>[s,i]));
+    return [...data].sort((a,b) => {
       const ia = order.has(a.symbol) ? order.get(a.symbol) : 999;
       const ib = order.has(b.symbol) ? order.get(b.symbol) : 999;
       if(ia !== ib) return ia - ib;
-      return String(a.name || a.symbol).localeCompare(String(b.name || b.symbol));
+      return String(a.name||a.symbol).localeCompare(String(b.name||b.symbol));
     });
   }
 
-  function normalize(){
-    if(!seqWidth) return;
-    while(position <= -seqWidth) position += seqWidth;
-    while(position > 0) position -= seqWidth;
-  }
-
-  function applyPosition(){
-    const track = $("marketTickerTrack");
-    if(track) track.style.transform = `translate3d(${position}px,0,0)`;
-  }
-
-  function measure(){
-    const seq = document.querySelector("#marketTickerTrack .market-ticker-seq");
-    const item = document.querySelector("#marketTickerTrack .market-ticker-item");
-    seqWidth = seq ? seq.getBoundingClientRect().width : 0;
-    itemWidth = item ? item.getBoundingClientRect().width : 136;
-    normalize();
-    applyPosition();
-  }
-
-  function setPaused(value){
-    paused = value;
-    const shell = $("marketTickerShell");
-    if(shell) shell.classList.toggle("is-paused", paused);
-  }
-
-  function animate(ts){
-    if(!lastTs) lastTs = ts;
-    const dt = Math.min(64, ts - lastTs);
-    lastTs = ts;
-    if(!paused && seqWidth){
-      position -= MARKET_SPEED_PX_PER_SEC * (dt / 1000);
-      normalize();
-      applyPosition();
-    }
-    rafId = requestAnimationFrame(animate);
-  }
-
-  function startLoop(){
-    if(rafId) cancelAnimationFrame(rafId);
-    lastTs = 0;
-    rafId = requestAnimationFrame(animate);
-  }
-
-  function shiftTicker(direction){
-    setPaused(true);
-    position += direction * itemWidth;
-    normalize();
-    applyPosition();
-  }
-
-  function render(payload){
-    const track = $("marketTickerTrack");
+  function renderMarketTicker(payload){
+    const track = marketEl('marketTickerTrack');
     if(!track) return;
-    const data = Array.isArray(payload?.data) ? payload.data.filter(x => x && x.status === "ok") : [];
+    const data = Array.isArray(payload?.data) ? payload.data.filter(x => x && x.status === 'ok') : [];
     if(!data.length){
       track.innerHTML = '<div class="market-ticker-empty">No hay data de mercado disponible.</div>';
-      setPaused(true);
+      track.style.animation = 'none';
       return;
     }
-    const items = sortData(data).map(itemHtml).join("");
-    track.innerHTML = `<div class="market-ticker-seq">${items}</div><div class="market-ticker-seq" aria-hidden="true">${items}</div>`;
-    position = 0;
-    setPaused(false);
-    requestAnimationFrame(()=>{measure(); startLoop();});
+    const items = marketSortedData(data).map(marketTickerItem).join('');
+    const sequence = `<div class="market-ticker-seq">${items}</div>`;
+    track.innerHTML = sequence + sequence;
+    const duration = Math.max(28, Math.min(60, data.length * 4.1));
+    track.style.setProperty('--ticker-duration', `${duration}s`);
+    track.style.animation = 'none';
+    void track.offsetWidth;
+    track.style.animation = `marketTickerScroll ${duration}s linear infinite`;
   }
 
-  async function load(){
-    const track = $("marketTickerTrack");
+  async function loadMarketTicker(){
+    const track = marketEl('marketTickerTrack');
     if(!track) return;
     try{
-      const url = `${MARKET_TICKER_URL}${MARKET_TICKER_URL.includes("?") ? "&" : "?"}v=${Date.now()}`;
-      const res = await fetch(url,{cache:"no-store"});
+      const url = `${MARKET_TICKER_URL}${MARKET_TICKER_URL.includes('?') ? '&' : '?'}v=${Date.now()}`;
+      const res = await fetch(url, {cache:'no-store'});
       if(!res.ok) throw new Error(`HTTP ${res.status}`);
-      render(await res.json());
+      const payload = await res.json();
+      renderMarketTicker(payload);
     }catch(err){
       track.innerHTML = '<div class="market-ticker-empty">No se pudo cargar mercado externo.</div>';
-      setPaused(true);
-      console.error("[marketTicker]", err);
+      track.style.animation = 'none';
+      console.error('[marketTicker]', err);
     }
   }
 
-  function bind(){
-    const shell = $("marketTickerShell");
-    const prev = $("marketTickerPrev");
-    const next = $("marketTickerNext");
-    if(!shell) return;
-    shell.addEventListener("mousedown", e => e.preventDefault());
-    shell.addEventListener("selectstart", e => e.preventDefault());
-    shell.addEventListener("click", e => {
-      if(e.target.closest("button")) return;
-      setPaused(!paused);
-    });
-    prev?.addEventListener("click", e => {e.preventDefault(); e.stopPropagation(); shiftTicker(1);});
-    next?.addEventListener("click", e => {e.preventDefault(); e.stopPropagation(); shiftTicker(-1);});
-    window.addEventListener("resize", () => {
-      clearTimeout(window.__marketTickerResize);
-      window.__marketTickerResize = setTimeout(measure, 100);
-    });
+  function startMarketTicker(){
+    loadMarketTicker();
+    if(marketTickerTimer) clearInterval(marketTickerTimer);
+    marketTickerTimer = setInterval(()=>{
+      if(document.visibilityState === 'visible') loadMarketTicker();
+    }, MARKET_TICKER_REFRESH_MS);
   }
 
-  function start(){
-    bind();
-    load();
-    if(tickerTimer) clearInterval(tickerTimer);
-    tickerTimer = setInterval(()=>{ if(document.visibilityState === "visible") load(); }, MARKET_TICKER_REFRESH_MS);
-  }
-
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, {once:true});
-  else start();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startMarketTicker, {once:true});
+  else startMarketTicker();
 })();
 </script>
 
