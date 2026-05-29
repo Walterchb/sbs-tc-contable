@@ -1,4 +1,5 @@
 
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -803,14 +804,13 @@
       .chart.side{height:286px!important;}
     }
 
-
-    /* V47: Stockdio ticker sin título, con desvanecido lateral adaptativo */
+    /* V50: Market ticker propio con yfinance, sin iframe ni consumo de vistas externas */
     .date-card.market-enabled{
       display:grid!important;
       grid-template-columns:minmax(260px, 370px) minmax(560px,1fr)!important;
       align-items:center!important;
       gap:14px!important;
-      min-height:84px!important;
+      min-height:86px!important;
     }
     .date-card.market-enabled .date-control{
       width:auto!important;
@@ -822,60 +822,199 @@
     .market-ticker-panel{
       min-width:0;
       width:100%;
-      height:58px;
+      height:62px;
       display:flex;
       flex-direction:column;
       justify-content:center;
       overflow:hidden;
     }
-    .market-ticker-title{
-      display:none!important;
-    }
-    .stockdio-shell{
+    .market-live-shell{
+      --market-fade:58px;
+      --market-speed:52s;
       position:relative;
       width:100%;
-      height:58px;
-      min-height:58px;
+      height:62px;
+      min-height:62px;
       overflow:hidden;
       border-radius:5px;
-      background:var(--panel);
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      color:var(--ink);
       isolation:isolate;
-      --ticker-fade:58px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
     }
-    .stockdio-shell::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      z-index:3;
-      pointer-events:none;
-      background:
-        linear-gradient(90deg,
-          var(--panel) 0,
-          transparent var(--ticker-fade),
-          transparent calc(100% - var(--ticker-fade)),
-          var(--panel) 100%);
-    }
-    .stockdio-shell::after{
+    .market-live-shell::before{
       content:"";
       position:absolute;
       inset:0;
       z-index:4;
-      cursor:default;
-      background:transparent;
+      pointer-events:none;
+      background:
+        linear-gradient(90deg,
+          var(--panel) 0,
+          transparent var(--market-fade),
+          transparent calc(100% - var(--market-fade)),
+          var(--panel) 100%);
     }
-    .stockdio-frame{
-      display:block;
+    .market-live-head{
+      position:absolute;
+      left:10px;
+      top:8px;
+      z-index:5;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      height:18px;
+      padding:0 8px;
+      border-radius:5px;
+      background:rgba(255,255,255,.76);
+      border:1px solid rgba(194,208,220,.8);
+      color:var(--muted);
+      font-size:.58rem;
+      font-weight:760;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      backdrop-filter:blur(8px);
+      white-space:nowrap;
+      pointer-events:none;
+    }
+    .market-live-dot{
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--amber);
+      box-shadow:0 0 0 3px rgba(193,122,24,.12);
+      flex:0 0 auto;
+    }
+    .market-live-shell.is-ok .market-live-dot{
+      background:var(--green);
+      box-shadow:0 0 0 3px rgba(19,150,107,.12);
+    }
+    .market-live-shell.is-error .market-live-dot{
+      background:var(--red);
+      box-shadow:0 0 0 3px rgba(189,44,34,.12);
+    }
+    .market-live-updated{
+      position:absolute;
+      right:10px;
+      bottom:7px;
+      z-index:5;
+      color:var(--muted);
+      font-size:.58rem;
+      font-weight:650;
+      background:rgba(255,255,255,.68);
+      border:1px solid rgba(194,208,220,.65);
+      border-radius:5px;
+      padding:2px 6px;
+      backdrop-filter:blur(8px);
+      white-space:nowrap;
+      pointer-events:none;
+    }
+    .market-live-viewport{
       width:100%;
       height:100%;
-      border:0;
-      pointer-events:none;
       overflow:hidden;
-      -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 var(--ticker-fade), #000 calc(100% - var(--ticker-fade)), transparent 100%);
-      mask-image:linear-gradient(90deg, transparent 0, #000 var(--ticker-fade), #000 calc(100% - var(--ticker-fade)), transparent 100%);
+      display:flex;
+      align-items:center;
+      padding-top:2px;
+      -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 var(--market-fade), #000 calc(100% - var(--market-fade)), transparent 100%);
+      mask-image:linear-gradient(90deg, transparent 0, #000 var(--market-fade), #000 calc(100% - var(--market-fade)), transparent 100%);
       -webkit-mask-repeat:no-repeat;
       mask-repeat:no-repeat;
       -webkit-mask-size:100% 100%;
       mask-size:100% 100%;
+    }
+    .market-live-track{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      will-change:transform;
+      animation:marketLiveMarquee var(--market-speed) linear infinite;
+      padding-left:92px;
+    }
+    .market-live-shell:hover .market-live-track{
+      animation-play-state:paused;
+    }
+    .market-live-item{
+      display:inline-grid;
+      grid-template-columns:auto auto auto 56px;
+      align-items:center;
+      gap:7px;
+      height:38px;
+      min-width:max-content;
+      padding:6px 9px;
+      border:1px solid var(--line);
+      border-radius:5px;
+      background:rgba(255,255,255,.62);
+      box-shadow:0 4px 12px rgba(5,28,44,.035);
+      white-space:nowrap;
+    }
+    .market-live-name{
+      color:var(--ink);
+      font-size:.72rem;
+      font-weight:760;
+      letter-spacing:-.025em;
+    }
+    .market-live-price{
+      color:var(--ink);
+      font-size:.74rem;
+      font-weight:760;
+      letter-spacing:-.025em;
+      font-variant-numeric:tabular-nums;
+    }
+    .market-live-change{
+      min-width:58px;
+      text-align:right;
+      font-size:.66rem;
+      font-weight:760;
+      font-variant-numeric:tabular-nums;
+    }
+    .market-live-item.is-up .market-live-change,
+    .market-live-item.is-up .market-live-spark{color:var(--green)}
+    .market-live-item.is-down .market-live-change,
+    .market-live-item.is-down .market-live-spark{color:var(--red)}
+    .market-live-item.is-flat .market-live-change,
+    .market-live-item.is-flat .market-live-spark{color:var(--muted)}
+    .market-live-spark{
+      width:56px;
+      height:22px;
+      display:block;
+      color:var(--muted);
+      opacity:.95;
+    }
+    .market-live-spark svg{
+      width:56px;
+      height:22px;
+      display:block;
+      overflow:visible;
+    }
+    .market-live-spark path{
+      fill:none;
+      stroke:currentColor;
+      stroke-width:2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      vector-effect:non-scaling-stroke;
+    }
+    .market-live-message{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 18px;
+      color:var(--muted);
+      font-size:.78rem;
+      font-weight:650;
+      text-align:center;
+    }
+    @keyframes marketLiveMarquee{
+      from{transform:translateX(0)}
+      to{transform:translateX(-50%)}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .market-live-track{animation:none;overflow-x:auto;width:100%;padding-left:92px;padding-right:12px}
     }
     @media(max-width:1100px){
       .date-card.market-enabled{
@@ -886,13 +1025,14 @@
         max-width:330px!important;
         padding-right:12px!important;
       }
-      .stockdio-shell{--ticker-fade:44px;}
+      .market-live-shell{--market-fade:44px;--market-speed:46s}
+      .market-live-track{padding-left:82px}
     }
     @media(max-width:900px){
       .date-card.market-enabled{
         display:flex!important;
         flex-direction:column!important;
-        align-items:flex-start!important;
+        align-items:stretch!important;
         min-height:0!important;
       }
       .date-card.market-enabled .date-control{
@@ -901,35 +1041,54 @@
         padding-right:0!important;
         border-right:0!important;
       }
-      .market-ticker-panel{display:none!important;}
+      .market-ticker-panel{
+        display:flex!important;
+        width:100%!important;
+        height:54px!important;
+        margin-top:2px!important;
+      }
+      .market-live-shell{
+        height:54px!important;
+        min-height:54px!important;
+        --market-fade:30px;
+        --market-speed:38s;
+      }
+      .market-live-head{display:none!important}
+      .market-live-updated{display:none!important}
+      .market-live-track{padding-left:8px;gap:6px}
+      .market-live-item{height:34px;grid-template-columns:auto auto auto;gap:6px;padding:5px 8px}
+      .market-live-spark{display:none!important}
+      .market-live-name,.market-live-price{font-size:.68rem}
+      .market-live-change{font-size:.62rem;min-width:50px}
     }
-
-
-    /* V48: ajuste exclusivo del ticker Stockdio en modo oscuro
-       Fondo integrado, sin borde ni radio para que no se vea como bloque independiente. */
-    :root[data-theme="dark"] .market-ticker-panel,
-    :root[data-theme="dark"] .stockdio-shell{
+    :root[data-theme="dark"] .market-live-shell{
       background:#081422!important;
+      color:#f6f8fb!important;
       border:0!important;
       border-radius:0!important;
       box-shadow:none!important;
     }
-    :root[data-theme="dark"] .stockdio-shell::before{
+    :root[data-theme="dark"] .market-live-shell::before{
       background:
         linear-gradient(90deg,
           #081422 0,
-          transparent var(--ticker-fade),
-          transparent calc(100% - var(--ticker-fade)),
+          transparent var(--market-fade),
+          transparent calc(100% - var(--market-fade)),
           #081422 100%)!important;
     }
-    :root[data-theme="dark"] .stockdio-frame{
-      background:#081422!important;
-      border:0!important;
-      border-radius:0!important;
-      filter:invert(1) hue-rotate(180deg) contrast(.92) saturate(.86);
-      mix-blend-mode:screen;
-      opacity:.9;
+    :root[data-theme="dark"] .market-live-head,
+    :root[data-theme="dark"] .market-live-updated{
+      background:rgba(8,20,34,.76)!important;
+      border-color:rgba(43,74,97,.72)!important;
+      color:#8ea6b8!important;
     }
+    :root[data-theme="dark"] .market-live-item{
+      background:rgba(255,255,255,.045)!important;
+      border-color:rgba(255,255,255,.07)!important;
+      box-shadow:none!important;
+    }
+    :root[data-theme="dark"] .market-live-name,
+    :root[data-theme="dark"] .market-live-price{color:#f6f8fb!important}
 
 
     /* V49: ajustes gráfico Tendencia */
@@ -972,16 +1131,14 @@
             <span id="vFecha" class="date-value">—</span>
           </div>
           <aside class="market-ticker-panel" aria-label="Mercado externo">
-            <div class="stockdio-shell" title="Cotizaciones externas">
-              <iframe
-                id="stockdioTicker"
-                class="stockdio-frame"
-                frameborder="0"
-                scrolling="no"
-                width="100%"
-                height="58"
-                src="https://api.stockdio.com/visualization/financial/charts/v1/Ticker?app-key=685548715F704DB7B5CAE2F628B22BAF&amp;stockExchange=USA&amp;symbols=SPY;QQQ;DIA;TLT;IEF;GLD;JPM;NVDA;AAPL;MSFT;GOOG;META;ORCL&amp;culture=Spanish-Spain&amp;palette=Financial-Light&amp;layoutType=8">
-              </iframe>
+            <div id="marketLiveTicker" class="market-live-shell" data-url="./data/yfinance/latest.json" title="Mercado externo · yfinance">
+              <div class="market-live-head"><span class="market-live-dot"></span><span id="marketLiveStatus">Mercado</span></div>
+              <div class="market-live-viewport" aria-label="Ticker de mercado externo">
+                <div id="marketLiveTrack" class="market-live-track">
+                  <div class="market-live-message">Cargando mercado externo…</div>
+                </div>
+              </div>
+              <div id="marketLiveUpdated" class="market-live-updated">—</div>
             </div>
           </aside>
         </article>
@@ -1902,7 +2059,181 @@
     window.addEventListener("focus", refreshIfStale);
   }
 
-  initTheme(); bind(); startAutoRefresh(); runRefresh({auto:true});
+
+
+  /* Ticker propio: consume ./data/yfinance/latest.json generado por GitHub Actions */
+  const MARKET_TICKER_REFRESH_MS = 5 * 60 * 1000;
+  let marketTickerTimer = null;
+
+  function marketEscape(value){
+    return String(value ?? "").replace(/[&<>'"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[ch]));
+  }
+
+  function marketNumber(value){
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function marketFormatPrice(value, symbol){
+    let n = marketNumber(value);
+    if(n === null) return "—";
+
+    let suffix = "";
+    let min = 0;
+    let max = 2;
+
+    if(symbol === "^TNX"){
+      n = n / 10;
+      suffix = "%";
+      min = 2;
+      max = 3;
+    }else if(String(symbol || "").includes("=X")){
+      max = Math.abs(n) < 10 ? 4 : 2;
+    }else if(symbol === "BTC-USD"){
+      max = 0;
+    }else if(Math.abs(n) < 10){
+      max = 3;
+    }
+
+    return new Intl.NumberFormat("es-PE",{minimumFractionDigits:min,maximumFractionDigits:max}).format(n) + suffix;
+  }
+
+  function marketFormatPct(value){
+    const n = marketNumber(value);
+    if(n === null) return "—";
+    const sign = n > 0 ? "+" : "";
+    return sign + new Intl.NumberFormat("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n) + "%";
+  }
+
+  function marketDirection(item){
+    if(item?.direction === "up" || Number(item?.change_pct) > 0) return "up";
+    if(item?.direction === "down" || Number(item?.change_pct) < 0) return "down";
+    return "flat";
+  }
+
+  function marketArrow(direction){
+    if(direction === "up") return "▲";
+    if(direction === "down") return "▼";
+    return "■";
+  }
+
+  function marketSpark(values){
+    const nums = Array.isArray(values) ? values.map(Number).filter(Number.isFinite).slice(-32) : [];
+    if(nums.length < 2) return "";
+
+    const min = Math.min(...nums);
+    const max = Math.max(...nums);
+    const range = max - min || 1;
+    const width = 56;
+    const height = 22;
+    const pad = 2;
+    const step = (width - pad * 2) / Math.max(nums.length - 1, 1);
+    const points = nums.map((v,i) => {
+      const x = pad + i * step;
+      const y = height - pad - ((v - min) / range) * (height - pad * 2);
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    }).join(" ");
+
+    return `<svg viewBox="0 0 ${width} ${height}" focusable="false" aria-hidden="true"><path d="M ${points.replaceAll(" ", " L ")}"/></svg>`;
+  }
+
+  function marketUpdatedLabel(value){
+    if(!value) return "—";
+    const d = new Date(value);
+    if(Number.isNaN(d.getTime())) return "—";
+    return "Act. " + new Intl.DateTimeFormat("es-PE",{hour:"2-digit",minute:"2-digit",hour12:false}).format(d);
+  }
+
+  function marketSort(items){
+    const order = ["USDPEN=X","DX-Y.NYB","^GSPC","^IXIC","^DJI","^VIX","^TNX","GC=F","CL=F","HG=F","EURUSD=X","BTC-USD"];
+    const rank = new Map(order.map((symbol,index)=>[symbol,index]));
+    return [...items].sort((a,b)=>(rank.get(a.symbol) ?? 999) - (rank.get(b.symbol) ?? 999));
+  }
+
+  function marketItemHtml(item){
+    const dir = marketDirection(item);
+    const name = marketEscape(item.name || item.symbol || "Activo");
+    const symbol = marketEscape(item.symbol || "");
+    const price = marketFormatPrice(item.price, item.symbol);
+    const pct = marketFormatPct(item.change_pct);
+    return `
+      <span class="market-live-item is-${dir}" title="${symbol}">
+        <span class="market-live-name">${name}</span>
+        <strong class="market-live-price">${price}</strong>
+        <span class="market-live-change">${marketArrow(dir)} ${pct}</span>
+        <span class="market-live-spark">${marketSpark(item.sparkline)}</span>
+      </span>`;
+  }
+
+  function setMarketTickerMessage(message, type=""){
+    const shell = el("marketLiveTicker");
+    const track = el("marketLiveTrack");
+    const status = el("marketLiveStatus");
+    if(!shell || !track) return;
+    shell.classList.remove("is-ok","is-error","is-loading");
+    if(type) shell.classList.add(`is-${type}`);
+    if(status) status.textContent = type === "error" ? "Sin data" : "Mercado";
+    track.innerHTML = `<div class="market-live-message">${marketEscape(message)}</div>`;
+  }
+
+  function renderMarketTicker(payload){
+    const shell = el("marketLiveTicker");
+    const track = el("marketLiveTrack");
+    const status = el("marketLiveStatus");
+    const updated = el("marketLiveUpdated");
+    if(!shell || !track) return;
+
+    const items = marketSort((payload?.data || []).filter(x => x && x.status === "ok" && marketNumber(x.price) !== null));
+    if(!items.length){
+      setMarketTickerMessage("No hay data de mercado disponible", "error");
+      if(updated) updated.textContent = "—";
+      return;
+    }
+
+    const htmlItems = items.map(marketItemHtml).join("");
+    const seconds = Math.max(34, Math.min(82, items.length * 4.8));
+    shell.style.setProperty("--market-speed", `${seconds}s`);
+    shell.classList.remove("is-error","is-loading");
+    shell.classList.add("is-ok");
+    track.innerHTML = htmlItems + htmlItems;
+    if(status) status.textContent = `Mercado · ${items.length}`;
+    if(updated) updated.textContent = marketUpdatedLabel(payload.fetched_at_lima || payload.fetched_at_utc);
+  }
+
+  async function loadMarketTicker(){
+    const shell = el("marketLiveTicker");
+    if(!shell) return;
+    const url = shell.dataset.url || "./data/yfinance/latest.json";
+    try{
+      shell.classList.add("is-loading");
+      const sep = url.includes("?") ? "&" : "?";
+      const response = await fetch(`${url}${sep}v=${Date.now()}`, {cache:"no-store"});
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      renderMarketTicker(payload);
+    }catch(e){
+      console.warn("[market ticker]", e);
+      setMarketTickerMessage("Esperando data/yfinance/latest.json", "error");
+      const updated = el("marketLiveUpdated");
+      if(updated) updated.textContent = "—";
+    }finally{
+      shell.classList.remove("is-loading");
+    }
+  }
+
+  function startMarketTicker(){
+    if(!el("marketLiveTicker")) return;
+    loadMarketTicker();
+    if(marketTickerTimer) clearInterval(marketTickerTimer);
+    marketTickerTimer = setInterval(()=>{
+      if(document.visibilityState === "visible") loadMarketTicker();
+    }, MARKET_TICKER_REFRESH_MS);
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState === "visible") loadMarketTicker();
+    });
+  }
+
+  initTheme(); bind(); startAutoRefresh(); startMarketTicker(); runRefresh({auto:true});
 })();
 </script>
 </body>
