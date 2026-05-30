@@ -1758,15 +1758,54 @@
     .market-tooltip.fx-tooltip .market-tooltip-row{
       grid-template-columns:minmax(98px,.78fr) minmax(0,1fr);
     }
+    .market-tooltip-close{
+      display:none;
+      position:absolute;
+      top:8px;
+      right:8px;
+      width:28px;
+      height:28px;
+      min-width:28px;
+      min-height:28px;
+      padding:0;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:6px;
+      background:rgba(255,255,255,.08);
+      color:#eaf7ff;
+      box-shadow:none;
+      font-size:.78rem;
+      line-height:1;
+      cursor:pointer;
+    }
+    .market-tooltip-close:hover{
+      transform:none;
+      filter:none;
+      background:rgba(255,255,255,.13);
+      border-color:rgba(255,255,255,.24);
+    }
     @media(max-width:760px){
       .fx-card{cursor:pointer!important}
       .fx-card .kpi-inner{min-height:98px!important}
       .fx-card .kpi-face.kpi-front{min-height:98px!important}
       .market-tooltip.fx-tooltip{
         display:block!important;
-        width:min(340px,calc(100vw - 24px));
-        max-height:calc(100vh - 24px);
+        width:min(312px,calc(100vw - 48px));
+        max-width:calc(100vw - 48px);
+        max-height:min(72vh,520px);
         overflow:auto;
+        pointer-events:auto!important;
+        padding:12px 12px 11px!important;
+      }
+      .market-tooltip.fx-tooltip .market-tooltip-head{
+        padding-right:31px;
+      }
+      .market-tooltip.fx-tooltip .market-tooltip-row{
+        grid-template-columns:minmax(88px,.72fr) minmax(0,1fr);
+        gap:8px;
+      }
+      .market-tooltip-close{
+        display:grid!important;
+        place-items:center!important;
       }
     }
     @media(max-width:380px){
@@ -2708,7 +2747,8 @@
         <span class="market-tooltip-label">${fxTooltipEscape(label)}</span>
         <span class="market-tooltip-value ${rowDir || ""}">${fxTooltipEscape(value)}</span>
       </div>`).join("");
-    return `<div class="market-tooltip-head">
+    const closeBtn=isMobileView()?`<button class="market-tooltip-close" type="button" aria-label="Cerrar tooltip"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`:"";
+    return `${closeBtn}<div class="market-tooltip-head">
       <div>
         <div class="market-tooltip-symbol">${fxTooltipEscape(pair(code))}</div>
         <div class="market-tooltip-name">${fxTooltipEscape(name)}</div>
@@ -2730,6 +2770,13 @@
     top=Math.max(pad,Math.min(top,window.innerHeight-rect.height-pad));
     tooltip.style.transform=`translate3d(${left}px,${top}px,0)`;
   }
+  function fxTooltipCenter(tooltip){
+    const pad=12;
+    const rect=tooltip.getBoundingClientRect();
+    const left=Math.max(pad,Math.round((window.innerWidth-rect.width)/2));
+    const top=Math.max(pad,Math.round((window.innerHeight-rect.height)/2));
+    tooltip.style.transform=`translate3d(${left}px,${top}px,0)`;
+  }
   function fxTooltipShow(card,event){
     const code=card?.dataset?.code;
     if(!code) return;
@@ -2737,8 +2784,7 @@
     tooltip.innerHTML=fxTooltipHtml(code);
     tooltip.classList.add("is-visible");
     if(isMobileView()){
-      const rect=card.getBoundingClientRect();
-      fxTooltipPositionAt(tooltip, rect.left + rect.width/2, rect.bottom - 2);
+      fxTooltipCenter(tooltip);
     }else if(event){
       fxTooltipPositionAt(tooltip,event.clientX,event.clientY);
     }
@@ -2765,6 +2811,13 @@
         }
       });
     });
+    document.addEventListener("click",event=>{
+      const close=event.target.closest?.("#fxCardTooltip .market-tooltip-close");
+      if(!close) return;
+      event.preventDefault();
+      event.stopPropagation();
+      fxTooltipHide();
+    },true);
     document.addEventListener("pointerdown",event=>{
       if(!isMobileView()) return;
       if(event.target.closest(".fx-card") || event.target.closest("#fxCardTooltip")) return;
