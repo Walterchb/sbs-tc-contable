@@ -1725,6 +1725,55 @@
     @media(max-width:760px){.market-tooltip{display:none!important}}
 
 
+
+    /* V66: tooltip sin title nativo + tarjetas TC con tooltip en lugar de volteo */
+    .fx-card{
+      cursor:help!important;
+      perspective:none!important;
+    }
+    .fx-card .kpi-inner{
+      position:relative!important;
+      min-height:104px!important;
+      transition:none!important;
+      transform:none!important;
+      transform-style:flat!important;
+    }
+    .fx-card.flipped .kpi-inner{
+      transform:none!important;
+    }
+    .fx-card .kpi-face.kpi-front{
+      position:relative!important;
+      inset:auto!important;
+      min-height:104px!important;
+      backface-visibility:visible!important;
+      -webkit-backface-visibility:visible!important;
+    }
+    .fx-card .kpi-face.kpi-back{
+      display:none!important;
+    }
+    .market-tooltip.fx-tooltip{
+      z-index:9999;
+      width:min(330px,calc(100vw - 24px));
+    }
+    .market-tooltip.fx-tooltip .market-tooltip-row{
+      grid-template-columns:minmax(98px,.78fr) minmax(0,1fr);
+    }
+    @media(max-width:760px){
+      .fx-card{cursor:pointer!important}
+      .fx-card .kpi-inner{min-height:98px!important}
+      .fx-card .kpi-face.kpi-front{min-height:98px!important}
+      .market-tooltip.fx-tooltip{
+        display:block!important;
+        width:min(340px,calc(100vw - 24px));
+        max-height:calc(100vh - 24px);
+        overflow:auto;
+      }
+    }
+    @media(max-width:380px){
+      .fx-card .kpi-inner{min-height:96px!important}
+      .fx-card .kpi-face.kpi-front{min-height:96px!important}
+    }
+
 </style>
 </head>
 <body>
@@ -1762,7 +1811,7 @@
           </div>
           <aside class="market-ticker-panel" aria-labelledby="marketTickerTitle">
             <div id="marketTickerTitle" class="market-ticker-title label">MERCADOS: —</div>
-            <div class="market-ticker-shell" title="Mercados externos" draggable="false">
+            <div class="market-ticker-shell" draggable="false">
               <div class="market-ticker-viewport">
                 <div id="marketTickerTrack" class="market-ticker-track">
                   <div class="market-ticker-loading">Cargando mercado…</div>
@@ -2600,6 +2649,132 @@
     if(!map.has("USD")) setStatus("USD no detectado","warn");
   }
   function on(id,event,handler){const node=el(id); if(node) node.addEventListener(event,handler);}
+
+  function fxTooltipEscape(value){
+    return String(value ?? "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#39;");
+  }
+  function fxTooltipDir(value){
+    const n=Number(value);
+    if(Number.isFinite(n)) return n>0?"is-up":n<0?"is-down":"is-flat";
+    return "is-flat";
+  }
+  function fxTooltipGet(){
+    let tooltip=document.getElementById("fxCardTooltip");
+    if(!tooltip){
+      tooltip=document.createElement("div");
+      tooltip.id="fxCardTooltip";
+      tooltip.className="market-tooltip fx-tooltip";
+      tooltip.setAttribute("role","tooltip");
+      document.body.appendChild(tooltip);
+    }
+    return tooltip;
+  }
+  function fxTooltipRows(code){
+    const usd=getRaw("USD");
+    const raw=getRaw(code);
+    const shown=shownRate(code);
+    const delta=prevChange(code);
+    const rows=[
+      ["Fecha SBS", state.selectedDate || state.latestDate || "—"],
+      ["Par", pair(code)],
+      ["TC mostrado", fmt(shown,4), fxTooltipDir(delta)],
+      ["Variación diaria", pct(delta), fxTooltipDir(delta)],
+      ["Fórmula", calc(code)]
+    ];
+    if(code==="USD"){
+      rows.push(["USDPEN", fmt(usd,4)]);
+      rows.push(["PENUSD", fmt(Number.isFinite(usd)&&usd>0?1/usd:NaN,4)]);
+    }else{
+      rows.push([`${code}PEN`, fmt(raw,4)]);
+      rows.push(["USDPEN", fmt(usd,4)]);
+      rows.push([`${code}USD`, fmt(Number.isFinite(raw)&&Number.isFinite(usd)&&usd>0?raw/usd:NaN,4)]);
+      rows.push([`USD${code}`, fmt(Number.isFinite(raw)&&raw>0?usd/raw:NaN,4)]);
+    }
+    return rows;
+  }
+  function fxTooltipHtml(code){
+    const rateObj=state.rates.get(code) || state.latestRates.get(code) || {};
+    const shown=shownRate(code);
+    const delta=prevChange(code);
+    const dir=fxTooltipDir(delta);
+    const name=code==="USD" ? "Dólar de N.A." : (rateObj.name || calc(code));
+    const rows=fxTooltipRows(code).map(([label,value,rowDir])=>`
+      <div class="market-tooltip-row">
+        <span class="market-tooltip-label">${fxTooltipEscape(label)}</span>
+        <span class="market-tooltip-value ${rowDir || ""}">${fxTooltipEscape(value)}</span>
+      </div>`).join("");
+    return `<div class="market-tooltip-head">
+      <div>
+        <div class="market-tooltip-symbol">${fxTooltipEscape(pair(code))}</div>
+        <div class="market-tooltip-name">${fxTooltipEscape(name)}</div>
+      </div>
+      <div>
+        <div class="market-tooltip-price">${fxTooltipEscape(fmt(shown,4))}</div>
+        <div class="market-tooltip-change ${dir}">${fxTooltipEscape(pct(delta))}</div>
+      </div>
+    </div>
+    <div class="market-tooltip-rows">${rows}</div>`;
+  }
+  function fxTooltipPositionAt(tooltip,x,y){
+    const pad=12, offset=14;
+    const rect=tooltip.getBoundingClientRect();
+    let left=x+offset, top=y+offset;
+    if(left+rect.width+pad>window.innerWidth) left=x-rect.width-offset;
+    if(top+rect.height+pad>window.innerHeight) top=y-rect.height-offset;
+    left=Math.max(pad,Math.min(left,window.innerWidth-rect.width-pad));
+    top=Math.max(pad,Math.min(top,window.innerHeight-rect.height-pad));
+    tooltip.style.transform=`translate3d(${left}px,${top}px,0)`;
+  }
+  function fxTooltipShow(card,event){
+    const code=card?.dataset?.code;
+    if(!code) return;
+    const tooltip=fxTooltipGet();
+    tooltip.innerHTML=fxTooltipHtml(code);
+    tooltip.classList.add("is-visible");
+    if(isMobileView()){
+      const rect=card.getBoundingClientRect();
+      fxTooltipPositionAt(tooltip, rect.left + rect.width/2, rect.bottom - 2);
+    }else if(event){
+      fxTooltipPositionAt(tooltip,event.clientX,event.clientY);
+    }
+  }
+  function fxTooltipHide(){
+    const tooltip=document.getElementById("fxCardTooltip");
+    if(!tooltip) return;
+    tooltip.classList.remove("is-visible");
+    tooltip.style.transform="translate3d(-9999px,-9999px,0)";
+  }
+  function fxBindCardTooltips(){
+    document.querySelectorAll(".fx-card").forEach(card=>{
+      card.classList.remove("flipped");
+      card.addEventListener("pointerenter",event=>{ if(!isMobileView()) fxTooltipShow(card,event); });
+      card.addEventListener("pointermove",event=>{ if(!isMobileView()) fxTooltipShow(card,event); });
+      card.addEventListener("pointerleave",()=>{ if(!isMobileView()) fxTooltipHide(); });
+      card.addEventListener("click",event=>{
+        if(event.target.closest("button,a,select,input")) return;
+        card.classList.remove("flipped");
+        if(isMobileView()){
+          event.preventDefault();
+          event.stopPropagation();
+          fxTooltipShow(card,event);
+        }
+      });
+    });
+    document.addEventListener("pointerdown",event=>{
+      if(!isMobileView()) return;
+      if(event.target.closest(".fx-card") || event.target.closest("#fxCardTooltip")) return;
+      fxTooltipHide();
+    },true);
+    window.addEventListener("resize",fxTooltipHide);
+    window.addEventListener("blur",fxTooltipHide);
+    document.addEventListener("scroll",fxTooltipHide,true);
+  }
+
   function bind(){
     on("btnRefresh","click",()=>{requestNotificationPermission(); runRefresh({manual:true});});
     on("btnTheme","click",toggleTheme);
@@ -2614,10 +2789,7 @@
     on("trendOther","change",e=>selectTrend(e.target.value));
     on("trendQuick","click",e=>{const btn=e.target.closest(".pair-btn"); if(btn) selectTrend(btn.dataset.code);});
     on("searchBox","input",renderTable);
-    document.querySelectorAll(".fx-card").forEach(card=>card.addEventListener("click",e=>{
-      if(e.target.closest("button,a,select,input")) return;
-      card.classList.toggle("flipped");
-    }));
+    fxBindCardTooltips();
     const rangeTabs=el("rangeTabs");
     if(rangeTabs) rangeTabs.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{rangeTabs.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.range=Number(b.dataset.range); renderCharts();}));
     on("btnZoomReset","click",()=>{state.charts.trendChart?.dispatchAction({type:"dataZoom",start:0,end:100}); state.charts.changeChart?.dispatchAction({type:"dataZoom",start:0,end:100});});
@@ -2809,16 +2981,19 @@
       }
       if(stamp){
         title.textContent = `MERCADOS: ${stamp}`;
-        title.title = fetchedAtLima
+        title.removeAttribute('title');
+        title.setAttribute('aria-label', fetchedAtLima
           ? `Mercados actualizados según fetched_at_lima del JSON: ${stamp}`
-          : `Mercados actualizados según timestamp del JSON: ${stamp}`;
+          : `Mercados actualizados según timestamp del JSON: ${stamp}`);
       }else{
         title.textContent = 'MERCADOS: —';
-        title.title = 'El JSON de mercados no incluye hora de actualización.';
+        title.removeAttribute('title');
+        title.setAttribute('aria-label', 'El JSON de mercados no incluye hora de actualización.');
       }
     }else{
       title.textContent = 'MERCADOS: —';
-      title.title = 'Mercados externos';
+      title.removeAttribute('title');
+      title.setAttribute('aria-label', 'Mercados externos');
     }
   }
 
@@ -2850,13 +3025,44 @@
     return `${sign}${formatted}${suffix}`;
   }
 
+
+  function marketFormatCompactDateTime(value){
+    if(value === undefined || value === null || value === "") return "—";
+    const s = String(value).trim();
+    const iso = s.match(/^(\d{4}-\d{2}-\d{2})[T\s](\d{2}:\d{2}:\d{2})/);
+    if(iso) return `${iso[1]} ${iso[2]}`;
+    const n = Number(value);
+    if(Number.isFinite(n) && Math.abs(n) > 100000000){
+      const ms = Math.abs(n) < 1000000000000 ? n * 1000 : n;
+      const d = new Date(ms);
+      if(!Number.isNaN(d.getTime())){
+        const parts = new Intl.DateTimeFormat("sv-SE",{
+          timeZone:"America/Lima", year:"numeric", month:"2-digit", day:"2-digit",
+          hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false
+        }).format(d);
+        return parts.replace("T"," ");
+      }
+    }
+    return s.length > 19 ? s.slice(0,19).replace("T"," ") : s;
+  }
+
+  function marketFormatTooltipValue(key, value){
+    if(/(time|timestamp|date|updated|fetched)/i.test(key)) return marketFormatCompactDateTime(value);
+    const suffix = /pct|percent/i.test(key) ? "%" : "";
+    const signed = /change|variation|var/i.test(key);
+    return Number.isFinite(Number(value)) && String(value).trim() !== ""
+      ? marketFormatFixed4(value, {signed, suffix})
+      : String(value);
+  }
+
   function marketHumanLabel(key){
     const labels = {
       symbol:"Símbolo", name:"Nombre", price:"Precio", change:"Variación", change_pct:"Variación %",
       direction:"Dirección", status:"Estado", currency:"Moneda", exchange:"Bolsa", market:"Mercado",
       previous_close:"Cierre previo", previousClose:"Cierre previo", open:"Apertura", high:"Máximo",
       low:"Mínimo", volume:"Volumen", day_high:"Máximo día", dayHigh:"Máximo día",
-      day_low:"Mínimo día", dayLow:"Mínimo día", regularMarketPrice:"Precio regular",
+      day_low:"Mínimo día", dayLow:"Mínimo día", price_time:"Hora precio", priceTime:"Hora precio",
+      regularMarketTime:"Hora regular", regularMarketPrice:"Precio regular",
       regularMarketChange:"Variación regular", regularMarketChangePercent:"Variación regular %"
     };
     if(labels[key]) return labels[key];
@@ -2895,11 +3101,7 @@
       }
       if(typeof value === "object") return;
       const label = marketHumanLabel(key);
-      const suffix = /pct|percent/i.test(key) ? "%" : "";
-      const signed = /change|variation|var/i.test(key);
-      const formatted = Number.isFinite(Number(value)) && String(value).trim() !== ""
-        ? marketFormatFixed4(value, {signed, suffix})
-        : String(value);
+      const formatted = marketFormatTooltipValue(key, value);
       base.push([label, formatted]);
     });
     return base;
