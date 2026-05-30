@@ -1420,6 +1420,64 @@
     }
 
 
+    /* V58: tooltip completo, espaciado mobile del título de mercado y eje X de variación sin negrita */
+    @media(max-width:760px){
+      .date-card.market-enabled{
+        gap:4px!important;
+      }
+      .date-card.market-enabled #vFecha.date-value{
+        display:block!important;
+        visibility:hidden!important;
+        opacity:0!important;
+        height:0!important;
+        min-height:0!important;
+        max-height:0!important;
+        line-height:0!important;
+        margin:0!important;
+        padding:0!important;
+        overflow:hidden!important;
+        pointer-events:none!important;
+      }
+      .date-card.market-enabled .market-ticker-panel{
+        height:58px!important;
+        min-height:58px!important;
+        grid-template-rows:14px minmax(0,40px)!important;
+        row-gap:4px!important;
+      }
+      .market-ticker-title.label{
+        height:14px!important;
+        min-height:14px!important;
+        line-height:14px!important;
+      }
+      .market-ticker-panel .market-ticker-shell,
+      .market-ticker-panel .market-ticker-viewport,
+      .market-ticker-panel .market-ticker-track{
+        height:40px!important;
+        min-height:40px!important;
+      }
+      .market-ticker-panel .market-ticker-item{
+        padding-top:2px!important;
+        padding-bottom:2px!important;
+      }
+      .market-ticker-panel .market-ticker-item::after{
+        height:36px!important;
+      }
+    }
+
+
+
+
+    /* V59: título Mercados con timestamp y separación mobile ligeramente mayor */
+    .market-ticker-title.label{
+      text-transform:none!important;
+      font-variant-numeric:tabular-nums!important;
+    }
+    @media(max-width:760px){
+      .date-card.market-enabled{
+        gap:7px!important;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -1456,8 +1514,8 @@
           </div>          <span id="vFecha" class="date-value" aria-hidden="true">—</span>
           </div>
           <aside class="market-ticker-panel" aria-labelledby="marketTickerTitle">
-            <div id="marketTickerTitle" class="market-ticker-title label">Mercado externo de referencia</div>
-            <div class="market-ticker-shell" title="Cotizaciones externas de referencia" draggable="false">
+            <div id="marketTickerTitle" class="market-ticker-title label">MERCADOS: —</div>
+            <div class="market-ticker-shell" title="Mercados externos" draggable="false">
               <div class="market-ticker-viewport">
                 <div id="marketTickerTrack" class="market-ticker-track">
                   <div class="market-ticker-loading">Cargando mercado…</div>
@@ -1645,7 +1703,7 @@
   }
   function chartTooltipDateLabel(v){
     const d=parseDate(v);
-    return d ? `${chartDateLabel(d)} - ${CHART_WEEKDAYS_SHORT[d.getDay()]}` : (v||"—");
+    return d ? `${dateKey(d)} - ${CHART_WEEKDAYS_SHORT[d.getDay()]}` : (v||"—");
   }
 
   function setDateLabels(){
@@ -2149,7 +2207,7 @@
       tooltip:{trigger:"axis",backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff"},formatter:params=>{const p=Array.isArray(params)?params[0]:params; const val=Array.isArray(p.value)?p.value[1]:p.value; const dateLabel=chartTooltipDateLabel(changes[p.dataIndex]?.date || p.axisValue || ""); return `<div style="font-weight:720;margin-bottom:5px">${dateLabel}</div>${marker(val>=0?t.green:t.red)}Var. diaria <b>${pct(val)}</b>`;}},
       toolbox:{right:12,top:7,itemSize:14,itemGap:9,iconStyle:{borderColor:t.muted},emphasis:{iconStyle:{borderColor:t.ink}},feature:{saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Variacion_diaria_${pair(code)}_${fileStamp()}`)}}},
       dataZoom:[{type:"inside",throttle:60}],
-      xAxis:{type:"category",data:changes.map(x=>x.date),axisLabel:{color:t.muted,fontWeight:600,margin:15,formatter:chartDateLabel},axisTick:{show:false},axisLine:{lineStyle:{color:t.line}}},
+      xAxis:{type:"category",data:changes.map(x=>x.date),axisLabel:{color:t.muted,fontWeight:400,margin:15,formatter:chartDateLabel},axisTick:{show:false},axisLine:{lineStyle:{color:t.line}}},
       yAxis:{type:"value",axisLabel:{color:t.muted,formatter:v=>fmtPctAxis(v),fontWeight:500,fontSize:10,margin:6,hideOverlap:true},axisTick:{show:false},axisLine:{show:false},splitLine:{lineStyle:{color:t.grid}}},
       series:[{name:"Var. diaria",type:"bar",data:changes.map(x=>({value:x.value,itemStyle:{color:x.value>=0?t.green:t.red,borderRadius:[3,3,0,0]}})),barMaxWidth:20,markLine:{symbol:"none",data:[{yAxis:0}],lineStyle:{color:t.muted,type:"dashed"}}}]
     },true);
@@ -2418,6 +2476,79 @@
 
   const marketEl = id => document.getElementById(id);
 
+  function marketPad2(value){
+    return String(value).padStart(2, '0');
+  }
+
+  function marketTimestampCandidates(payload){
+    const keys = ['updated_at','generated_at','timestamp','fetched_at','last_updated','lastUpdate','as_of','asOf','datetime','date'];
+    const out = [];
+    keys.forEach(k => {
+      if(payload && payload[k] !== undefined && payload[k] !== null) out.push(payload[k]);
+      if(payload?.meta && payload.meta[k] !== undefined && payload.meta[k] !== null) out.push(payload.meta[k]);
+    });
+    if(Array.isArray(payload?.data)){
+      payload.data.forEach(item => {
+        keys.forEach(k => {
+          if(item && item[k] !== undefined && item[k] !== null) out.push(item[k]);
+        });
+        if(item?.regularMarketTime !== undefined && item.regularMarketTime !== null) out.push(item.regularMarketTime);
+      });
+    }
+    return out.filter(Boolean);
+  }
+
+  function marketToDate(value){
+    if(value instanceof Date && !Number.isNaN(value.getTime())) return value;
+    if(typeof value === 'number'){
+      const ms = value < 1e12 ? value * 1000 : value;
+      const d = new Date(ms);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+    if(typeof value === 'string'){
+      const raw = value.trim();
+      if(!raw) return null;
+      const numeric = Number(raw);
+      if(Number.isFinite(numeric) && /^\d+(\.\d+)?$/.test(raw)) return marketToDate(numeric);
+      const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T');
+      const d = new Date(normalized);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+    return null;
+  }
+
+  function marketFormatTimestamp(dateLike){
+    const d = marketToDate(dateLike) || new Date();
+    try{
+      const parts = new Intl.DateTimeFormat('es-PE', {
+        timeZone:'America/Lima',
+        year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit', second:'2-digit',
+        hour12:false
+      }).formatToParts(d).reduce((acc,p) => { acc[p.type] = p.value; return acc; }, {});
+      return `${parts.year}-${parts.month}-${parts.day} a las ${parts.hour}:${parts.minute}:${parts.second}`;
+    }catch(_){
+      return `${d.getFullYear()}-${marketPad2(d.getMonth()+1)}-${marketPad2(d.getDate())} a las ${marketPad2(d.getHours())}:${marketPad2(d.getMinutes())}:${marketPad2(d.getSeconds())}`;
+    }
+  }
+
+  function marketUpdateTitle(payload){
+    const title = marketEl('marketTickerTitle');
+    if(!title) return;
+    if(payload){
+      const candidates = marketTimestampCandidates(payload)
+        .map(value => ({value, date: marketToDate(value)}))
+        .filter(x => x.date && !Number.isNaN(x.date.getTime()))
+        .sort((a,b) => b.date - a.date);
+      const stamp = marketFormatTimestamp(candidates[0]?.date || new Date());
+      title.textContent = `MERCADOS: ${stamp}`;
+      title.title = `Mercados actualizados: ${stamp}`;
+    }else{
+      title.textContent = 'MERCADOS: —';
+      title.title = 'Mercados externos';
+    }
+  }
+
   function marketFormatNumber(value, digits = 2, locale = "en-US"){
     const n = Number(value);
     if(!Number.isFinite(n)) return "—";
@@ -2630,6 +2761,7 @@
     const track = marketEl('marketTickerTrack');
     if(!track) return;
     const data = Array.isArray(payload?.data) ? payload.data.filter(x => x && x.status === 'ok') : [];
+    marketUpdateTitle(payload);
     if(!data.length){
       marketStopTickerLoop();
       marketTickerHalfWidth = 0;
@@ -2665,6 +2797,7 @@
       const payload = await res.json();
       renderMarketTicker(payload);
     }catch(err){
+      marketUpdateTitle(null);
       track.innerHTML = '<div class="market-ticker-empty">No se pudo cargar mercado externo.</div>';
       track.style.animation = 'none';
       console.error('[marketTicker]', err);
@@ -2672,6 +2805,7 @@
   }
 
   function startMarketTicker(){
+    marketUpdateTitle(null);
     marketBindTickerDrag();
     loadMarketTicker();
     if(marketTickerTimer) clearInterval(marketTickerTimer);
