@@ -1478,6 +1478,46 @@
       }
     }
 
+
+    /* V60: topbar sin estado pegado después de presionar */
+    .top-actions .btn,
+    .top-actions button{
+      transform:none!important;
+      filter:none!important;
+      box-shadow:none!important;
+      transition:background .12s ease,border-color .12s ease,color .12s ease!important;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .top-actions .btn:hover,
+    .top-actions button:hover,
+    .top-actions .btn:active,
+    .top-actions button:active{
+      transform:none!important;
+      filter:none!important;
+      box-shadow:none!important;
+    }
+    .top-actions .btn:focus,
+    .top-actions button:focus{
+      outline:none!important;
+      box-shadow:none!important;
+    }
+    .top-actions .btn:focus-visible,
+    .top-actions button:focus-visible{
+      box-shadow:0 0 0 3px rgba(19,185,200,.18)!important;
+    }
+    @media(hover:none){
+      .top-actions .btn:hover,
+      .top-actions button:hover{
+        background:#0b324e!important;
+        border-color:#1e5a80!important;
+      }
+      :root[data-theme="dark"] .top-actions .btn:hover,
+      :root[data-theme="dark"] .top-actions button:hover{
+        background:#102f47!important;
+        border-color:#2b5570!important;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -2816,6 +2856,30 @@
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startMarketTicker, {once:true});
   else startMarketTicker();
+})();
+</script>
+
+<script>
+(function(){
+  function releaseTopbarButton(btn){
+    if(!btn) return;
+    window.setTimeout(function(){
+      if(typeof btn.blur === 'function') btn.blur();
+    }, 0);
+  }
+  function bindTopbarButtonRelease(){
+    document.querySelectorAll('.top-actions button, .top-actions .btn').forEach(function(btn){
+      if(btn.dataset.releaseBound === '1') return;
+      btn.dataset.releaseBound = '1';
+      btn.addEventListener('pointerup', function(){ releaseTopbarButton(btn); });
+      btn.addEventListener('pointercancel', function(){ releaseTopbarButton(btn); });
+      btn.addEventListener('mouseleave', function(){ releaseTopbarButton(btn); });
+      btn.addEventListener('touchend', function(){ releaseTopbarButton(btn); }, {passive:true});
+      btn.addEventListener('click', function(){ releaseTopbarButton(btn); });
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindTopbarButtonRelease, {once:true});
+  else bindTopbarButtonRelease();
 })();
 </script>
 
