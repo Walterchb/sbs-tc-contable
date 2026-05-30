@@ -1518,6 +1518,108 @@
       }
     }
 
+
+
+    /* V61: efecto de presión controlado + ticker separado en card móvil */
+    .top-actions .btn,
+    .top-actions button{
+      transition:background .12s ease,border-color .12s ease,color .12s ease,transform .08s ease!important;
+    }
+    .top-actions .btn.is-pressing,
+    .top-actions button.is-pressing{
+      transform:translateY(1px) scale(.96)!important;
+      filter:brightness(.94)!important;
+      background:#08283f!important;
+      border-color:#2b6e98!important;
+      box-shadow:inset 0 2px 5px rgba(0,0,0,.18)!important;
+    }
+    :root[data-theme="dark"] .top-actions .btn.is-pressing,
+    :root[data-theme="dark"] .top-actions button.is-pressing{
+      background:#0b2438!important;
+      border-color:#3b7192!important;
+      box-shadow:inset 0 2px 5px rgba(0,0,0,.26)!important;
+    }
+    @media(max-width:760px){
+      .snapshot{
+        gap:8px!important;
+      }
+      .snapshot .date-card.market-enabled{
+        display:flex!important;
+        flex-direction:column!important;
+        align-items:stretch!important;
+        gap:9px!important;
+        min-height:0!important;
+        padding:0!important;
+        background:transparent!important;
+        border:0!important;
+        border-left:0!important;
+        border-radius:0!important;
+        box-shadow:none!important;
+        overflow:visible!important;
+      }
+      .date-card.market-enabled .date-control{
+        width:100%!important;
+        max-width:100%!important;
+        min-width:0!important;
+        margin:0!important;
+        padding:10px 11px!important;
+        background:var(--panel)!important;
+        border:1px solid var(--line)!important;
+        border-left:5px solid var(--navy3)!important;
+        border-radius:var(--radius)!important;
+        box-shadow:var(--shadow)!important;
+        overflow:hidden!important;
+      }
+      .date-card.market-enabled .date-control::after{
+        display:none!important;
+      }
+      .date-card.market-enabled .market-ticker-panel{
+        width:100%!important;
+        max-width:100%!important;
+        min-width:0!important;
+        height:76px!important;
+        min-height:76px!important;
+        margin:0!important;
+        padding:10px 11px!important;
+        display:grid!important;
+        grid-template-rows:14px minmax(0,44px)!important;
+        row-gap:8px!important;
+        background:var(--panel)!important;
+        border:1px solid var(--line)!important;
+        border-left:5px solid var(--navy3)!important;
+        border-radius:var(--radius)!important;
+        box-shadow:var(--shadow)!important;
+        overflow:hidden!important;
+      }
+      :root[data-theme="dark"] .date-card.market-enabled .market-ticker-panel{
+        background:var(--panel)!important;
+      }
+      .market-ticker-title.label{
+        height:14px!important;
+        min-height:14px!important;
+        line-height:14px!important;
+        margin:0!important;
+      }
+      .market-ticker-panel .market-ticker-shell,
+      .market-ticker-panel .market-ticker-viewport,
+      .market-ticker-panel .market-ticker-track{
+        height:44px!important;
+        min-height:44px!important;
+      }
+      .market-ticker-panel .market-ticker-shell{
+        grid-row:2!important;
+        align-self:stretch!important;
+      }
+      .market-ticker-panel .market-ticker-item{
+        padding-top:3px!important;
+        padding-bottom:3px!important;
+      }
+      .market-ticker-panel .market-ticker-item::after{
+        height:40px!important;
+      }
+    }
+
+
 </style>
 </head>
 <body>
@@ -2880,6 +2982,51 @@
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindTopbarButtonRelease, {once:true});
   else bindTopbarButtonRelease();
+})();
+</script>
+
+
+
+<script>
+(function(){
+  function clearTopbarPress(btn){
+    if(!btn) return;
+    btn.classList.remove('is-pressing');
+    window.setTimeout(function(){
+      if(typeof btn.blur === 'function') btn.blur();
+    }, 0);
+  }
+
+  function bindTopbarPressEffect(){
+    document.querySelectorAll('.top-actions button, .top-actions .btn').forEach(function(btn){
+      if(btn.dataset.pressEffectBound === '1') return;
+      btn.dataset.pressEffectBound = '1';
+
+      btn.addEventListener('pointerdown', function(ev){
+        btn.classList.add('is-pressing');
+        if(typeof btn.setPointerCapture === 'function' && ev.pointerId !== undefined){
+          try{ btn.setPointerCapture(ev.pointerId); }catch(e){}
+        }
+      });
+      btn.addEventListener('pointerup', function(){ clearTopbarPress(btn); });
+      btn.addEventListener('pointercancel', function(){ clearTopbarPress(btn); });
+      btn.addEventListener('lostpointercapture', function(){ clearTopbarPress(btn); });
+      btn.addEventListener('mouseleave', function(){ clearTopbarPress(btn); });
+      btn.addEventListener('touchend', function(){ clearTopbarPress(btn); }, {passive:true});
+      btn.addEventListener('click', function(){ clearTopbarPress(btn); });
+
+      btn.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter' || ev.key === ' '){
+          btn.classList.add('is-pressing');
+        }
+      });
+      btn.addEventListener('keyup', function(){ clearTopbarPress(btn); });
+      btn.addEventListener('blur', function(){ clearTopbarPress(btn); });
+    });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindTopbarPressEffect, {once:true});
+  else bindTopbarPressEffect();
 })();
 </script>
 
