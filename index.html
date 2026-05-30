@@ -1622,7 +1622,7 @@
 
 
 
-    /* V62: título Mercados con mismo peso que FECHA SBS y solo hora desde el JSON */
+    /* V63: título Mercados usa fetched_at_lima del JSON y muestra solo hora */
     .market-ticker-title.label{
       font-weight:650!important;
     }
@@ -2631,7 +2631,7 @@
 
   function marketTimestampCandidates(payload){
     const keys = [
-      'updated_at','generated_at','timestamp','fetched_at','last_updated','lastUpdate',
+      'fetched_at_lima','fetchedAtLima','updated_at','generated_at','timestamp','fetched_at','last_updated','lastUpdate',
       'as_of','asOf','datetime','date','created_at','createdAt','generatedAt','updatedAt'
     ];
     const containers = [payload, payload?.meta, payload?.metadata, payload?.summary, payload?.source]
@@ -2664,6 +2664,21 @@
     return null;
   }
 
+  function marketFetchedAtLimaDate(payload){
+    const containers = [payload, payload?.meta, payload?.metadata, payload?.summary, payload?.source]
+      .filter(Boolean);
+    const keys = ['fetched_at_lima','fetchedAtLima'];
+    for(const obj of containers){
+      for(const key of keys){
+        if(obj[key] !== undefined && obj[key] !== null){
+          const d = marketToDate(obj[key]);
+          if(d && !Number.isNaN(d.getTime())) return d;
+        }
+      }
+    }
+    return null;
+  }
+
   function marketFormatTimestamp(dateLike){
     const d = marketToDate(dateLike);
     if(!d) return null;
@@ -2683,14 +2698,20 @@
     const title = marketEl('marketTickerTitle');
     if(!title) return;
     if(payload){
-      const candidates = marketTimestampCandidates(payload)
-        .map(value => ({value, date: marketToDate(value)}))
-        .filter(x => x.date && !Number.isNaN(x.date.getTime()))
-        .sort((a,b) => b.date - a.date);
-      const stamp = marketFormatTimestamp(candidates[0]?.date);
+      const fetchedAtLima = marketFetchedAtLimaDate(payload);
+      let stamp = marketFormatTimestamp(fetchedAtLima);
+      if(!stamp){
+        const candidates = marketTimestampCandidates(payload)
+          .map(value => ({value, date: marketToDate(value)}))
+          .filter(x => x.date && !Number.isNaN(x.date.getTime()))
+          .sort((a,b) => b.date - a.date);
+        stamp = marketFormatTimestamp(candidates[0]?.date);
+      }
       if(stamp){
         title.textContent = `MERCADOS: ${stamp}`;
-        title.title = `Mercados actualizados según JSON: ${stamp}`;
+        title.title = fetchedAtLima
+          ? `Mercados actualizados según fetched_at_lima del JSON: ${stamp}`
+          : `Mercados actualizados según timestamp del JSON: ${stamp}`;
       }else{
         title.textContent = 'MERCADOS: —';
         title.title = 'El JSON de mercados no incluye hora de actualización.';
