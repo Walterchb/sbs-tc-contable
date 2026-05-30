@@ -1784,7 +1784,7 @@
       border-color:rgba(255,255,255,.24);
     }
     @media(max-width:760px){
-      .fx-card{cursor:pointer!important}
+      .fx-card{cursor:pointer!important;-webkit-tap-highlight-color:transparent!important;touch-action:manipulation!important}
       .fx-card .kpi-inner{min-height:98px!important}
       .fx-card .kpi-face.kpi-front{min-height:98px!important}
       .market-tooltip.fx-tooltip{
@@ -2702,6 +2702,10 @@
     if(Number.isFinite(n)) return n>0?"is-up":n<0?"is-down":"is-flat";
     return "is-flat";
   }
+  let fxTooltipMobileOpenedAt=0;
+  function fxTooltipVisible(){
+    return !!document.getElementById("fxCardTooltip")?.classList.contains("is-visible");
+  }
   function fxTooltipGet(){
     let tooltip=document.getElementById("fxCardTooltip");
     if(!tooltip){
@@ -2784,14 +2788,21 @@
     tooltip.innerHTML=fxTooltipHtml(code);
     tooltip.classList.add("is-visible");
     if(isMobileView()){
+      fxTooltipMobileOpenedAt=Date.now();
       fxTooltipCenter(tooltip);
+      requestAnimationFrame(()=>{ if(fxTooltipVisible()) fxTooltipCenter(tooltip); });
+      setTimeout(()=>{ if(fxTooltipVisible()) fxTooltipCenter(tooltip); },90);
     }else if(event){
       fxTooltipPositionAt(tooltip,event.clientX,event.clientY);
     }
   }
-  function fxTooltipHide(){
+  function fxTooltipHide(options={}){
     const tooltip=document.getElementById("fxCardTooltip");
     if(!tooltip) return;
+    const force=!!options.force;
+    if(!force && isMobileView() && tooltip.classList.contains("is-visible") && Date.now()-fxTooltipMobileOpenedAt<450){
+      return;
+    }
     tooltip.classList.remove("is-visible");
     tooltip.style.transform="translate3d(-9999px,-9999px,0)";
   }
@@ -2816,16 +2827,27 @@
       if(!close) return;
       event.preventDefault();
       event.stopPropagation();
-      fxTooltipHide();
+      fxTooltipHide({force:true});
     },true);
     document.addEventListener("pointerdown",event=>{
       if(!isMobileView()) return;
       if(event.target.closest(".fx-card") || event.target.closest("#fxCardTooltip")) return;
-      fxTooltipHide();
+      if(Date.now()-fxTooltipMobileOpenedAt<250) return;
+      fxTooltipHide({force:true});
     },true);
-    window.addEventListener("resize",fxTooltipHide);
-    window.addEventListener("blur",fxTooltipHide);
-    document.addEventListener("scroll",fxTooltipHide,true);
+    window.addEventListener("resize",()=>{
+      const tooltip=document.getElementById("fxCardTooltip");
+      if(isMobileView() && tooltip?.classList.contains("is-visible")){
+        requestAnimationFrame(()=>fxTooltipCenter(tooltip));
+        return;
+      }
+      fxTooltipHide({force:true});
+    });
+    window.addEventListener("blur",()=>fxTooltipHide({force:true}));
+    document.addEventListener("scroll",()=>{
+      if(isMobileView() && fxTooltipVisible()) return;
+      fxTooltipHide({force:true});
+    },true);
   }
 
   function bind(){
