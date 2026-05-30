@@ -1627,6 +1627,104 @@
       font-weight:650!important;
     }
 
+
+    /* V64: tooltip propio para items del ticker, con números a 4 decimales */
+    .market-tooltip{
+      position:fixed;
+      left:0;
+      top:0;
+      z-index:9998;
+      width:min(300px,calc(100vw - 24px));
+      max-width:calc(100vw - 24px);
+      padding:10px 11px;
+      border:1px solid var(--tooltip-border);
+      border-radius:7px;
+      background:var(--tooltip-bg);
+      color:#eaf7ff;
+      box-shadow:0 16px 38px rgba(5,28,44,.34);
+      opacity:0;
+      transform:translate3d(-9999px,-9999px,0);
+      pointer-events:none;
+      transition:opacity .12s ease;
+      font-size:.76rem;
+      line-height:1.18;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    .market-tooltip.is-visible{opacity:1}
+    .market-tooltip-head{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:8px;
+      align-items:start;
+      padding-bottom:8px;
+      margin-bottom:7px;
+      border-bottom:1px solid rgba(255,255,255,.13);
+    }
+    .market-tooltip-symbol{
+      font-weight:760;
+      letter-spacing:-.02em;
+      color:#ffffff;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .market-tooltip-name{
+      margin-top:3px;
+      font-size:.68rem;
+      font-weight:560;
+      color:#a9c5d8;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .market-tooltip-price{
+      text-align:right;
+      font-weight:760;
+      color:#ffffff;
+      font-variant-numeric:tabular-nums;
+      white-space:nowrap;
+    }
+    .market-tooltip-change{
+      margin-top:3px;
+      text-align:right;
+      font-size:.69rem;
+      font-weight:720;
+      font-variant-numeric:tabular-nums;
+      white-space:nowrap;
+    }
+    .market-tooltip-change.is-up{color:var(--green)}
+    .market-tooltip-change.is-down{color:var(--red)}
+    .market-tooltip-change.is-flat{color:#a9c5d8}
+    .market-tooltip-rows{display:grid;gap:5px}
+    .market-tooltip-row{
+      display:grid;
+      grid-template-columns:minmax(92px,.78fr) minmax(0,1fr);
+      gap:10px;
+      align-items:center;
+    }
+    .market-tooltip-label{
+      color:#a9c5d8;
+      font-weight:600;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .market-tooltip-value{
+      color:#ffffff;
+      font-weight:680;
+      text-align:right;
+      font-variant-numeric:tabular-nums;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .market-tooltip-value.is-up{color:var(--green)}
+    .market-tooltip-value.is-down{color:var(--red)}
+    .market-tooltip-value.is-flat{color:#a9c5d8}
+    @media(max-width:760px){.market-tooltip{display:none!important}}
+
+
 </style>
 </head>
 <body>
@@ -2622,6 +2720,8 @@
   let marketTickerStartOffset = 0;
   let marketTickerDragBound = false;
   let marketTickerResizeObserver = null;
+  let marketTickerCurrentItems = [];
+  let marketTickerTooltipBound = false;
 
   const marketEl = id => document.getElementById(id);
 
@@ -2728,6 +2828,167 @@
     return new Intl.NumberFormat(locale, {minimumFractionDigits: 0, maximumFractionDigits: digits}).format(n);
   }
 
+
+  function marketEscape(value){
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function marketFormatFixed4(value, options = {}){
+    const {signed = false, suffix = ""} = options;
+    const n = Number(value);
+    if(!Number.isFinite(n)) return "—";
+    const sign = signed ? (n > 0 ? "+" : n < 0 ? "−" : "") : "";
+    const formatted = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4
+    }).format(Math.abs(n));
+    return `${sign}${formatted}${suffix}`;
+  }
+
+  function marketHumanLabel(key){
+    const labels = {
+      symbol:"Símbolo", name:"Nombre", price:"Precio", change:"Variación", change_pct:"Variación %",
+      direction:"Dirección", status:"Estado", currency:"Moneda", exchange:"Bolsa", market:"Mercado",
+      previous_close:"Cierre previo", previousClose:"Cierre previo", open:"Apertura", high:"Máximo",
+      low:"Mínimo", volume:"Volumen", day_high:"Máximo día", dayHigh:"Máximo día",
+      day_low:"Mínimo día", dayLow:"Mínimo día", regularMarketPrice:"Precio regular",
+      regularMarketChange:"Variación regular", regularMarketChangePercent:"Variación regular %"
+    };
+    if(labels[key]) return labels[key];
+    return String(key)
+      .replace(/_/g, " ")
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function marketDirectionLabel(item){
+    const dir = marketDirectionClass(item?.direction, item?.change_pct);
+    if(dir === "is-up") return "Alza";
+    if(dir === "is-down") return "Baja";
+    return "Sin variación";
+  }
+
+  function marketTooltipRows(item){
+    const used = new Set(["symbol","name","price","change","change_pct","direction","sparkline"]);
+    const base = [
+      ["Precio", marketFormatFixed4(item?.price)],
+      ["Variación", marketFormatFixed4(item?.change, {signed:true}), marketDirectionClass(item?.direction, item?.change_pct)],
+      ["Variación %", marketFormatFixed4(item?.change_pct, {signed:true, suffix:"%"}), marketDirectionClass(item?.direction, item?.change_pct)],
+      ["Dirección", marketDirectionLabel(item), marketDirectionClass(item?.direction, item?.change_pct)]
+    ];
+    if(item?.status !== undefined){
+      base.push(["Estado", String(item.status)]);
+      used.add("status");
+    }
+    Object.keys(item || {}).forEach(key => {
+      if(used.has(key)) return;
+      const value = item[key];
+      if(value === undefined || value === null || value === "") return;
+      if(Array.isArray(value)){
+        if(key === "sparkline") base.push(["Sparkline", `${value.length} puntos`]);
+        return;
+      }
+      if(typeof value === "object") return;
+      const label = marketHumanLabel(key);
+      const suffix = /pct|percent/i.test(key) ? "%" : "";
+      const signed = /change|variation|var/i.test(key);
+      const formatted = Number.isFinite(Number(value)) && String(value).trim() !== ""
+        ? marketFormatFixed4(value, {signed, suffix})
+        : String(value);
+      base.push([label, formatted]);
+    });
+    return base;
+  }
+
+  function marketTooltipHtml(item){
+    const dir = marketDirectionClass(item?.direction, item?.change_pct);
+    const symbol = marketEscape(item?.symbol || "—");
+    const name = marketEscape(marketClampName(item?.name || item?.symbol || "Activo"));
+    const price = marketEscape(marketFormatFixed4(item?.price));
+    const change = marketEscape(`${marketFormatFixed4(item?.change, {signed:true})} (${marketFormatFixed4(item?.change_pct, {signed:true, suffix:"%"})})`);
+    const rows = marketTooltipRows(item).map(([label, value, rowDir]) => `
+      <div class="market-tooltip-row">
+        <span class="market-tooltip-label">${marketEscape(label)}</span>
+        <span class="market-tooltip-value ${rowDir || ""}">${marketEscape(value)}</span>
+      </div>`).join("");
+    return `<div class="market-tooltip-head">
+      <div>
+        <div class="market-tooltip-symbol">${symbol}</div>
+        <div class="market-tooltip-name">${name}</div>
+      </div>
+      <div>
+        <div class="market-tooltip-price">${price}</div>
+        <div class="market-tooltip-change ${dir}">${change}</div>
+      </div>
+    </div>
+    <div class="market-tooltip-rows">${rows}</div>`;
+  }
+
+  function marketGetTooltip(){
+    let tooltip = document.getElementById("marketTickerTooltip");
+    if(!tooltip){
+      tooltip = document.createElement("div");
+      tooltip.id = "marketTickerTooltip";
+      tooltip.className = "market-tooltip";
+      tooltip.setAttribute("role", "tooltip");
+      document.body.appendChild(tooltip);
+    }
+    return tooltip;
+  }
+
+  function marketMoveTooltip(event){
+    const tooltip = document.getElementById("marketTickerTooltip");
+    if(!tooltip || !tooltip.classList.contains("is-visible")) return;
+    const pad = 12;
+    const offset = 14;
+    const rect = tooltip.getBoundingClientRect();
+    let x = event.clientX + offset;
+    let y = event.clientY + offset;
+    if(x + rect.width + pad > window.innerWidth) x = event.clientX - rect.width - offset;
+    if(y + rect.height + pad > window.innerHeight) y = event.clientY - rect.height - offset;
+    x = Math.max(pad, Math.min(x, window.innerWidth - rect.width - pad));
+    y = Math.max(pad, Math.min(y, window.innerHeight - rect.height - pad));
+    tooltip.style.transform = `translate3d(${x}px,${y}px,0)`;
+  }
+
+  function marketShowTooltip(item, event){
+    if(!item || window.matchMedia?.("(max-width: 760px)").matches) return;
+    const tooltip = marketGetTooltip();
+    tooltip.innerHTML = marketTooltipHtml(item);
+    tooltip.classList.add("is-visible");
+    marketMoveTooltip(event);
+  }
+
+  function marketHideTooltip(){
+    const tooltip = document.getElementById("marketTickerTooltip");
+    if(!tooltip) return;
+    tooltip.classList.remove("is-visible");
+    tooltip.style.transform = "translate3d(-9999px,-9999px,0)";
+  }
+
+  function marketBindTickerTooltip(){
+    const panel = document.querySelector(".market-ticker-panel");
+    if(!panel || marketTickerTooltipBound) return;
+    marketTickerTooltipBound = true;
+    panel.addEventListener("pointermove", (event) => {
+      if(marketTickerDragging){ marketHideTooltip(); return; }
+      const itemEl = event.target.closest(".market-ticker-item");
+      if(!itemEl || !panel.contains(itemEl)){ marketHideTooltip(); return; }
+      const index = Number(itemEl.dataset.marketIndex);
+      const item = marketTickerCurrentItems[index];
+      marketShowTooltip(item, event);
+    });
+    panel.addEventListener("pointerleave", marketHideTooltip);
+    panel.addEventListener("pointerdown", marketHideTooltip);
+    window.addEventListener("blur", marketHideTooltip);
+    document.addEventListener("scroll", marketHideTooltip, true);
+  }
+
   function marketPriceDigits(item){
     const symbol = item?.symbol || "";
     const price = Math.abs(Number(item?.price || 0));
@@ -2779,7 +3040,7 @@
     </svg>`;
   }
 
-  function marketTickerItem(item){
+  function marketTickerItem(item, index){
     const dir = marketDirectionClass(item.direction, item.change_pct);
     const price = marketFormatNumber(item.price, marketPriceDigits(item), "en-US");
     const changePctNum = Number(item.change_pct);
@@ -2787,10 +3048,12 @@
     const changePct = Number.isFinite(changePctNum) ? `${marketSign(changePctNum)}${marketFormatNumber(Math.abs(changePctNum), 2, "en-US")}%` : "—";
     const changeAbs = Number.isFinite(changeAbsNum) ? `${marketSign(changeAbsNum)}${marketFormatNumber(Math.abs(changeAbsNum), Math.min(marketPriceDigits(item), 2), "en-US")}` : "—";
     const name = marketClampName(item.name || item.symbol);
-    return `<div class="market-ticker-item" title="${name}">
+    const safeName = marketEscape(name);
+    const safeSymbol = marketEscape(item.symbol || name);
+    return `<div class="market-ticker-item" data-market-index="${index}" aria-label="${safeSymbol} ${safeName}">
       <div class="market-ticker-text">
         <div class="market-ticker-head">
-          <span class="market-ticker-name">${name}</span>
+          <span class="market-ticker-name">${safeName}</span>
           <span class="market-ticker-change ${dir}">${changeAbs}</span>
         </div>
         <div class="market-ticker-meta">
@@ -2939,12 +3202,15 @@
       marketStopTickerLoop();
       marketTickerHalfWidth = 0;
       marketTickerOffset = 0;
+      marketTickerCurrentItems = [];
+      marketHideTooltip();
       track.innerHTML = '<div class="market-ticker-empty">No hay data de mercado disponible.</div>';
       track.style.animation = 'none';
       track.style.transform = 'translate3d(0,0,0)';
       return;
     }
-    const items = marketSortedData(data).map(marketTickerItem).join('');
+    marketTickerCurrentItems = marketSortedData(data);
+    const items = marketTickerCurrentItems.map((item, index) => marketTickerItem(item, index)).join('');
     const sequence = `<div class="market-ticker-seq">${items}</div>`;
     const previousOffset = marketTickerOffset;
     track.innerHTML = sequence + sequence;
@@ -2971,6 +3237,8 @@
       renderMarketTicker(payload);
     }catch(err){
       marketUpdateTitle(null);
+      marketTickerCurrentItems = [];
+      marketHideTooltip();
       track.innerHTML = '<div class="market-ticker-empty">No se pudo cargar mercado externo.</div>';
       track.style.animation = 'none';
       console.error('[marketTicker]', err);
@@ -2980,6 +3248,7 @@
   function startMarketTicker(){
     marketUpdateTitle(null);
     marketBindTickerDrag();
+    marketBindTickerTooltip();
     loadMarketTicker();
     if(marketTickerTimer) clearInterval(marketTickerTimer);
     marketTickerTimer = setInterval(()=>{
