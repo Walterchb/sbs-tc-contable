@@ -1620,6 +1620,13 @@
     }
 
 
+
+
+    /* V62: título Mercados con mismo peso que FECHA SBS y solo hora desde el JSON */
+    .market-ticker-title.label{
+      font-weight:650!important;
+    }
+
 </style>
 </head>
 <body>
@@ -2623,20 +2630,18 @@
   }
 
   function marketTimestampCandidates(payload){
-    const keys = ['updated_at','generated_at','timestamp','fetched_at','last_updated','lastUpdate','as_of','asOf','datetime','date'];
+    const keys = [
+      'updated_at','generated_at','timestamp','fetched_at','last_updated','lastUpdate',
+      'as_of','asOf','datetime','date','created_at','createdAt','generatedAt','updatedAt'
+    ];
+    const containers = [payload, payload?.meta, payload?.metadata, payload?.summary, payload?.source]
+      .filter(Boolean);
     const out = [];
-    keys.forEach(k => {
-      if(payload && payload[k] !== undefined && payload[k] !== null) out.push(payload[k]);
-      if(payload?.meta && payload.meta[k] !== undefined && payload.meta[k] !== null) out.push(payload.meta[k]);
-    });
-    if(Array.isArray(payload?.data)){
-      payload.data.forEach(item => {
-        keys.forEach(k => {
-          if(item && item[k] !== undefined && item[k] !== null) out.push(item[k]);
-        });
-        if(item?.regularMarketTime !== undefined && item.regularMarketTime !== null) out.push(item.regularMarketTime);
+    containers.forEach(obj => {
+      keys.forEach(k => {
+        if(obj[k] !== undefined && obj[k] !== null) out.push(obj[k]);
       });
-    }
+    });
     return out.filter(Boolean);
   }
 
@@ -2660,17 +2665,17 @@
   }
 
   function marketFormatTimestamp(dateLike){
-    const d = marketToDate(dateLike) || new Date();
+    const d = marketToDate(dateLike);
+    if(!d) return null;
     try{
       const parts = new Intl.DateTimeFormat('es-PE', {
         timeZone:'America/Lima',
-        year:'numeric', month:'2-digit', day:'2-digit',
         hour:'2-digit', minute:'2-digit', second:'2-digit',
         hour12:false
       }).formatToParts(d).reduce((acc,p) => { acc[p.type] = p.value; return acc; }, {});
-      return `${parts.year}-${parts.month}-${parts.day} a las ${parts.hour}:${parts.minute}:${parts.second}`;
+      return `${parts.hour}:${parts.minute}:${parts.second}`;
     }catch(_){
-      return `${d.getFullYear()}-${marketPad2(d.getMonth()+1)}-${marketPad2(d.getDate())} a las ${marketPad2(d.getHours())}:${marketPad2(d.getMinutes())}:${marketPad2(d.getSeconds())}`;
+      return `${marketPad2(d.getHours())}:${marketPad2(d.getMinutes())}:${marketPad2(d.getSeconds())}`;
     }
   }
 
@@ -2682,9 +2687,14 @@
         .map(value => ({value, date: marketToDate(value)}))
         .filter(x => x.date && !Number.isNaN(x.date.getTime()))
         .sort((a,b) => b.date - a.date);
-      const stamp = marketFormatTimestamp(candidates[0]?.date || new Date());
-      title.textContent = `MERCADOS: ${stamp}`;
-      title.title = `Mercados actualizados: ${stamp}`;
+      const stamp = marketFormatTimestamp(candidates[0]?.date);
+      if(stamp){
+        title.textContent = `MERCADOS: ${stamp}`;
+        title.title = `Mercados actualizados según JSON: ${stamp}`;
+      }else{
+        title.textContent = 'MERCADOS: —';
+        title.title = 'El JSON de mercados no incluye hora de actualización.';
+      }
     }else{
       title.textContent = 'MERCADOS: —';
       title.title = 'Mercados externos';
