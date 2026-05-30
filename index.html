@@ -1,5 +1,3 @@
-
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -1087,6 +1085,341 @@
     /* V49: ajustes gráfico Tendencia */
     #trendLegend.chart-legend{margin-bottom:0!important}
 
+    /* V53: date-control visible, sin date-value visible, ticker con título referencial */
+    .date-card.market-enabled{
+      display:grid!important;
+      grid-template-columns:minmax(265px,385px) minmax(0,1fr)!important;
+      align-items:center!important;
+      gap:0!important;
+      min-height:96px!important;
+      padding:10px 13px!important;
+    }
+    .date-card.market-enabled .date-control{
+      display:block!important;
+      position:relative!important;
+      width:auto!important;
+      min-width:0!important;
+      max-width:385px!important;
+      padding-right:18px!important;
+      margin-right:16px!important;
+      border-right:0!important;
+      overflow:hidden!important;
+    }
+    .date-card.market-enabled .date-control::after{
+      display:block!important;
+      content:"";
+      position:absolute;
+      right:0;
+      top:50%;
+      transform:translateY(-50%);
+      width:1px;
+      height:58px;
+      background:var(--line);
+      opacity:.95;
+    }
+    .date-card.market-enabled #vFecha.date-value{
+      display:none!important;
+      visibility:hidden!important;
+      margin:0!important;
+      height:0!important;
+      line-height:0!important;
+      overflow:hidden!important;
+    }
+    .market-ticker-panel{
+      min-width:0!important;
+      width:100%!important;
+      height:auto!important;
+      display:flex!important;
+      flex-direction:column!important;
+      align-items:stretch!important;
+      gap:5px!important;
+      overflow:hidden!important;
+      background:transparent;
+    }
+    .market-ticker-title{
+      display:flex;
+      align-items:center;
+      gap:7px;
+      min-height:16px;
+      color:var(--muted);
+      font-size:.68rem;
+      font-weight:700;
+      letter-spacing:.08em;
+      line-height:1;
+      text-transform:uppercase;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      padding:0 2px;
+    }
+    .market-ticker-title i{font-size:.76rem;color:var(--navy3)}
+    :root[data-theme="dark"] .market-ticker-title i{color:#95d9ee}
+    @media(max-width:1160px){
+      .date-card.market-enabled{grid-template-columns:minmax(255px,340px) minmax(0,1fr)!important}
+      .date-card.market-enabled .date-control{max-width:340px!important;padding-right:15px!important;margin-right:13px!important}
+    }
+    @media(max-width:900px){
+      .date-card.market-enabled{
+        display:flex!important;
+        flex-direction:column!important;
+        align-items:stretch!important;
+        gap:8px!important;
+        min-height:0!important;
+        padding:9px 11px!important;
+      }
+      .date-card.market-enabled .date-control{
+        width:100%!important;
+        max-width:100%!important;
+        padding-right:0!important;
+        margin-right:0!important;
+      }
+      .date-card.market-enabled .date-control::after{display:none!important}
+      .market-ticker-title{font-size:.64rem}
+    }
+
+
+    /* V54: mantener dimensiones originales; ocultar date-value sin mover el layout */
+    .date-card.market-enabled{
+      display:grid!important;
+      grid-template-columns:minmax(265px,385px) minmax(0,1fr)!important;
+      align-items:center!important;
+      gap:0!important;
+      min-height:86px!important;
+      padding:11px 13px!important;
+    }
+    .date-card.market-enabled .date-control{
+      display:block!important;
+      position:relative!important;
+      width:auto!important;
+      min-width:0!important;
+      max-width:385px!important;
+      padding-right:18px!important;
+      margin-right:16px!important;
+      border-right:0!important;
+      overflow:hidden!important;
+    }
+    .date-card.market-enabled #vFecha.date-value{
+      display:block!important;
+      visibility:hidden!important;
+      opacity:0!important;
+      width:100%!important;
+      max-width:100%!important;
+      height:auto!important;
+      line-height:1.2!important;
+      margin:8px 0 0!important;
+      padding-left:1px!important;
+      overflow:hidden!important;
+      white-space:nowrap!important;
+      text-overflow:ellipsis!important;
+      pointer-events:none!important;
+    }
+    .market-ticker-panel{
+      position:relative!important;
+      min-width:0!important;
+      width:100%!important;
+      height:64px!important;
+      min-height:64px!important;
+      display:flex!important;
+      flex-direction:row!important;
+      align-items:center!important;
+      gap:0!important;
+      overflow:hidden!important;
+      background:transparent;
+    }
+    .market-ticker-title{
+      position:absolute!important;
+      left:2px!important;
+      top:1px!important;
+      z-index:4!important;
+      display:flex!important;
+      align-items:center!important;
+      gap:5px!important;
+      width:auto!important;
+      max-width:45%!important;
+      height:14px!important;
+      min-height:0!important;
+      padding:0!important;
+      margin:0!important;
+      color:var(--muted)!important;
+      font-size:.58rem!important;
+      font-weight:700!important;
+      letter-spacing:.07em!important;
+      line-height:14px!important;
+      text-transform:uppercase!important;
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:ellipsis!important;
+      pointer-events:none!important;
+    }
+    .market-ticker-title i{font-size:.66rem!important;color:var(--navy3)!important}
+    .market-ticker-shell{
+      flex:1 1 auto!important;
+      width:100%!important;
+      height:64px!important;
+      min-height:64px!important;
+    }
+    .market-ticker-viewport,
+    .market-ticker-track{
+      height:64px!important;
+    }
+    @media(max-width:1160px){
+      .date-card.market-enabled{grid-template-columns:minmax(255px,340px) minmax(0,1fr)!important}
+      .date-card.market-enabled .date-control{max-width:340px!important;padding-right:15px!important;margin-right:13px!important}
+      .market-ticker-panel,
+      .market-ticker-shell,
+      .market-ticker-viewport,
+      .market-ticker-track{height:60px!important;min-height:60px!important}
+    }
+    @media(max-width:900px){
+      .date-card.market-enabled{
+        display:flex!important;
+        flex-direction:column!important;
+        align-items:stretch!important;
+        gap:8px!important;
+        min-height:0!important;
+        padding:11px 13px!important;
+      }
+      .date-card.market-enabled .date-control{
+        width:100%!important;
+        max-width:100%!important;
+        padding-right:0!important;
+        margin-right:0!important;
+      }
+      .date-card.market-enabled .date-control::after{display:none!important}
+      .market-ticker-panel,
+      .market-ticker-shell,
+      .market-ticker-viewport,
+      .market-ticker-track{height:58px!important;min-height:58px!important}
+      .market-ticker-title{font-size:.56rem!important;max-width:65%!important}
+    }
+    @media(max-width:760px){
+      .date-card.market-enabled{padding:10px 11px!important}
+      .date-card.market-enabled #vFecha.date-value{
+        line-height:1.25!important;
+        margin:8px 0 0!important;
+        font-size:.8rem!important;
+      }
+    }
+
+
+    /* V55: título del ticker con el mismo estilo visual de FECHA SBS, sin alterar dimensiones */
+    .market-ticker-title{
+      color:var(--muted)!important;
+      font-size:.66rem!important;
+      font-weight:760!important;
+      letter-spacing:.1em!important;
+      line-height:1!important;
+      text-transform:uppercase!important;
+      gap:0!important;
+    }
+    .market-ticker-title i{display:none!important}
+    @media(max-width:900px){
+      .market-ticker-title{font-size:.66rem!important}
+    }
+    @media(max-width:760px){
+      .market-ticker-title{font-size:.66rem!important}
+    }
+
+
+    /* V56: título de mercado fuera del ticker y alineado con FECHA SBS */
+    .date-card.market-enabled .market-ticker-panel{
+      height:64px!important;
+      min-height:64px!important;
+      display:grid!important;
+      grid-template-rows:14px minmax(0,50px)!important;
+      align-items:stretch!important;
+      gap:0!important;
+      overflow:hidden!important;
+      background:transparent!important;
+    }
+    .market-ticker-title{
+      position:static!important;
+      inset:auto!important;
+      z-index:auto!important;
+      display:block!important;
+      width:100%!important;
+      max-width:100%!important;
+      height:14px!important;
+      min-height:14px!important;
+      padding:0!important;
+      margin:0!important;
+      color:var(--muted)!important;
+      font-size:.66rem!important;
+      font-weight:650!important;
+      letter-spacing:.1em!important;
+      line-height:1!important;
+      text-transform:uppercase!important;
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:ellipsis!important;
+      pointer-events:none!important;
+    }
+    .market-ticker-title i{display:none!important}
+    .market-ticker-panel .market-ticker-shell{
+      grid-row:2!important;
+      height:50px!important;
+      min-height:50px!important;
+      align-self:end!important;
+    }
+    .market-ticker-panel .market-ticker-viewport,
+    .market-ticker-panel .market-ticker-track{
+      height:50px!important;
+      min-height:50px!important;
+    }
+    .market-ticker-panel .market-ticker-item{
+      padding-top:4px!important;
+      padding-bottom:4px!important;
+    }
+    .market-ticker-panel .market-ticker-item::after{height:46px!important}
+    @media(max-width:1160px){
+      .date-card.market-enabled .market-ticker-panel{height:60px!important;min-height:60px!important;grid-template-rows:14px minmax(0,46px)!important}
+      .market-ticker-panel .market-ticker-shell,
+      .market-ticker-panel .market-ticker-viewport,
+      .market-ticker-panel .market-ticker-track{height:46px!important;min-height:46px!important}
+      .market-ticker-panel .market-ticker-item::after{height:42px!important}
+    }
+    @media(max-width:900px){
+      .market-ticker-title{font-size:.66rem!important;max-width:100%!important}
+      .date-card.market-enabled .market-ticker-panel{height:58px!important;min-height:58px!important;grid-template-rows:14px minmax(0,44px)!important}
+      .market-ticker-panel .market-ticker-shell,
+      .market-ticker-panel .market-ticker-viewport,
+      .market-ticker-panel .market-ticker-track{height:44px!important;min-height:44px!important}
+      .market-ticker-panel .market-ticker-item::after{height:40px!important}
+    }
+
+
+
+    /* V57: alinear título Mercado Externo exactamente con FECHA SBS, sin cambiar dimensiones */
+    .date-card.market-enabled{
+      align-items:start!important;
+    }
+    .date-card.market-enabled .date-control,
+    .date-card.market-enabled .market-ticker-panel{
+      align-self:start!important;
+    }
+    .market-ticker-title.label{
+      display:block!important;
+      height:14px!important;
+      min-height:14px!important;
+      margin:0!important;
+      padding:0!important;
+      color:var(--muted)!important;
+      font-size:.66rem!important;
+      font-weight:760!important;
+      letter-spacing:.1em!important;
+      line-height:normal!important;
+      text-transform:uppercase!important;
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:ellipsis!important;
+    }
+    @media(max-width:900px){
+      .date-card.market-enabled{align-items:stretch!important}
+      .date-card.market-enabled .date-control,
+      .date-card.market-enabled .market-ticker-panel{align-self:stretch!important}
+    }
+
+
 </style>
 </head>
 <body>
@@ -1111,20 +1444,20 @@
       <section class="snapshot">
         <article class="date-card market-enabled">
           <div class="date-control">
-            <div class="label">Fecha SBS</div>
-            <div class="date-stepper" role="group" aria-label="Navegar Fecha SBS">
-              <button id="datePrev" class="date-nav" type="button" title="Día anterior" aria-label="Día anterior"><i class="fa-solid fa-caret-left"></i></button>
-              <div class="date-picker-wrap compact-date">
-                <input id="datePicker" class="date-picker" type="date" aria-label="Seleccionar Fecha SBS">
-                <i class="fa-regular fa-calendar-days date-fa" aria-hidden="true"></i>
-              </div>
-              <button id="dateNext" class="date-nav" type="button" title="Día siguiente" aria-label="Día siguiente"><i class="fa-solid fa-caret-right"></i></button>
-              <button id="dateToday" class="date-today" type="button" title="Última disponible" aria-label="Última disponible">HOY</button>
+<div class="label">Fecha SBS</div>
+          <div class="date-stepper" role="group" aria-label="Navegar Fecha SBS">
+            <button id="datePrev" class="date-nav" type="button" title="Día anterior" aria-label="Día anterior"><i class="fa-solid fa-caret-left"></i></button>
+            <div class="date-picker-wrap compact-date">
+              <input id="datePicker" class="date-picker" type="date" aria-label="Seleccionar Fecha SBS">
+              <i class="fa-regular fa-calendar-days date-fa" aria-hidden="true"></i>
             </div>
-            <span id="vFecha" class="date-value">—</span>
+            <button id="dateNext" class="date-nav" type="button" title="Día siguiente" aria-label="Día siguiente"><i class="fa-solid fa-caret-right"></i></button>
+            <button id="dateToday" class="date-today" type="button" title="Última disponible" aria-label="Última disponible">HOY</button>
+          </div>          <span id="vFecha" class="date-value" aria-hidden="true">—</span>
           </div>
-          <aside class="market-ticker-panel" aria-label="Mercado externo">
-            <div class="market-ticker-shell" title="Cotizaciones externas" draggable="false">
+          <aside class="market-ticker-panel" aria-labelledby="marketTickerTitle">
+            <div id="marketTickerTitle" class="market-ticker-title label">Mercado externo de referencia</div>
+            <div class="market-ticker-shell" title="Cotizaciones externas de referencia" draggable="false">
               <div class="market-ticker-viewport">
                 <div id="marketTickerTrack" class="market-ticker-track">
                   <div class="market-ticker-loading">Cargando mercado…</div>
@@ -1304,6 +1637,16 @@
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   }
   function displayDate(v){const d=parseDate(v); return d?new Intl.DateTimeFormat("es-PE",{year:"numeric",month:"short",day:"2-digit"}).format(d):(v||"—");}
+  const CHART_MONTHS_SHORT = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  const CHART_WEEKDAYS_SHORT = ["Dom","Lun","Mar","Mier","Jue","Vier","Sab"];
+  function chartDateLabel(v){
+    const d=parseDate(v);
+    return d ? `${String(d.getDate()).padStart(2,"0")}-${CHART_MONTHS_SHORT[d.getMonth()]}` : (v||"—");
+  }
+  function chartTooltipDateLabel(v){
+    const d=parseDate(v);
+    return d ? `${chartDateLabel(d)} - ${CHART_WEEKDAYS_SHORT[d.getDay()]}` : (v||"—");
+  }
 
   function setDateLabels(){
     const latest = state.latestDate || dateKey(state.meta?.fecha_publicada||state.meta?.fecha||state.meta?.date);
@@ -1778,11 +2121,12 @@
         const arr=Array.isArray(params)?params:[params];
         const p=arr.find(x=>x.seriesName===name)||arr[0];
         const val=Array.isArray(p.value)?p.value[1]:p.value;
-        return `<div style="font-weight:650;margin-bottom:5px">${p.axisValue||""}</div>${marker(trendAreaBorder)}<span style="display:inline-block;min-width:72px">${name}</span><b>${fmt(val,4)}</b><br>${marker(t.avg)}<span style="display:inline-block;min-width:72px">Prom</span><b>${fmt(avg,4)}</b><br>${marker(t.green)}<span style="display:inline-block;min-width:72px">Máx</span><b>${fmt(max,4)}</b><br>${marker(t.amber)}<span style="display:inline-block;min-width:72px">Mín</span><b>${fmt(min,4)}</b>`;
+        const dateLabel = chartTooltipDateLabel(data[p.dataIndex]?.date || p.axisValue || "");
+        return `<div style="font-weight:650;margin-bottom:5px">${dateLabel}</div>${marker(trendAreaBorder)}<span style="display:inline-block;min-width:72px">${name}</span><b>${fmt(val,4)}</b><br>${marker(t.avg)}<span style="display:inline-block;min-width:72px">Prom</span><b>${fmt(avg,4)}</b><br>${marker(t.green)}<span style="display:inline-block;min-width:72px">Máx</span><b>${fmt(max,4)}</b><br>${marker(t.amber)}<span style="display:inline-block;min-width:72px">Mín</span><b>${fmt(min,4)}</b>`;
       }},
       toolbox:{right:12,top:7,itemSize:14,itemGap:9,iconStyle:{borderColor:t.muted},emphasis:{iconStyle:{borderColor:t.ink}},feature:{dataZoom:{yAxisIndex:"none",title:{zoom:"Zoom",back:"Atrás"}},restore:{title:"Restaurar"},saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Tendencia_${name}_${fileStamp()}`)}}},
       dataZoom:[{type:"inside",throttle:60},{type:"slider",height:22,bottom:18,borderColor:t.line,fillerColor:rgba(t.cyan,.20),handleStyle:{color:t.navy},textStyle:{color:t.muted,fontWeight:500,fontSize:10},backgroundColor:t.soft}],
-      xAxis:{type:"category",data:data.map(x=>x.date),boundaryGap:false,axisLabel:{color:t.muted,fontWeight:500,margin:13},axisLine:{lineStyle:{color:t.line}},axisTick:{show:false}},
+      xAxis:{type:"category",data:data.map(x=>x.date),boundaryGap:false,axisLabel:{color:t.muted,fontWeight:500,margin:13,formatter:chartDateLabel},axisLine:{lineStyle:{color:t.line}},axisTick:{show:false}},
       yAxis:{type:"value",position:isMobile?"left":"right",scale:true,axisLabel:{color:t.muted,formatter:v=>fmt(v,4),fontWeight:500,fontSize:10,margin:isMobile?6:8,hideOverlap:true},axisLine:{show:false},axisTick:{show:false},splitLine:{lineStyle:{color:t.grid}}},
       series:[{
         name,type:"line",data:values,smooth:true,showSymbol:false,symbol:"circle",symbolSize:6,
@@ -1802,10 +2146,10 @@
     if(!changes.length){chart.clear(); chart.setOption({title:{text:"Sin variaciones suficientes",left:"center",top:"center",textStyle:{fontSize:13,color:t.muted}}}); return;}
     chart.setOption({
       animationDuration:520, grid:{left:8,right:18,top:50,bottom:58,containLabel:true},
-      tooltip:{trigger:"axis",backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff"},formatter:params=>{const p=Array.isArray(params)?params[0]:params; const val=Array.isArray(p.value)?p.value[1]:p.value; return `<div style="font-weight:720;margin-bottom:5px">${p.axisValue||""}</div>${marker(val>=0?t.green:t.red)}Var. diaria <b>${pct(val)}</b>`;}},
+      tooltip:{trigger:"axis",backgroundColor:t.tooltipBg,borderColor:t.tooltipBorder,textStyle:{color:"#fff"},formatter:params=>{const p=Array.isArray(params)?params[0]:params; const val=Array.isArray(p.value)?p.value[1]:p.value; const dateLabel=chartTooltipDateLabel(changes[p.dataIndex]?.date || p.axisValue || ""); return `<div style="font-weight:720;margin-bottom:5px">${dateLabel}</div>${marker(val>=0?t.green:t.red)}Var. diaria <b>${pct(val)}</b>`;}},
       toolbox:{right:12,top:7,itemSize:14,itemGap:9,iconStyle:{borderColor:t.muted},emphasis:{iconStyle:{borderColor:t.ink}},feature:{saveAsImage:{title:"Descargar",pixelRatio:3,backgroundColor:t.panel,name:safeName(`Variacion_diaria_${pair(code)}_${fileStamp()}`)}}},
       dataZoom:[{type:"inside",throttle:60}],
-      xAxis:{type:"category",data:changes.map(x=>x.date),axisLabel:{color:t.muted,fontWeight:600,margin:15},axisTick:{show:false},axisLine:{lineStyle:{color:t.line}}},
+      xAxis:{type:"category",data:changes.map(x=>x.date),axisLabel:{color:t.muted,fontWeight:600,margin:15,formatter:chartDateLabel},axisTick:{show:false},axisLine:{lineStyle:{color:t.line}}},
       yAxis:{type:"value",axisLabel:{color:t.muted,formatter:v=>fmtPctAxis(v),fontWeight:500,fontSize:10,margin:6,hideOverlap:true},axisTick:{show:false},axisLine:{show:false},splitLine:{lineStyle:{color:t.grid}}},
       series:[{name:"Var. diaria",type:"bar",data:changes.map(x=>({value:x.value,itemStyle:{color:x.value>=0?t.green:t.red,borderRadius:[3,3,0,0]}})),barMaxWidth:20,markLine:{symbol:"none",data:[{yAxis:0}],lineStyle:{color:t.muted,type:"dashed"}}}]
     },true);
