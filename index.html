@@ -2971,20 +2971,59 @@
     tooltip.style.transform = "translate3d(-9999px,-9999px,0)";
   }
 
+  function marketTickerPointerInside(panel, event){
+    const rect = panel.getBoundingClientRect();
+    return event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+  }
+
+  function marketTickerItemFromEvent(panel, event){
+    const direct = event.target?.closest?.(".market-ticker-item");
+    if(direct && panel.contains(direct)) return direct;
+    const underPointer = document.elementFromPoint(event.clientX, event.clientY);
+    const indirect = underPointer?.closest?.(".market-ticker-item");
+    return indirect && panel.contains(indirect) ? indirect : null;
+  }
+
+  function marketShowTickerTooltipFromEvent(panel, event){
+    if(window.matchMedia?.("(max-width: 760px)").matches) return false;
+    if(!marketTickerPointerInside(panel, event)){
+      marketHideTooltip();
+      return false;
+    }
+    const itemEl = marketTickerItemFromEvent(panel, event);
+    if(!itemEl){
+      marketMoveTooltip(event);
+      return false;
+    }
+    const index = Number(itemEl.dataset.marketIndex);
+    const item = marketTickerCurrentItems[index];
+    if(!item){
+      marketMoveTooltip(event);
+      return false;
+    }
+    marketShowTooltip(item, event);
+    return true;
+  }
+
   function marketBindTickerTooltip(){
     const panel = document.querySelector(".market-ticker-panel");
     if(!panel || marketTickerTooltipBound) return;
     marketTickerTooltipBound = true;
     panel.addEventListener("pointermove", (event) => {
-      if(marketTickerDragging){ marketHideTooltip(); return; }
-      const itemEl = event.target.closest(".market-ticker-item");
-      if(!itemEl || !panel.contains(itemEl)){ marketHideTooltip(); return; }
-      const index = Number(itemEl.dataset.marketIndex);
-      const item = marketTickerCurrentItems[index];
-      marketShowTooltip(item, event);
+      const shown = marketShowTickerTooltipFromEvent(panel, event);
+      if(!shown && !marketTickerDragging) marketHideTooltip();
     });
-    panel.addEventListener("pointerleave", marketHideTooltip);
-    panel.addEventListener("pointerdown", marketHideTooltip);
+    panel.addEventListener("pointerdown", (event) => {
+      marketShowTickerTooltipFromEvent(panel, event);
+    });
+    panel.addEventListener("pointerleave", () => {
+      if(!marketTickerDragging) marketHideTooltip();
+    });
+    panel.addEventListener("pointerup", (event) => {
+      const shown = marketShowTickerTooltipFromEvent(panel, event);
+      if(!shown) marketHideTooltip();
+    });
+    panel.addEventListener("pointercancel", marketHideTooltip);
     window.addEventListener("blur", marketHideTooltip);
     document.addEventListener("scroll", marketHideTooltip, true);
   }
