@@ -1,6 +1,6 @@
 {
   "schema": "sbs_tc_promedio_history.v1",
-  "generated_utc": "2026-07-15T14:57:14.869526+00:00",
+  "generated_utc": "2026-07-15T16:38:01.271936+00:00",
   "count_dates": 95,
   "range": {
     "from": "2026-01-05",
