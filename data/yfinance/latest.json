@@ -1,7 +1,7 @@
 {
   "source": "yfinance",
-  "fetched_at_utc": "2026-08-07T20:56:27.459395+00:00",
-  "fetched_at_lima": "2026-08-07T15:56:27.459395-05:00",
+  "fetched_at_utc": "2026-08-07T21:53:07.119525+00:00",
+  "fetched_at_lima": "2026-08-07T16:53:07.119525-05:00",
   "interval": "15m",
   "period": "5d",
   "count": 12,
@@ -17,10 +17,8 @@
       "change": -0.0007,
       "change_pct": -0.0207,
       "direction": "down",
-      "price_time": "2026-08-07T16:15:00-04:00",
+      "price_time": "2026-08-07T17:15:00-04:00",
       "sparkline": [
-        3.384,
-        3.3841,
         3.3856,
         3.3847,
         3.3842,
@@ -50,6 +48,8 @@
         3.3823,
         3.3824,
         3.382,
+        3.3823,
+        3.3823,
         3.3823
       ],
       "status": "ok"
@@ -58,15 +58,13 @@
       "symbol": "EURUSD=X",
       "name": "EUR/USD",
       "category": "FX",
-      "price": 1.156069,
+      "price": 1.156203,
       "previous_close": 1.155735,
-      "change": 0.000334,
-      "change_pct": 0.0289,
+      "change": 0.000468,
+      "change_pct": 0.0405,
       "direction": "up",
-      "price_time": "2026-08-07T16:45:00-04:00",
+      "price_time": "2026-08-07T17:15:00-04:00",
       "sparkline": [
-        1.157809,
-        1.157407,
         1.157541,
         1.156069,
         1.156069,
@@ -96,7 +94,9 @@
         1.156203,
         1.156069,
         1.156203,
-        1.156069
+        1.156069,
+        1.156203,
+        1.156203
       ],
       "status": "ok"
     },
@@ -104,10 +104,10 @@
       "symbol": "DX-Y.NYB",
       "name": "DXY",
       "category": "Dólar",
-      "price": 99.613998,
+      "price": 99.603996,
       "previous_close": 99.970001,
-      "change": -0.356003,
-      "change_pct": -0.3561,
+      "change": -0.366005,
+      "change_pct": -0.3661,
       "direction": "down",
       "price_time": "2026-08-07T16:45:00-04:00",
       "sparkline": [
@@ -142,7 +142,7 @@
         99.589996,
         99.610001,
         99.612999,
-        99.613998
+        99.603996
       ],
       "status": "ok"
     },
@@ -380,10 +380,10 @@
       "symbol": "GC=F",
       "name": "Oro",
       "category": "Commodity",
-      "price": 4400.5,
+      "price": 4401.299805,
       "previous_close": 4242.0,
-      "change": 158.5,
-      "change_pct": 3.7364,
+      "change": 159.299805,
+      "change_pct": 3.7553,
       "direction": "up",
       "price_time": "2026-08-07T16:45:00-04:00",
       "sparkline": [
@@ -418,7 +418,7 @@
         4401.799805,
         4397.299805,
         4400.799805,
-        4400.5
+        4401.299805
       ],
       "status": "ok"
     },
@@ -426,10 +426,10 @@
       "symbol": "CL=F",
       "name": "WTI",
       "category": "Commodity",
-      "price": 77.25,
+      "price": 77.080002,
       "previous_close": 77.290001,
-      "change": -0.040001,
-      "change_pct": -0.0518,
+      "change": -0.209999,
+      "change_pct": -0.2717,
       "direction": "down",
       "price_time": "2026-08-07T16:45:00-04:00",
       "sparkline": [
@@ -464,7 +464,7 @@
         77.059998,
         77.040001,
         77.190002,
-        77.25
+        77.080002
       ],
       "status": "ok"
     },
@@ -472,10 +472,10 @@
       "symbol": "HG=F",
       "name": "Cobre",
       "category": "Commodity",
-      "price": 6.588,
+      "price": 6.585,
       "previous_close": 6.687,
-      "change": -0.099,
-      "change_pct": -1.4805,
+      "change": -0.102,
+      "change_pct": -1.5253,
       "direction": "down",
       "price_time": "2026-08-07T16:45:00-04:00",
       "sparkline": [
@@ -510,7 +510,7 @@
         6.5845,
         6.577,
         6.5855,
-        6.588
+        6.585
       ],
       "status": "ok"
     },
@@ -518,17 +518,13 @@
       "symbol": "BTC-USD",
       "name": "Bitcoin",
       "category": "Crypto",
-      "price": 64930.648438,
+      "price": 64921.121094,
       "previous_close": 64262.113281,
-      "change": 668.535156,
-      "change_pct": 1.0403,
+      "change": 659.007812,
+      "change_pct": 1.0255,
       "direction": "up",
-      "price_time": "2026-08-07T16:45:00-04:00",
+      "price_time": "2026-08-07T17:45:00-04:00",
       "sparkline": [
-        65174.480469,
-        65120.171875,
-        65264.121094,
-        64960.890625,
         64780.300781,
         65148.730469,
         65055.0,
@@ -556,7 +552,11 @@
         64949.980469,
         64938.078125,
         64920.441406,
-        64930.648438
+        64935.71875,
+        64964.519531,
+        64960.609375,
+        64995.800781,
+        64921.121094
       ],
       "status": "ok"
     }
