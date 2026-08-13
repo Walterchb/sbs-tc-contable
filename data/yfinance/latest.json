@@ -1,7 +1,7 @@
 {
   "source": "yfinance",
-  "fetched_at_utc": "2026-08-13T21:00:21.964942+00:00",
-  "fetched_at_lima": "2026-08-13T16:00:21.964942-05:00",
+  "fetched_at_utc": "2026-08-13T22:00:41.503711+00:00",
+  "fetched_at_lima": "2026-08-13T17:00:41.503711-05:00",
   "interval": "15m",
   "period": "5d",
   "count": 12,
@@ -12,14 +12,13 @@
       "symbol": "USDPEN=X",
       "name": "USD/PEN",
       "category": "FX",
-      "price": 3.3755,
-      "previous_close": 3.358,
-      "change": 0.0175,
-      "change_pct": 0.5211,
-      "direction": "up",
-      "price_time": "2026-08-13T17:00:00-04:00",
+      "price": 3.3751,
+      "previous_close": 3.378,
+      "change": -0.0029,
+      "change_pct": -0.0859,
+      "direction": "down",
+      "price_time": "2026-08-13T17:15:00-04:00",
       "sparkline": [
-        3.3718,
         3.3712,
         3.3715,
         3.3595,
@@ -50,7 +49,8 @@
         3.3746,
         3.3751,
         3.3749,
-        3.3755
+        3.3746,
+        3.3751
       ],
       "status": "ok"
     },
@@ -59,17 +59,12 @@
       "name": "EUR/USD",
       "category": "FX",
       "price": 1.15327,
-      "previous_close": 1.154374,
-      "change": -0.001105,
-      "change_pct": -0.0957,
-      "direction": "down",
-      "price_time": "2026-08-13T16:45:00-04:00",
+      "previous_close": 1.153004,
+      "change": 0.000266,
+      "change_pct": 0.0231,
+      "direction": "up",
+      "price_time": "2026-08-13T18:00:00-04:00",
       "sparkline": [
-        1.154068,
-        1.153802,
-        1.153669,
-        1.153802,
-        1.154335,
         1.154335,
         1.154468,
         1.154734,
@@ -96,6 +91,11 @@
         1.153004,
         1.153136,
         1.153136,
+        1.15327,
+        1.153136,
+        1.15327,
+        1.153136,
+        1.153136,
         1.15327
       ],
       "status": "ok"
@@ -104,17 +104,13 @@
       "symbol": "DX-Y.NYB",
       "name": "DXY",
       "category": "Dólar",
-      "price": 99.964996,
+      "price": 99.968002,
       "previous_close": 100.010002,
-      "change": -0.045006,
-      "change_pct": -0.045,
+      "change": -0.042,
+      "change_pct": -0.042,
       "direction": "down",
-      "price_time": "2026-08-13T16:45:00-04:00",
+      "price_time": "2026-08-13T17:45:00-04:00",
       "sparkline": [
-        99.842003,
-        99.880997,
-        99.897003,
-        99.907997,
         99.834,
         99.849998,
         99.848,
@@ -142,7 +138,11 @@
         99.973999,
         99.969002,
         99.973999,
-        99.964996
+        99.958,
+        99.973,
+        99.956001,
+        99.955002,
+        99.968002
       ],
       "status": "ok"
     },
@@ -380,10 +380,10 @@
       "symbol": "GC=F",
       "name": "Oro",
       "category": "Commodity",
-      "price": 4406.5,
+      "price": 4407.100098,
       "previous_close": 4408.899902,
-      "change": -2.399902,
-      "change_pct": -0.0544,
+      "change": -1.799805,
+      "change_pct": -0.0408,
       "direction": "down",
       "price_time": "2026-08-13T16:45:00-04:00",
       "sparkline": [
@@ -418,7 +418,7 @@
         4406.299805,
         4407.600098,
         4405.600098,
-        4406.5
+        4407.100098
       ],
       "status": "ok"
     },
@@ -426,10 +426,10 @@
       "symbol": "CL=F",
       "name": "WTI",
       "category": "Commodity",
-      "price": 81.129997,
+      "price": 81.209999,
       "previous_close": 83.269997,
-      "change": -2.139999,
-      "change_pct": -2.57,
+      "change": -2.059998,
+      "change_pct": -2.4739,
       "direction": "down",
       "price_time": "2026-08-13T16:45:00-04:00",
       "sparkline": [
@@ -464,7 +464,7 @@
         81.160004,
         81.290001,
         81.220001,
-        81.129997
+        81.209999
       ],
       "status": "ok"
     },
@@ -472,10 +472,10 @@
       "symbol": "HG=F",
       "name": "Cobre",
       "category": "Commodity",
-      "price": 6.5835,
+      "price": 6.5895,
       "previous_close": 6.597,
-      "change": -0.0135,
-      "change_pct": -0.2046,
+      "change": -0.0075,
+      "change_pct": -0.1137,
       "direction": "down",
       "price_time": "2026-08-13T16:45:00-04:00",
       "sparkline": [
@@ -510,7 +510,7 @@
         6.583,
         6.5845,
         6.586,
-        6.5835
+        6.5895
       ],
       "status": "ok"
     },
@@ -518,17 +518,13 @@
       "symbol": "BTC-USD",
       "name": "Bitcoin",
       "category": "Crypto",
-      "price": 63335.789062,
+      "price": 63416.148438,
       "previous_close": 63402.433594,
-      "change": -66.644531,
-      "change_pct": -0.1051,
-      "direction": "down",
-      "price_time": "2026-08-13T17:00:00-04:00",
+      "change": 13.714844,
+      "change_pct": 0.0216,
+      "direction": "up",
+      "price_time": "2026-08-13T18:00:00-04:00",
       "sparkline": [
-        63528.960938,
-        63740.578125,
-        63653.039062,
-        63741.878906,
         63748.398438,
         63897.089844,
         63801.511719,
@@ -556,7 +552,11 @@
         63385.480469,
         63350.421875,
         63349.179688,
-        63335.789062
+        63371.308594,
+        63391.769531,
+        63382.320312,
+        63409.171875,
+        63416.148438
       ],
       "status": "ok"
     }
