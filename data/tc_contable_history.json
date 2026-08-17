@@ -1,6 +1,6 @@
 {
   "schema": "tc_contable_history.v1",
-  "generated_utc": "2026-08-15T02:13:57.044802+00:00",
+  "generated_utc": "2026-08-17T10:45:06.663275+00:00",
   "source": "data/tc_contable_YYYY-MM-DD.json",
   "count_dates": 122,
   "range": {
