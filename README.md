@@ -20,3 +20,11 @@ y publica archivos de salida en `data/` para descargar desde `index.html`.
 
 ## Nota
 El cron usa UTC y ejecuta en minutos 7, 22, 37 y 52 de cada hora.
+
+## Vistas Contable y Negociación
+
+La página incluye los botones **CONTABLE** y **NEGOCIACIÓN** junto a **HOY**.
+Negociación utiliza los archivos `sbs_tc_promedio_*` existentes, con compra,
+venta, mercado profesional, mesa BCR e histórico independiente.
+
+Ver [ACTUALIZACION.md](ACTUALIZACION.md) para cambios, instalación y pruebas.

@@ -1,0 +1,31 @@
+/* View switch: shared date controls, one aligned group of action buttons. */
+[hidden]{display:none!important}
+.date-card.market-enabled{grid-template-columns:minmax(460px,570px) minmax(0,1fr)!important}
+.date-card.market-enabled .date-control{max-width:none!important}
+.date-stepper{display:flex!important;gap:8px!important;align-items:center!important}
+.date-navigation{display:grid;grid-template-columns:26px minmax(125px,1fr) 26px;gap:4px;flex:1;min-width:185px}
+.date-mode-actions{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.date-mode-actions button{height:34px!important;min-height:34px!important;white-space:nowrap;box-shadow:none!important}
+.view-button{padding:0 9px;border:1px solid var(--line);border-radius:5px;background:var(--panel2);color:var(--muted);font-size:.65rem;letter-spacing:.025em}
+.view-button[aria-pressed="true"]{background:var(--navy3);color:white;border-color:var(--navy3)}
+:root[data-theme="dark"] .view-button[aria-pressed="true"]{background:#125078;border-color:#387394;color:#eef8ff}
+.view-button:hover{transform:none;filter:none;border-color:var(--line2)}
+.view-button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.view-button:disabled{opacity:.65;cursor:wait}
+.neg-intro{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 12px;color:var(--muted);font-size:.73rem;line-height:1.6}
+.neg-intro p{margin:0}.neg-intro a{color:var(--cyan);white-space:nowrap}
+.neg-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.neg-kpi{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--navy3);border-radius:var(--radius);padding:14px;min-width:0}
+.neg-kpi span,.neg-kpi small{display:block;color:var(--muted);font-size:.69rem;line-height:1.6}
+.neg-kpi strong{display:block;font-size:1.55rem;color:var(--ink);font-variant-numeric:tabular-nums;margin:5px 0}
+.neg-kpi:nth-child(2){border-top-color:var(--cyan)}.neg-kpi:nth-child(3){border-top-color:var(--avg)}
+.neg-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px}
+.neg-layout .panel{min-width:0}.neg-wide{grid-column:1/-1}
+#negotiationView .panel-head{gap:10px}#negotiationView .table-wrap{max-height:380px}
+#negotiationView .num{font-variant-numeric:tabular-nums}
+.neg-note{font-size:.7rem;color:var(--muted);margin:10px 0 0;line-height:1.6}
+.neg-message{padding:12px;border:1px solid var(--line);background:var(--soft);border-radius:5px;color:var(--muted);font-size:.8rem;margin-bottom:12px}
+#negSeriesValues{margin-top:12px;font-size:.75rem;color:var(--muted)}#negSeriesValues summary{cursor:pointer;margin-bottom:10px}
+@media(max-width:1050px){.date-card.market-enabled{grid-template-columns:1fr!important;gap:10px!important}.date-card.market-enabled .date-control{margin:0!important;padding-right:0!important}.date-control::after{display:none!important}.neg-layout{grid-template-columns:1fr}}
+@media(max-width:760px){.date-stepper{flex-wrap:wrap!important;gap:7px!important}.date-navigation{flex:1 0 100%;grid-template-columns:32px minmax(0,1fr) 32px;min-width:0}.date-mode-actions{width:100%;gap:6px}.date-mode-actions .view-button{flex:1;padding:0 8px;font-size:.67rem}.date-mode-actions .date-today{width:48px}.neg-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.neg-kpi{padding:10px}.neg-kpi strong{font-size:1.3rem}.neg-intro{align-items:flex-start;flex-direction:column;gap:3px}.neg-layout .tools{flex-wrap:wrap}#negCurrency{min-width:0;width:100%}}
+@media(max-width:760px){.date-card.market-enabled .date-control{padding:10px 11px!important}}
