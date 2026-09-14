@@ -72,3 +72,11 @@
   #negVariationTabs{gap:4px}#negVariationTabs .tab{padding:5px 6px;font-size:.65rem;min-height:30px}
   .neg-spread-head h2{font-size:.8rem}.neg-spread-head .panel-title{gap:5px}
 }
+
+/* Laptop and tablet: title and chart controls share one header row. */
+@media(min-width:761px){
+  #negotiationView .neg-trend-head{flex-direction:row;flex-wrap:nowrap;align-items:center;gap:10px}
+  #negotiationView .neg-trend-head .panel-title{flex:1 1 160px;width:auto;min-width:0}
+  #negotiationView .neg-trend-head .panel-title>div{min-width:0}
+  #negotiationView .neg-trend-head .tools{flex:0 0 auto;width:auto;flex-wrap:nowrap;justify-content:flex-end}
+}
