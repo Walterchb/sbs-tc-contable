@@ -1855,7 +1855,7 @@
           </div>          <span id="vFecha" class="date-value" aria-hidden="true">—</span>
           </div>
           <aside class="market-ticker-panel" aria-labelledby="marketTickerTitle">
-            <div id="marketTickerTitle" class="market-ticker-title label">MERCADOS: —</div>
+            <div id="marketTickerTitle" class="market-ticker-title label">MERCADOS: — · VAR. DIARIA</div>
             <div class="market-ticker-shell" draggable="false">
               <div class="market-ticker-viewport">
                 <div id="marketTickerTrack" class="market-ticker-track">
@@ -3098,18 +3098,18 @@
         stamp = marketFormatTimestamp(candidates[0]?.date);
       }
       if(stamp){
-        title.textContent = `MERCADOS: ${stamp} · Var. diaria`;
+        title.textContent = `MERCADOS: ${stamp} · VAR. DIARIA`;
         title.removeAttribute('title');
         title.setAttribute('aria-label', fetchedAtLima
           ? `Mercados: ${stamp}. Variación diaria respecto al cierre previo.`
           : `Mercados: ${stamp}. Variación diaria respecto al cierre previo.`);
       }else{
-        title.textContent = 'MERCADOS: — · Var. diaria';
+        title.textContent = 'MERCADOS: — · VAR. DIARIA';
         title.removeAttribute('title');
         title.setAttribute('aria-label', 'El JSON de mercados no incluye hora de actualización.');
       }
     }else{
-      title.textContent = 'MERCADOS: — · Var. diaria';
+      title.textContent = 'MERCADOS: — · VAR. DIARIA';
       title.removeAttribute('title');
       title.setAttribute('aria-label', 'Mercados externos');
     }

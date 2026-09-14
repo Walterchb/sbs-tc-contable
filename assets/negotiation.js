@@ -13,7 +13,7 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
   const dates=()=>[...state.snapshots.keys()].sort();
   const CURRENCIES={USD:'Dólar EE.UU.',EUR:'Euro',GBP:'Libra Esterlina',CAD:'Dólar Canadiense',CHF:'Franco Suizo',JPY:'Yen Japonés',MXN:'Peso Mexicano'};
   const QUICK=['USDPEN','EURPEN','EURUSD'];
-  const card=(id,label,icon,accent,sub,tip)=>`<article class="kpi fx-card neg-card ${accent}" tabindex="0" data-tip="${tip}" aria-label="${label}" aria-describedby="negCardTooltip"><div class="kpi-inner"><div class="kpi-face kpi-front"><div class="kpi-top"><span><i class="fa-solid ${icon}"></i><span>${label}</span></span><b id="${id}Delta" class="delta flat">—</b></div><strong id="${id}">—</strong><small>${sub}</small></div></div></article>`;
+  const card=(id,label,icon,accent,sub,tip)=>`<article class="kpi fx-card neg-card ${accent}" tabindex="0" data-tip="${tip}" aria-label="${label}" aria-describedby="negCardTooltip"><div class="kpi-inner"><div class="kpi-face kpi-front"><div class="kpi-top"><span><i class="fa-solid ${icon}"></i><span class="neg-label-long">${label}</span><span class="neg-label-short">${label.replace(/^USD(?: ·)? /,'')}</span></span><b id="${id}Delta" class="delta flat">—</b></div><strong id="${id}">—</strong><small>${sub}</small></div></div></article>`;
   root.innerHTML=`
     <div id="negMessage" class="neg-message" role="status" hidden></div>
     <div class="kpi-grid neg-kpis">
@@ -24,8 +24,8 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
     </div>
     <div id="negCardTooltip" class="neg-card-tooltip" role="tooltip" hidden></div>
     <div class="chart-row neg-chart-row">
-      <article class="panel"><div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia</h2><p id="negHistoryLabel">Cargando histórico…</p></div></div><div class="tools"><div id="negQuick" class="trend-quick neg-quick"></div><select id="negCurrency" aria-label="Otros pares de negociación"></select><div id="negRanges" class="tabs"><button class="tab" data-range="15">15D</button><button class="tab active" data-range="30">30D</button><button class="tab" data-range="60">60D</button><button class="tab" data-range="120">120D</button></div></div></div><div class="panel-body"><div id="negLegend" class="chart-legend"></div><div id="negTrendChart" class="chart"></div><p id="negSeriesNote" class="neg-note"></p><details id="negSeriesValues"><summary>Ver valores de la serie</summary><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Compra</th><th>Venta</th><th id="negAverageHead">Promedio</th><th>Spread</th></tr></thead><tbody id="negSeriesTable"></tbody></table></div></details></div></article>
-      <article class="panel"><div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-column"></i></span><div><h2>Spread y variación</h2><p id="negSpreadLabel">—</p></div></div><div id="negVariationTabs" class="tabs"><button class="tab active" data-variation="tc">Var. TC</button><button class="tab" data-variation="spread">Var. spread</button></div></div><div class="panel-body"><div id="negSpreadLegend" class="chart-legend"></div><div id="negSpreadChart" class="chart"></div><p id="negVariationNote" class="neg-note"></p></div></article>
+      <article class="panel"><div class="panel-head neg-trend-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-line"></i></span><div><h2>Tendencia</h2><p id="negHistoryLabel">Cargando histórico…</p></div></div><div class="tools"><div id="negQuick" class="trend-quick neg-quick"></div><select id="negCurrency" aria-label="Otros pares de negociación"></select><select id="negCurrencyMobile" aria-label="Par de negociación"></select><div id="negRanges" class="tabs"><button class="tab" data-range="15">15D</button><button class="tab active" data-range="30">30D</button><button class="tab" data-range="60">60D</button><button class="tab" data-range="120">120D</button></div></div></div><div class="panel-body"><div id="negLegend" class="chart-legend"></div><div id="negTrendChart" class="chart"></div><p id="negSeriesNote" class="neg-note"></p><details id="negSeriesValues"><summary>Ver valores de la serie</summary><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Compra</th><th>Venta</th><th id="negAverageHead">Promedio</th><th>Spread</th></tr></thead><tbody id="negSeriesTable"></tbody></table></div></details></div></article>
+      <article class="panel"><div class="panel-head neg-spread-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-chart-column"></i></span><div><h2>Spread y variación</h2><p id="negSpreadLabel">—</p></div></div><div id="negVariationTabs" class="tabs"><button class="tab active" data-variation="tc">Var. TC</button><button class="tab" data-variation="spread">Var. spread</button></div></div><div class="panel-body"><div id="negSpreadLegend" class="chart-legend"></div><div id="negSpreadChart" class="chart"></div><p id="negVariationNote" class="neg-note"></p></div></article>
     </div>
     <div class="neg-layout">
       <article class="panel"><div class="panel-head"><div class="panel-title"><span class="title-icon"><i class="fa-solid fa-right-left"></i></span><div><h2>Oferta y demanda</h2><p>Compra, venta y spread · PEN</p></div></div></div><div class="panel-body"><div class="table-tools"><input id="negSearch" class="search" placeholder="Buscar moneda" aria-label="Buscar moneda de negociación"></div><div class="table-wrap"><table><thead><tr><th>Moneda</th><th>Compra</th><th>Venta</th><th>Spread</th></tr></thead><tbody id="negRates"></tbody></table></div><p class="neg-note">— indica un dato no publicado. El spread solo se calcula cuando existen compra y venta.</p></div></article>
@@ -96,9 +96,10 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
       return {date:key,...row,variation:change(row.promedio,prev?.promedio),spreadVariation:change(row.spread,prev?.spread)};
     }).slice(-state.range);
   }
-  const averageLabel=()=>state.pair==='USDPEN'?'Promedio · FIX':'Promedio';
+  const averageLabel=()=>state.pair==='USDPEN'?'FIX':'Prom.';
   const signed=value=>number(value)===null?'—':`${value>=0?'+':''}${format(value)}%`;
   const pill=(label,value,color,suffix='')=>`<span class="legend-pill"><span class="legend-dot" style="background:${color}"></span>${label}<strong>${format(value)}${number(value)===null?'':suffix}</strong></span>`;
+  const marker=color=>`<span aria-hidden="true" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:7px;vertical-align:middle"></span>`;
   function toolbox(colors,prefix){
     return {right:12,top:7,itemSize:14,itemGap:9,iconStyle:{borderColor:colors.muted},emphasis:{iconStyle:{borderColor:colors.ink}},feature:{dataZoom:{yAxisIndex:'none',title:{zoom:'Zoom',back:'Atrás'}},restore:{title:'Restaurar'},saveAsImage:{title:'Descargar',pixelRatio:3,backgroundColor:colors.panel,name:`${prefix}_${state.pair}_${state.selected}`}}};
   }
@@ -129,12 +130,12 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
     if(!state.spreadChart) state.spreadChart=echarts.init(el('negSpreadChart'));
     const common=chartBase(rows,colors);
     state.chart.setOption({...common,toolbox:toolbox(colors,'Negociacion'),
-      tooltip:{...common.tooltip,formatter:items=>items.length?`<b>${chartTooltipDateLabel(items[0].axisValue)}</b><br>${items.map(item=>`${escape(item.seriesName)}: <b>${format(item.value)}</b>`).join('<br>')}`:''},
+      tooltip:{...common.tooltip,formatter:items=>items.length?`<b>${chartTooltipDateLabel(items[0].axisValue)}</b><br>${items.map(item=>`${marker(specs.find(([label])=>label===item.seriesName)?.[2]||colors.muted)}${escape(item.seriesName)}: <b>${format(item.value)}</b>`).join('<br>')}`:''},
       series:specs.map(([label,key,color])=>({name:label,type:'line',showSymbol:rows.length<3,symbol:'circle',symbolSize:6,connectNulls:false,smooth:false,lineStyle:{width:1.35,color},itemStyle:{color},emphasis:{focus:'series',lineStyle:{width:2}},areaStyle:key==='promedio'?{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:rgba(color,.24)},{offset:.56,color:rgba(color,.10)},{offset:1,color:rgba(color,.015)}])}:undefined,data:rows.map(row=>row[key])})),
       title:rows.some(r=>[r.compra,r.venta,r.promedio].some(v=>v!==null))?[]:[{text:'Sin datos publicados en este rango',left:'center',top:'center',textStyle:{color:colors.muted,fontSize:12}}]
     },true);
     state.spreadChart.setOption({...common,toolbox:toolbox(colors,'Spread_variacion'),
-      tooltip:{...common.tooltip,formatter:items=>{const row=rows[items[0]?.dataIndex];return row?`<b>${chartTooltipDateLabel(row.date)}</b><br>Spread: <b>${format(row.spread)}</b><br>${variationName}: <b>${signed(row[variationKey])}</b>`:'';}},
+      tooltip:{...common.tooltip,formatter:items=>{const row=rows[items[0]?.dataIndex];return row?`<b>${chartTooltipDateLabel(row.date)}</b><br>${marker(colors.cyan)}Spread: <b>${format(row.spread)}</b><br>${marker(row[variationKey]>=0?colors.green:colors.red)}${variationName}: <b>${signed(row[variationKey])}</b>`:'';}},
       yAxis:[{...common.yAxis,position:'left',scale:true},{...common.yAxis,position:'right',scale:false,splitLine:{show:false},axisLabel:{...common.yAxis.axisLabel,formatter:v=>`${format(v)}%`}}],
       series:[{name:'Spread',type:'line',yAxisIndex:0,showSymbol:rows.length<3,connectNulls:false,lineStyle:{width:1.5,color:colors.cyan},itemStyle:{color:colors.cyan},data:rows.map(r=>r.spread),z:3},{name:variationName,type:'bar',yAxisIndex:1,barMaxWidth:15,data:rows.map(r=>({value:r[variationKey],itemStyle:{color:r[variationKey]>=0?colors.green:colors.red,opacity:.55,borderRadius:[3,3,0,0]}}))}],
       title:rows.some(r=>r.spread!==null||r[variationKey]!==null)?[]:[{text:'Sin datos suficientes',left:'center',top:'center',textStyle:{color:colors.muted,fontSize:12}}]
@@ -148,6 +149,8 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
     el('negQuick').innerHTML=QUICK.filter(p=>pairs.includes(p)).map(p=>`<button type="button" class="pair-btn ${state.pair===p?'active':''}" data-pair="${p}" aria-pressed="${state.pair===p}">${p}</button>`).join('');
     el('negCurrency').innerHTML='<option value="">Otros pares</option>'+pairs.filter(p=>!QUICK.includes(p)).map(p=>`<option value="${p}">${p}</option>`).join('');
     el('negCurrency').value=QUICK.includes(state.pair)?'':state.pair;
+    el('negCurrencyMobile').innerHTML=pairs.map(p=>`<option value="${p}">${p}</option>`).join('');
+    el('negCurrencyMobile').value=state.pair;
   }
   function renderTable(){
     const q=el('negSearch').value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -168,7 +171,7 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
       const delta=change(value,prev),node=el(`${id}Delta`);node.textContent=signed(delta);node.className=`delta ${delta===null||delta===0?'flat':delta>0?'pos':'neg'}`;
     }
     renderPairControls();
-    el('negHistoryLabel').textContent=state.loaded?`${state.pair} · Al ${displayDate(state.selected)} · Histórico desde ${displayDate(dates()[0])}`:'Histórico no disponible';
+    el('negHistoryLabel').textContent=state.loaded?`${state.pair} · Histórico desde ${displayDate(dates()[0])}`:'Histórico no disponible';
     renderTable();
     el('negBcr').innerHTML=snapshot.mesa_bcr.map(row=>`<tr><td>${escape(row.operacion)}</td><td class="num">${format(row.promedio_ponderado)}</td><td class="num">${format(row.minimo)}</td><td class="num">${format(row.maximo)}</td></tr>`).join('')||'<tr><td colspan="4">Sin datos publicados.</td></tr>';
     el('negBcrNote').textContent=snapshot.mesa_bcr.some(r=>[r.promedio_ponderado,r.minimo,r.maximo].some(v=>number(v)!==null))?'Cifras publicadas por la SBS para la fecha seleccionada.':'Sin valores publicados para la mesa BCR en esta fecha.';
@@ -202,6 +205,7 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
   });
   document.addEventListener('pointerdown',e=>{if(!e.target.closest('.neg-card'))hideTooltip();});
   document.addEventListener('scroll',hideTooltip,true);
+  el('negCurrencyMobile').addEventListener('change',e=>{if(e.target.value){state.pair=e.target.value;render();}});
   el('negCurrency').addEventListener('change',e=>{if(e.target.value){state.pair=e.target.value;render();}});
   el('negQuick').addEventListener('click',e=>{const button=e.target.closest('[data-pair]');if(button){state.pair=button.dataset.pair;render();}});
   el('negVariationTabs').addEventListener('click',e=>{const button=e.target.closest('[data-variation]');if(!button)return;state.variation=button.dataset.variation;el('negVariationTabs').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b===button));renderChart();});
