@@ -1939,7 +1939,7 @@
   const state = {meta:null,rates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestRates:new Map([["PEN",{code:"PEN",name:"Sol peruano",rate:1,base:1,raw:{}}]]),latestDate:"",selectedDate:"",history:[],historyVersion:0,seriesCache:new Map(),trend:"USD",range:30,barSet:"core",charts:{},historySource:""};
 
   let activeView = "contable";
-  const negotiation = createNegotiationView({el, fetchJSON, fmt, displayDate, themeColors, showToast, downloadTextFile});
+  const negotiation = createNegotiationView({el, fetchJSON, fmt, displayDate, themeColors, showToast, rgba, chartDateLabel, chartTooltipDateLabel});
   function syncView(){
     const trading=activeView==="negociacion";
     el("contableView").hidden=trading;
@@ -1954,7 +1954,7 @@
   }
   async function switchView(view){
     if(view===activeView || refreshInFlight) return;
-    fxTooltipHide(); activeView=view; syncView();
+    fxTooltipHide({force:true}); negotiation.hideTooltip(); activeView=view; syncView();
     if(view==="negociacion" && !negotiation.loaded) await runRefresh();
   }
   function cssVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
@@ -2839,7 +2839,7 @@
     tooltip.style.transform="translate3d(-9999px,-9999px,0)";
   }
   function fxBindCardTooltips(){
-    document.querySelectorAll(".fx-card").forEach(card=>{
+    document.querySelectorAll("#contableView .fx-card").forEach(card=>{
       card.classList.remove("flipped");
       card.addEventListener("pointerenter",event=>{ if(!isMobileView()) fxTooltipShow(card,event); });
       card.addEventListener("pointermove",event=>{ if(!isMobileView()) fxTooltipShow(card,event); });
@@ -3098,18 +3098,18 @@
         stamp = marketFormatTimestamp(candidates[0]?.date);
       }
       if(stamp){
-        title.textContent = `MERCADOS: ${stamp}`;
+        title.textContent = `MERCADOS: ${stamp} · Var. diaria`;
         title.removeAttribute('title');
         title.setAttribute('aria-label', fetchedAtLima
-          ? `Mercados actualizados según fetched_at_lima del JSON: ${stamp}`
-          : `Mercados actualizados según timestamp del JSON: ${stamp}`);
+          ? `Mercados: ${stamp}. Variación diaria respecto al cierre previo.`
+          : `Mercados: ${stamp}. Variación diaria respecto al cierre previo.`);
       }else{
-        title.textContent = 'MERCADOS: —';
+        title.textContent = 'MERCADOS: — · Var. diaria';
         title.removeAttribute('title');
         title.setAttribute('aria-label', 'El JSON de mercados no incluye hora de actualización.');
       }
     }else{
-      title.textContent = 'MERCADOS: —';
+      title.textContent = 'MERCADOS: — · Var. diaria';
       title.removeAttribute('title');
       title.setAttribute('aria-label', 'Mercados externos');
     }

@@ -12,20 +12,33 @@
 .view-button:hover{transform:none;filter:none;border-color:var(--line2)}
 .view-button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .view-button:disabled{opacity:.65;cursor:wait}
-.neg-intro{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 12px;color:var(--muted);font-size:.73rem;line-height:1.6}
-.neg-intro p{margin:0}.neg-intro a{color:var(--cyan);white-space:nowrap}
-.neg-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
-.neg-kpi{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--navy3);border-radius:var(--radius);padding:14px;min-width:0}
-.neg-kpi span,.neg-kpi small{display:block;color:var(--muted);font-size:.69rem;line-height:1.6}
-.neg-kpi strong{display:block;font-size:1.55rem;color:var(--ink);font-variant-numeric:tabular-nums;margin:5px 0}
-.neg-kpi:nth-child(2){border-top-color:var(--cyan)}.neg-kpi:nth-child(3){border-top-color:var(--avg)}
+.neg-kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px}
 .neg-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px}
-.neg-layout .panel{min-width:0}.neg-wide{grid-column:1/-1}
+.neg-layout .panel,.neg-chart-row .panel{min-width:0}
 #negotiationView .panel-head{gap:10px}#negotiationView .table-wrap{max-height:380px}
 #negotiationView .num{font-variant-numeric:tabular-nums}
 .neg-note{font-size:.7rem;color:var(--muted);margin:10px 0 0;line-height:1.6}
 .neg-message{padding:12px;border:1px solid var(--line);background:var(--soft);border-radius:5px;color:var(--muted);font-size:.8rem;margin-bottom:12px}
 #negSeriesValues{margin-top:12px;font-size:.75rem;color:var(--muted)}#negSeriesValues summary{cursor:pointer;margin-bottom:10px}
 @media(max-width:1050px){.date-card.market-enabled{grid-template-columns:1fr!important;gap:10px!important}.date-card.market-enabled .date-control{margin:0!important;padding-right:0!important}.date-control::after{display:none!important}.neg-layout{grid-template-columns:1fr}}
-@media(max-width:760px){.date-stepper{flex-wrap:wrap!important;gap:7px!important}.date-navigation{flex:1 0 100%;grid-template-columns:32px minmax(0,1fr) 32px;min-width:0}.date-mode-actions{width:100%;gap:6px}.date-mode-actions .view-button{flex:1;padding:0 8px;font-size:.67rem}.date-mode-actions .date-today{width:48px}.neg-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.neg-kpi{padding:10px}.neg-kpi strong{font-size:1.3rem}.neg-intro{align-items:flex-start;flex-direction:column;gap:3px}.neg-layout .tools{flex-wrap:wrap}#negCurrency{min-width:0;width:100%}}
+@media(max-width:760px){.date-stepper{flex-wrap:wrap!important;gap:7px!important}.date-navigation{flex:1 0 100%;grid-template-columns:32px minmax(0,1fr) 32px;min-width:0}.date-mode-actions{width:100%;gap:6px}.date-mode-actions .view-button{flex:1;padding:0 8px;font-size:.67rem}.date-mode-actions .date-today{width:48px}.neg-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.neg-layout .tools{flex-wrap:wrap}#negCurrency{min-width:0;width:100%}}
 @media(max-width:760px){.date-card.market-enabled .date-control{padding:10px 11px!important}}
+
+/* Share the accounting cards, chart controls and typography. */
+.neg-quick{display:flex!important;flex-wrap:wrap;gap:5px}
+.neg-card:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.neg-card-tooltip{position:fixed;z-index:100;max-width:min(300px,calc(100vw - 24px));padding:10px 13px;border:1px solid var(--tooltip-border);border-radius:7px;background:var(--tooltip-bg);color:#fff;font-size:.76rem;line-height:1.5;box-shadow:0 8px 25px rgba(0,0,0,.22);pointer-events:none}
+.neg-chart-row>.panel>.panel-head{min-height:88px;align-items:center}
+.neg-chart-row .panel-title{flex:1 1 160px}
+.neg-chart-row .tools{flex:1 1 260px}
+#negVariationTabs{width:auto;flex-wrap:nowrap}
+#negVariationTabs .tab{white-space:nowrap}
+#trendOther,#trendCcy,#negCurrency{box-sizing:border-box!important;height:30px!important;min-height:30px!important;max-height:30px!important;line-height:normal!important;padding:3px 28px 3px 9px!important;font-size:.74rem!important;align-self:center;border-radius:5px!important}
+#negCurrency{width:138px;min-width:0}
+#trendOther option,#trendCcy option,#negCurrency option{font-size:inherit;line-height:normal}
+@media(max-width:760px){
+  #trendOther,#trendCcy,#negCurrency{height:34px!important;min-height:34px!important;max-height:34px!important;font-size:16px!important;padding-block:3px!important}
+  #negCurrency{width:100%}.neg-quick{width:100%;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .neg-quick .pair-btn{padding-inline:6px;min-width:0}.neg-chart-row .panel-title,.neg-chart-row .tools{flex:initial;width:100%}
+  .neg-chart-row>.panel>.panel-head{min-height:0;align-items:flex-start}
+}
