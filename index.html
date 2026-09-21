@@ -2468,7 +2468,7 @@
       updateHistorySubtitle();
       setStatus(usedCache?"Actualizado":"Sin histórico",usedCache?"ok":"warn");
       renderStatic();
-      return usedCache;
+      return false;
     }
   }
   function ensureChart(id){
@@ -2921,10 +2921,10 @@
   async function refresh(forceHistory=false){
     setStatus("Consultando","");
     try{
-      await loadMeta(); await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(true); return true;
+      await loadMeta(); await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); return await loadHistory(forceHistory);
     }catch(e){
       setStatus("Error","err"); log(`Error de carga: ${e.message||e}`,"error");
-      try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(true); return true;}catch(_e){return false;}
+      try{await loadLatest(); renderStatic(); setStatus("Latest OK","ok"); await loadHistory(forceHistory); return false;}catch(_e){return false;}
     }
   }
   const AUTO_REFRESH_MS = 5 * 60 * 1000;
@@ -2950,16 +2950,23 @@
     try{
       const selectedBefore=state.selectedDate;
       const followingLatest=!selectedBefore || selectedBefore===state.latestDate;
-      const ok = activeView==="negociacion" ? await negotiation.load() : await refresh(true);
-      if(activeView==="contable"){
-        if(!followingLatest && findSnapshotByDate(selectedBefore)) applySnapshot(findSnapshotByDate(selectedBefore));
-        if(ok) checkNewSbsDate(previousLatestDate);
-      }
-      lastRefreshAt = Date.now();
+      // Refresh every source even when its view is hidden. A failed source must
+      // neither cancel the other requests nor report a complete refresh.
+      const results = await Promise.allSettled([
+        refresh(true), negotiation.load(), window.refreshMarketTicker()
+      ]);
+      const succeeded = results.map(result=>result.status==="fulfilled" && result.value===true);
+      const failed = ["contable", "negociación", "Yahoo"].filter((_,index)=>!succeeded[index]);
+      const ok = failed.length===0;
+      if(!followingLatest && findSnapshotByDate(selectedBefore)) applySnapshot(findSnapshotByDate(selectedBefore));
+      syncView();
+      if(succeeded[0]) checkNewSbsDate(previousLatestDate);
+      if(ok) lastRefreshAt = Date.now();
       const stamp = localTimeStamp();
-      setStatus(ok ? `Actualizado ${stamp}` : "Error", ok ? "ok" : "err");
-      if(manual) showToast(ok ? `Datos actualizados · ${stamp}` : "No se pudo actualizar", ok ? "ok" : "err");
-      else log(`Autoactualización ${ok ? "OK" : "fallida"} · ${stamp}`, ok ? "info" : "warn");
+      const partial = succeeded.some(Boolean);
+      setStatus(ok ? `Actualizado ${stamp}` : partial ? "Actualización parcial" : "Error", ok ? "ok" : partial ? "warn" : "err");
+      if(manual) showToast(ok ? `Contable, negociación y Yahoo actualizados · ${stamp}` : `No se pudo actualizar: ${failed.join(", ")}`, ok ? "ok" : "warn");
+      else log(`Autoactualización ${ok ? "OK" : `incompleta (${failed.join(", ")})`} · ${stamp}`, ok ? "info" : "warn");
       return ok;
     }catch(e){
       const stamp = localTimeStamp();
@@ -2989,15 +2996,17 @@
     window.addEventListener("focus", refreshIfStale);
   }
 
-  initTheme(); bind(); startAutoRefresh(); runRefresh({auto:true});
+  initTheme(); bind();
+  // The market module below registers its loader before DOMContentLoaded.
+  const start = () => { startAutoRefresh(); runRefresh({auto:true}); };
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, {once:true});
+  else queueMicrotask(start);
 })();
 </script>
 
 <script>
 (() => {
   const MARKET_TICKER_URL = "./data/yfinance/latest.json";
-  const MARKET_TICKER_REFRESH_MS = 5 * 60 * 1000;
-  let marketTickerTimer = null;
   let marketTickerRaf = null;
   let marketTickerLastTs = 0;
   let marketTickerOffset = 0;
@@ -3587,20 +3596,25 @@
 
   async function loadMarketTicker(){
     const track = marketEl('marketTickerTrack');
-    if(!track) return;
+    if(!track) return false;
     try{
       const url = `${MARKET_TICKER_URL}${MARKET_TICKER_URL.includes('?') ? '&' : '?'}v=${Date.now()}`;
       const res = await fetch(url, {cache:'no-store'});
       if(!res.ok) throw new Error(`HTTP ${res.status}`);
       const payload = await res.json();
+      if(!Array.isArray(payload?.data) || !payload.data.some(item=>item?.status==='ok')) throw new Error('Sin cotizaciones de mercado');
       renderMarketTicker(payload);
+      return true;
     }catch(err){
-      marketUpdateTitle(null);
-      marketTickerCurrentItems = [];
-      marketHideTooltip();
-      track.innerHTML = '<div class="market-ticker-empty">No se pudo cargar mercado externo.</div>';
-      track.style.animation = 'none';
+      // Keep the last successful quotes and their original timestamp on errors.
+      if(!marketTickerCurrentItems.length){
+        marketUpdateTitle(null);
+        marketHideTooltip();
+        track.innerHTML = '<div class="market-ticker-empty">No se pudo cargar mercado externo.</div>';
+        track.style.animation = 'none';
+      }
       console.error('[marketTicker]', err);
+      return false;
     }
   }
 
@@ -3608,13 +3622,9 @@
     marketUpdateTitle(null);
     marketBindTickerDrag();
     marketBindTickerTooltip();
-    loadMarketTicker();
-    if(marketTickerTimer) clearInterval(marketTickerTimer);
-    marketTickerTimer = setInterval(()=>{
-      if(document.visibilityState === 'visible') loadMarketTicker();
-    }, MARKET_TICKER_REFRESH_MS);
   }
 
+  window.refreshMarketTicker = loadMarketTicker;
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startMarketTicker, {once:true});
   else startMarketTicker();
 })();

@@ -67,7 +67,7 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
       state.snapshots=snapshots;
       state.latest=dates().at(-1);
       state.selected=oldSelected && oldSelected!==oldLatest && snapshots.has(oldSelected)?oldSelected:state.latest;
-      state.loaded=true; state.warning=warning.trim(); render(); return true;
+      state.loaded=true; state.warning=warning.trim(); render(); return !state.warning;
     }catch(error){
       state.warning=state.loaded?'No se pudo actualizar. Se conservan los datos de la última carga.':'No se pudieron cargar los datos de negociación. Pulsa Actualizar para reintentar.';
       render(); showToast(state.warning,'warn'); return false;
@@ -116,7 +116,7 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
     if(root.hidden) return;
     const rows=rowsForSeries(),colors=themeColors(),last=rows.at(-1)||{};
     const specs=[['Compra','compra','#1c7ff2'],['Venta','venta',colors.cyan],[averageLabel(),'promedio',colors.avg]];
-    el('negLegend').innerHTML=specs.map(([label,key,color])=>pill(label,last[key],color)).join('');
+    el('negLegend').innerHTML=specs.map(([label,key,color])=>pill(label,last[key],color)).join('')+pill('Spread',last.spread,colors.amber);
     el('negAverageHead').textContent=averageLabel();
     el('negSeriesTable').innerHTML=rows.slice().reverse().map(row=>`<tr><td>${displayDate(row.date)}</td><td class="num">${format(row.compra)}</td><td class="num">${format(row.venta)}</td><td class="num">${format(row.promedio)}</td><td class="num">${format(row.spread)}</td></tr>`).join('')||'<tr><td colspan="5">Sin histórico disponible.</td></tr>';
     el('negSeriesNote').textContent=state.pair==='USDPEN'?'PEN por USD · Promedio: FIX del mercado profesional publicado por SBS.':state.pair.endsWith('USD')?'USD por unidad · Compra: moneda/PEN compra ÷ USD/PEN venta. Venta: moneda/PEN venta ÷ USD/PEN compra. Promedio: (compra + venta) / 2.':'PEN por unidad · Promedio calculado: (compra + venta) / 2.';
@@ -130,14 +130,18 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
     if(!state.spreadChart) state.spreadChart=echarts.init(el('negSpreadChart'));
     const common=chartBase(rows,colors);
     state.chart.setOption({...common,toolbox:toolbox(colors,'Negociacion'),
-      tooltip:{...common.tooltip,formatter:items=>items.length?`<b>${chartTooltipDateLabel(items[0].axisValue)}</b><br>${items.map(item=>`${marker(specs.find(([label])=>label===item.seriesName)?.[2]||colors.muted)}${escape(item.seriesName)}: <b>${format(item.value)}</b>`).join('<br>')}`:''},
-      series:specs.map(([label,key,color])=>({name:label,type:'line',showSymbol:rows.length<3,symbol:'circle',symbolSize:6,connectNulls:false,smooth:false,lineStyle:{width:1.35,color},itemStyle:{color},emphasis:{focus:'series',lineStyle:{width:2}},areaStyle:key==='promedio'?{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:rgba(color,.24)},{offset:.56,color:rgba(color,.10)},{offset:1,color:rgba(color,.015)}])}:undefined,data:rows.map(row=>row[key])})),
+      tooltip:{...common.tooltip,formatter:items=>{
+        const row=rows.find(row=>row.date===items[0]?.axisValue);
+        return row?`<b>${chartTooltipDateLabel(row.date)}</b><br>${specs.map(([label,key,color])=>`${marker(color)}${label}: <b>${format(row[key])}</b>`).join('<br>')}<br>${marker(colors.amber)}Spread: <b>${format(row.spread)}</b>`:'';
+      }},
+      series:specs.map(([label,key,color])=>({name:label,type:'line',showSymbol:rows.length<3,symbol:'circle',symbolSize:6,connectNulls:false,smooth:false,lineStyle:{width:2,color,opacity:1},itemStyle:{color,opacity:1},emphasis:{focus:'none',lineStyle:{width:2.5}},areaStyle:key==='promedio'?{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:rgba(color,.24)},{offset:.56,color:rgba(color,.10)},{offset:1,color:rgba(color,.015)}])}:undefined,data:rows.map(row=>row[key])})),
       title:rows.some(r=>[r.compra,r.venta,r.promedio].some(v=>v!==null))?[]:[{text:'Sin datos publicados en este rango',left:'center',top:'center',textStyle:{color:colors.muted,fontSize:12}}]
     },true);
     state.spreadChart.setOption({...common,toolbox:toolbox(colors,'Spread_variacion'),
+      xAxis:{...common.xAxis,boundaryGap:true},
       tooltip:{...common.tooltip,formatter:items=>{const row=rows[items[0]?.dataIndex];return row?`<b>${chartTooltipDateLabel(row.date)}</b><br>${marker(colors.cyan)}Spread: <b>${format(row.spread)}</b><br>${marker(row[variationKey]>=0?colors.green:colors.red)}${variationName}: <b>${signed(row[variationKey])}</b>`:'';}},
       yAxis:[{...common.yAxis,position:'left',scale:true},{...common.yAxis,position:'right',scale:false,splitLine:{show:false},axisLabel:{...common.yAxis.axisLabel,formatter:v=>`${format(v)}%`}}],
-      series:[{name:'Spread',type:'line',yAxisIndex:0,showSymbol:rows.length<3,connectNulls:false,lineStyle:{width:1.5,color:colors.cyan},itemStyle:{color:colors.cyan},data:rows.map(r=>r.spread),z:3},{name:variationName,type:'bar',yAxisIndex:1,barMaxWidth:15,data:rows.map(r=>({value:r[variationKey],itemStyle:{color:r[variationKey]>=0?colors.green:colors.red,opacity:.55,borderRadius:[3,3,0,0]}}))}],
+      series:[{name:'Spread',type:'line',yAxisIndex:0,showSymbol:rows.length<3,connectNulls:false,lineStyle:{width:2.2,color:colors.cyan,opacity:1},itemStyle:{color:colors.cyan,opacity:1},emphasis:{focus:'none',lineStyle:{width:2.7}},data:rows.map(r=>r.spread),z:3},{name:variationName,type:'bar',yAxisIndex:1,barMaxWidth:15,emphasis:{focus:'none',itemStyle:{opacity:1}},data:rows.map(r=>({value:r[variationKey],itemStyle:{color:r[variationKey]>=0?colors.green:colors.red,opacity:1,borderRadius:r[variationKey]>=0?[3,3,0,0]:[0,0,3,3]}}))}],
       title:rows.some(r=>r.spread!==null||r[variationKey]!==null)?[]:[{text:'Sin datos suficientes',left:'center',top:'center',textStyle:{color:colors.muted,fontSize:12}}]
     },true);
     state.chart.resize();state.spreadChart.resize();
@@ -159,18 +163,32 @@ window.createNegotiationView = function({el, fetchJSON, fmt, displayDate, themeC
   }
   function render(){
     if(root.hidden) return;
-    const snapshot=current(), usd=snapshot.oferta_demanda.find(row=>row.moneda==='Dólar EE.UU.');
-    const professional=snapshot.mercado_profesional.find(row=>row.moneda==='Dólar EE.UU.');
+    renderPairControls();
+    hideTooltip();
+    const snapshot=current(), selectedQuote=quote(snapshot);
+    const base=state.pair.slice(0,3),term=state.pair.slice(3),currency=CURRENCIES[base];
     el('datePicker').value=state.selected;el('datePicker').min=dates()[0]||'';el('datePicker').max=state.latest;
     el('brandSubtitle').textContent=state.latest?`Fecha SBS: ${displayDate(state.latest)}`:'Fecha SBS: —';
     el('vFecha').textContent=state.selected===state.latest?'Última disponible':`Vista: ${displayDate(state.selected)}`;
     el('negMessage').textContent=state.warning||(!state.loaded?'Cargando negociación…':'');el('negMessage').hidden=!el('negMessage').textContent;
-    for(const [id,value] of [['negBuy',usd?.compra],['negSell',usd?.venta],['negFix',professional?.promedio_ponderado],['negSpread',spread(usd)]]) el(id).textContent=format(value);
-    const prevKey=dates().filter(d=>d<state.selected).at(-1),previous=prevKey?quote(state.snapshots.get(prevKey),'USDPEN'):{};
-    for(const [id,value,prev] of [['negBuy',usd?.compra,previous.compra],['negSell',usd?.venta,previous.venta],['negFix',professional?.promedio_ponderado,previous.promedio],['negSpread',spread(usd),previous.spread]]){
+    const prevKey=dates().filter(d=>d<state.selected).at(-1),previous=prevKey?quote(state.snapshots.get(prevKey)):{};
+    const referenceLabel=state.pair==='USDPEN'?'FIX':'PROM.';
+    for(const [id,key,label,tip] of [
+      ['negBuy','compra','COMPRA',`Compra de ${currency} en ${term}`],
+      ['negSell','venta','VENTA',`Venta de ${currency} en ${term}`],
+      ['negFix','promedio',referenceLabel,state.pair==='USDPEN'?'Tipo de Cambio Interbancario · PEN por USD':`Promedio calculado: (compra + venta) / 2 · ${term} por ${base}`],
+      ['negSpread','spread','SPREAD',`Diferencia venta − compra · ${term} por ${base}`]
+    ]){
+      const value=selectedQuote[key],prev=previous[key],card=el(id).closest('.neg-card');
+      el(id).textContent=format(value);
+      card.querySelector('.neg-label-long').textContent=`${base} · ${label}`;
+      card.querySelector('.neg-label-short').textContent=label;
+      card.querySelector('small').textContent=id==='negSpread'?`Venta − compra · ${term}`:`${currency} · ${term}`;
+      card.dataset.tip=tip;
+      card.setAttribute('aria-label',`${state.pair} · ${label}`);
+      if(id==='negBuy'||id==='negSell') card.querySelector('.fa-solid').className=`fa-solid ${base==='USD'?'fa-dollar-sign':base==='EUR'?'fa-euro-sign':base==='GBP'?'fa-sterling-sign':base==='JPY'?'fa-yen-sign':'fa-coins'}`;
       const delta=change(value,prev),node=el(`${id}Delta`);node.textContent=signed(delta);node.className=`delta ${delta===null||delta===0?'flat':delta>0?'pos':'neg'}`;
     }
-    renderPairControls();
     el('negHistoryLabel').textContent=state.loaded?`${state.pair} · Histórico desde ${displayDate(dates()[0])}`:'Histórico no disponible';
     renderTable();
     el('negBcr').innerHTML=snapshot.mesa_bcr.map(row=>`<tr><td>${escape(row.operacion)}</td><td class="num">${format(row.promedio_ponderado)}</td><td class="num">${format(row.minimo)}</td><td class="num">${format(row.maximo)}</td></tr>`).join('')||'<tr><td colspan="4">Sin datos publicados.</td></tr>';
