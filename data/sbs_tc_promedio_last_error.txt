@@ -1,0 +1,1 @@
+WARNING: No se pudo actualizar SBS TC Promedio. Detalle: No se encontró la fecha publicada
