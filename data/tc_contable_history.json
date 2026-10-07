@@ -1,11 +1,11 @@
 {
   "schema": "tc_contable_history.v1",
-  "generated_utc": "2026-10-06T21:18:11.280370+00:00",
+  "generated_utc": "2026-10-07T00:37:01.485797+00:00",
   "source": "data/tc_contable_YYYY-MM-DD.json",
-  "count_dates": 158,
+  "count_dates": 159,
   "range": {
     "from": "2026-02-13",
-    "to": "2026-10-05"
+    "to": "2026-10-06"
   },
   "pairs": [
     "USDPEN",
@@ -4457,6 +4457,34 @@
       "TRYUSD": 0.020344998541848937,
       "EURUSD": 1.121202099737533,
       "UYUUSD": 0.024927092446777484
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "USDPEN": 3.434,
+      "ARSUSD": 0.000658124635993011,
+      "AUDUSD": 0.6985681421083285,
+      "BOBUSD": 0.08354193360512521,
+      "BRLUSD": 0.2010049504950495,
+      "CADUSD": 0.7037300524170063,
+      "CLPUSD": 0.0010270821199767036,
+      "CNHUSD": 0.14911094933022714,
+      "COPUSD": 0.00030896913220733837,
+      "KRWUSD": 0.0007469423412929528,
+      "HKDUSD": 0.12742603377984857,
+      "INRUSD": 0.010370995923121724,
+      "JPYUSD": 0.006324985439720442,
+      "MXNUSD": 0.05567705299941759,
+      "NOKUSD": 0.10468491555037855,
+      "PYGUSD": 0.00017210250436808388,
+      "GBPUSD": 1.3280209668025627,
+      "SGDUSD": 0.7829009900990099,
+      "SEKUSD": 0.10017996505532906,
+      "CHFUSD": 1.2032251019219569,
+      "THBUSD": 0.029764997087944087,
+      "TRYUSD": 0.02033605125218404,
+      "EURUSD": 1.1265069889341874,
+      "UYUUSD": 0.02493185789167152
     }
   ],
   "observations": [
@@ -45429,6 +45457,266 @@
       "moneda": "Peso Uruguayo",
       "tc_pen": 0.085475,
       "tc_usd": 0.024927092446777484
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "ARS",
+      "pair": "ARSUSD",
+      "pais": "Argentina",
+      "moneda": "Peso Argentino",
+      "tc_pen": 0.00226,
+      "tc_usd": 0.000658124635993011
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "AUD",
+      "pair": "AUDUSD",
+      "pais": "Australia",
+      "moneda": "Dólar Australiano",
+      "tc_pen": 2.398883,
+      "tc_usd": 0.6985681421083285
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "BOB",
+      "pair": "BOBUSD",
+      "pais": "Bolivia, Estado Plurinacional de",
+      "moneda": "Boliviano",
+      "tc_pen": 0.286883,
+      "tc_usd": 0.08354193360512521
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "BRL",
+      "pair": "BRLUSD",
+      "pais": "Brasil",
+      "moneda": "Real",
+      "tc_pen": 0.690251,
+      "tc_usd": 0.2010049504950495
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "CAD",
+      "pair": "CADUSD",
+      "pais": "Canadá",
+      "moneda": "Dólar Canadiense",
+      "tc_pen": 2.416609,
+      "tc_usd": 0.7037300524170063
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "CLP",
+      "pair": "CLPUSD",
+      "pais": "Chile",
+      "moneda": "Peso Chileno",
+      "tc_pen": 0.003527,
+      "tc_usd": 0.0010270821199767036
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "CNH",
+      "pair": "CNHUSD",
+      "pais": "China",
+      "moneda": "Yuan",
+      "tc_pen": 0.512047,
+      "tc_usd": 0.14911094933022714
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "CNH",
+      "pair": "CNHUSD",
+      "pais": "China",
+      "moneda": "Yuan Chino Off-Shore",
+      "tc_pen": 0.512401,
+      "tc_usd": 0.1492140361094933
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "COP",
+      "pair": "COPUSD",
+      "pais": "Colombia",
+      "moneda": "Peso Colombiano",
+      "tc_pen": 0.001061,
+      "tc_usd": 0.00030896913220733837
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "KRW",
+      "pair": "KRWUSD",
+      "pais": "Corea, República de (Sur)",
+      "moneda": "Won Surcoreano",
+      "tc_pen": 0.002565,
+      "tc_usd": 0.0007469423412929528
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "USD",
+      "pair": "USDPEN",
+      "pais": "Ecuador",
+      "moneda": "Dólar de N.A.",
+      "tc_pen": 3.434,
+      "tc_usd": 3.434
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "USD",
+      "pair": "USDPEN",
+      "pais": "Estados Unidos de América",
+      "moneda": "Dólar de N.A.",
+      "tc_pen": 3.434,
+      "tc_usd": 3.434
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "HKD",
+      "pair": "HKDUSD",
+      "pais": "Hong Kong",
+      "moneda": "Dólar de Hong Kong",
+      "tc_pen": 0.437581,
+      "tc_usd": 0.12742603377984857
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "INR",
+      "pair": "INRUSD",
+      "pais": "India",
+      "moneda": "Rupia de la India",
+      "tc_pen": 0.035614,
+      "tc_usd": 0.010370995923121724
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "JPY",
+      "pair": "JPYUSD",
+      "pais": "Japón",
+      "moneda": "Yen Japonés",
+      "tc_pen": 0.02172,
+      "tc_usd": 0.006324985439720442
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "MXN",
+      "pair": "MXNUSD",
+      "pais": "México",
+      "moneda": "Peso Mexicano",
+      "tc_pen": 0.191195,
+      "tc_usd": 0.05567705299941759
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "NOK",
+      "pair": "NOKUSD",
+      "pais": "Noruega",
+      "moneda": "Corona Noruega",
+      "tc_pen": 0.359488,
+      "tc_usd": 0.10468491555037855
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "PYG",
+      "pair": "PYGUSD",
+      "pais": "Paraguay",
+      "moneda": "Guaraní",
+      "tc_pen": 0.000591,
+      "tc_usd": 0.00017210250436808388
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "GBP",
+      "pair": "GBPUSD",
+      "pais": "Reino Unido",
+      "moneda": "Libra Esterlina",
+      "tc_pen": 4.560424,
+      "tc_usd": 1.3280209668025627
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "SGD",
+      "pair": "SGDUSD",
+      "pais": "Singapur",
+      "moneda": "Dólar de Singapur",
+      "tc_pen": 2.688482,
+      "tc_usd": 0.7829009900990099
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "SEK",
+      "pair": "SEKUSD",
+      "pais": "Suecia",
+      "moneda": "Corona Sueca",
+      "tc_pen": 0.344018,
+      "tc_usd": 0.10017996505532906
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "CHF",
+      "pair": "CHFUSD",
+      "pais": "Suiza",
+      "moneda": "Franco Suizo",
+      "tc_pen": 4.131875,
+      "tc_usd": 1.2032251019219569
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "THB",
+      "pair": "THBUSD",
+      "pais": "Tailandia",
+      "moneda": "Baht",
+      "tc_pen": 0.102213,
+      "tc_usd": 0.029764997087944087
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "TRY",
+      "pair": "TRYUSD",
+      "pais": "Turquía",
+      "moneda": "Lira",
+      "tc_pen": 0.069834,
+      "tc_usd": 0.02033605125218404
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "EUR",
+      "pair": "EURUSD",
+      "pais": "Unión",
+      "moneda": "Europea Euro",
+      "tc_pen": 3.868425,
+      "tc_usd": 1.1265069889341874
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "code": "UYU",
+      "pair": "UYUUSD",
+      "pais": "Uruguay",
+      "moneda": "Peso Uruguayo",
+      "tc_pen": 0.085616,
+      "tc_usd": 0.02493185789167152
     }
   ],
   "dates": [
@@ -46535,6 +46823,13 @@
       "fecha_iso": "2026-10-05",
       "fecha_publicada": "05/10/2026",
       "file": "tc_contable_2026-10-05.json",
+      "rows": 42,
+      "source_used": "directo"
+    },
+    {
+      "fecha_iso": "2026-10-06",
+      "fecha_publicada": "06/10/2026",
+      "file": "tc_contable_2026-10-06.json",
       "rows": 42,
       "source_used": "directo"
     }
