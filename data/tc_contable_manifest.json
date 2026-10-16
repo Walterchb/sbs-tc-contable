@@ -1,11 +1,11 @@
 {
-  "generated_utc": "2026-10-16T21:39:31.940357+00:00",
+  "generated_utc": "2026-10-16T23:28:40.080301+00:00",
   "history_file": "tc_contable_history.json",
   "history_csv": "tc_contable_history.csv",
-  "count_dates": 165,
+  "count_dates": 166,
   "range": {
     "from": "2026-02-13",
-    "to": "2026-10-15"
+    "to": "2026-10-16"
   },
   "pairs": [
     "USDPEN",
@@ -198,6 +198,7 @@
     "tc_contable_2026-10-12.json",
     "tc_contable_2026-10-13.json",
     "tc_contable_2026-10-14.json",
-    "tc_contable_2026-10-15.json"
+    "tc_contable_2026-10-15.json",
+    "tc_contable_2026-10-16.json"
   ]
 }
