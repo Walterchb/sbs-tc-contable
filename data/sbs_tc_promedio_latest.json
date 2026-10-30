@@ -1,42 +1,47 @@
 {
   "schema": "sbs_tc_promedio.v2",
   "source_url": "https://www.sbs.gob.pe/app/pp/sistip_portal/paginas/publicacion/tipocambiopromedio.aspx",
-  "fecha_publicada": "28/10/2026",
-  "fecha_iso": "2026-10-28",
-  "generated_utc": "2026-10-29T21:41:48.625998+00:00",
+  "fecha_publicada": "29/10/2026",
+  "fecha_iso": "2026-10-29",
+  "generated_utc": "2026-10-30T01:47:04.001390+00:00",
   "source_used": "directo",
-  "hash": "a6a0b5e760f587502199541e9c6c86a207757454822a47b5b79c9841638f3da5",
-  "tc_fix": 3.4546,
+  "hash": "c6ff1bf6297a1607ed32fc57cb267c2835a64d200c8c848a868b600fc86d6b05",
+  "tc_fix": 3.4595,
   "oferta_demanda": [
     {
       "moneda": "Dólar de N.A.",
-      "compra": 3.451,
-      "venta": 3.458
+      "compra": 3.455,
+      "venta": 3.461
+    },
+    {
+      "moneda": "Dólar Canadiense",
+      "compra": 2.142,
+      "venta": 2.561
     },
     {
       "moneda": "Libra Esterlina",
-      "compra": 4.208,
-      "venta": 4.671
+      "compra": 4.605,
+      "venta": 4.677
     },
     {
       "moneda": "Yen Japonés",
       "compra": null,
-      "venta": 0.022
+      "venta": 0.021
     },
     {
       "moneda": "Peso Mexicano",
-      "compra": 0.185,
-      "venta": 0.186
+      "compra": 0.183,
+      "venta": 0.187
     },
     {
       "moneda": "Franco Suizo",
-      "compra": 3.841,
-      "venta": 4.431
+      "compra": 3.831,
+      "venta": 4.269
     },
     {
       "moneda": "Euro",
-      "compra": 3.56,
-      "venta": 3.901
+      "compra": 3.831,
+      "venta": 3.855
     }
   ],
   "mesa_bcr": [
@@ -56,7 +61,7 @@
   "mercado_profesional": [
     {
       "moneda": "Dólar de N.A.",
-      "promedio_ponderado": 3.4546
+      "promedio_ponderado": 3.4595
     }
   ]
 }
