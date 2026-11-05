@@ -1,7 +1,6 @@
 {
-  "ok": false,
-  "message": "WARNING: No se pudo actualizar SBS TC Promedio. Detalle: No se encontró la fecha publicada",
-  "source": null,
-  "generated_utc": "2026-11-05T03:21:49.188687+00:00",
-  "hint": "Revisar logs [debug] del paso de scraping."
+  "ok": true,
+  "message": "OK | source=directo | fecha=04/11/2026 | oferta_demanda=7 | mesa_bcr=2 | mercado_profesional=1",
+  "source": "directo",
+  "generated_utc": "2026-11-05T12:03:32.061503+00:00"
 }
