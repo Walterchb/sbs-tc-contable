@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "message": "OK | source=directo | fecha=05/11/2026 | oferta_demanda=7 | mesa_bcr=2 | mercado_profesional=1",
+  "message": "OK | source=directo | fecha=06/11/2026 | oferta_demanda=7 | mesa_bcr=2 | mercado_profesional=1",
   "source": "directo",
-  "generated_utc": "2026-11-06T21:24:27.519654+00:00"
+  "generated_utc": "2026-11-07T01:44:45.358332+00:00"
 }
