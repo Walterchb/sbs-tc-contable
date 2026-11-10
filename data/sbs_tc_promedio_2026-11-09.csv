@@ -1,0 +1,10 @@
+﻿fecha_iso,fecha_publicada,tipo,moneda,operacion,compra,venta,promedio_ponderado,minimo,maximo
+2026-11-09,09/11/2026,oferta_demanda,Dólar de N.A.,,3.409,3.418,,,
+2026-11-09,09/11/2026,oferta_demanda,Dólar Canadiense,,2.408,2.717,,,
+2026-11-09,09/11/2026,oferta_demanda,Libra Esterlina,,4.5,4.785,,,
+2026-11-09,09/11/2026,oferta_demanda,Peso Mexicano,,0.183,0.19,,,
+2026-11-09,09/11/2026,oferta_demanda,Franco Suizo,,,4.501,,,
+2026-11-09,09/11/2026,oferta_demanda,Euro,,3.955,4.021,,,
+2026-11-09,09/11/2026,mesa_bcr,Dólar de N.A.,VENTA,,,,,
+2026-11-09,09/11/2026,mesa_bcr,Dólar de N.A.,COMPRA,,,,,
+2026-11-09,09/11/2026,mercado_profesional,Dólar de N.A.,,,,3.4104,,
