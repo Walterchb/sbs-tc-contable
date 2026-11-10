@@ -1,116 +1,116 @@
 {
   "fuente": "https://www.sbs.gob.pe/app/pp/SISTIP_PORTAL/Paginas/Publicacion/TipoCambioContable.aspx",
   "source_used": "directo",
-  "fecha_publicada": "09/11/2026",
-  "fecha_iso": "2026-11-09",
-  "generado_utc": "2026-11-10T17:43:25.340108+00:00",
+  "fecha_publicada": "10/11/2026",
+  "fecha_iso": "2026-11-10",
+  "generado_utc": "2026-11-10T22:34:02.826867+00:00",
   "rows": 42,
-  "hash": "5b6d283ecc893339c6f0df5c990f5321a272813b34cfbc64949a64c69297b692",
+  "hash": "f671020bb404616e0a2276734c4623a7274cb61bfd99679b4da6234e77f09328",
   "data": [
     {
       "pais": "Argentina",
       "moneda": "Peso Argentino",
-      "tc": 0.002209
+      "tc": 0.002211
     },
     {
       "pais": "Australia",
       "moneda": "Dólar Australiano",
-      "tc": 2.359852
+      "tc": 2.344789
     },
     {
       "pais": "Bolivia, Estado Plurinacional de",
       "moneda": "Boliviano",
-      "tc": 0.289077
+      "tc": 0.290892
     },
     {
       "pais": "Brasil",
       "moneda": "Real",
-      "tc": 0.619399
+      "tc": 0.611723
     },
     {
       "pais": "Bulgaria",
       "moneda": "Lev",
-      "tc": 1.955887
+      "tc": 1.950912
     },
     {
       "pais": "Canadá",
       "moneda": "Dólar Canadiense",
-      "tc": 2.415282
+      "tc": 2.409587
     },
     {
       "pais": "Chile",
       "moneda": "Peso Chileno",
-      "tc": 0.003516
+      "tc": 0.003473
     },
     {
       "pais": "China",
       "moneda": "Yuan",
-      "tc": 0.511943
+      "tc": 0.512098
     },
     {
       "pais": "China",
       "moneda": "Yuan Chino Off-Shore",
-      "tc": 0.511714
+      "tc": 0.511883
     },
     {
       "pais": "Colombia",
       "moneda": "Peso Colombiano",
-      "tc": 0.001045
+      "tc": 0.001036
     },
     {
       "pais": "Corea, República de (Sur)",
       "moneda": "Won Surcoreano",
-      "tc": 0.00254
+      "tc": 0.002543
     },
     {
       "pais": "Costa Rica",
       "moneda": "Colón de Costa Rica",
-      "tc": 0.007623
+      "tc": 0.007653
     },
     {
       "pais": "Ecuador",
       "moneda": "Dólar de N.A.",
-      "tc": 3.414
+      "tc": 3.418
     },
     {
       "pais": "Emiratos Árabes Unidos",
       "moneda": "Dirham",
-      "tc": 0.929485
+      "tc": 0.930574
     },
     {
       "pais": "Estados Unidos de América",
       "moneda": "Dólar de N.A.",
-      "tc": 3.414
+      "tc": 3.418
     },
     {
       "pais": "Federación Rusa (Rusia)",
       "moneda": "Rublo",
-      "tc": 0.041654
+      "tc": 0.041317
     },
     {
       "pais": "Filipinas",
       "moneda": "Peso de Filipinas",
-      "tc": 0.053934
+      "tc": 0.054315
     },
     {
       "pais": "Georgia",
       "moneda": "Lari Georgiano",
-      "tc": 1.328404
+      "tc": 1.32455
     },
     {
       "pais": "Guatemala",
       "moneda": "Quetzal",
-      "tc": 0.446916
+      "tc": 0.447676
     },
     {
       "pais": "Hong Kong",
       "moneda": "Dólar de Hong Kong",
-      "tc": 0.43536
+      "tc": 0.435675
     },
     {
       "pais": "India",
       "moneda": "Rupia de la India",
-      "tc": 0.036345
+      "tc": 0.036388
     },
     {
       "pais": "Indonesia",
@@ -120,22 +120,22 @@
     {
       "pais": "Japón",
       "moneda": "Yen Japonés",
-      "tc": 0.021604
+      "tc": 0.021523
     },
     {
       "pais": "Malasia",
       "moneda": "Dólar Malasio o Ringgit",
-      "tc": 0.84151
+      "tc": 0.843118
     },
     {
       "pais": "México",
       "moneda": "Peso Mexicano",
-      "tc": 0.183622
+      "tc": 0.183355
     },
     {
       "pais": "Namibia",
       "moneda": "Dólar Namibio",
-      "tc": 0.208005
+      "tc": 0.20668
     },
     {
       "pais": "Nigeria",
@@ -145,72 +145,72 @@
     {
       "pais": "Noruega",
       "moneda": "Corona Noruega",
-      "tc": 0.362813
+      "tc": 0.359403
     },
     {
       "pais": "Panamá",
       "moneda": "Balboa",
-      "tc": 3.414
+      "tc": 3.418
     },
     {
       "pais": "Paraguay",
       "moneda": "Guaraní",
-      "tc": 0.000553
+      "tc": 0.000554
     },
     {
       "pais": "Polonia",
       "moneda": "Zloty Polaco",
-      "tc": 0.87212
+      "tc": 0.868018
     },
     {
       "pais": "Reino Unido",
       "moneda": "Libra Esterlina",
-      "tc": 4.583165
+      "tc": 4.560374
     },
     {
       "pais": "República Dominicana",
       "moneda": "Peso de República Dominicana",
-      "tc": 0.056505
+      "tc": 0.056588
     },
     {
       "pais": "Singapur",
       "moneda": "Dólar de Singapur",
-      "tc": 2.667812
+      "tc": 2.666146
     },
     {
       "pais": "Suecia",
       "moneda": "Corona Sueca",
-      "tc": 0.347596
+      "tc": 0.346055
     },
     {
       "pais": "Suiza",
       "moneda": "Franco Suizo",
-      "tc": 4.160372
+      "tc": 4.141023
     },
     {
       "pais": "Tailandia",
       "moneda": "Baht",
-      "tc": 0.102058
+      "tc": 0.101692
     },
     {
       "pais": "Taiwán, Provincia de China",
       "moneda": "Nuevo Dólar de Taiwan",
-      "tc": 0.104025
+      "tc": 0.10401
     },
     {
       "pais": "Turquía",
       "moneda": "Lira",
-      "tc": 0.068038
+      "tc": 0.068046
     },
     {
       "pais": "Unión",
       "moneda": "Europea Euro",
-      "tc": 3.825209
+      "tc": 3.815585
     },
     {
       "pais": "Uruguay",
       "moneda": "Peso Uruguayo",
-      "tc": 0.084503
+      "tc": 0.084479
     },
     {
       "pais": "Vietnam",
