@@ -1,10 +1,10 @@
 {
   "schema": "sbs_tc_promedio_history.v1",
-  "generated_utc": "2026-11-11T17:48:45.283327+00:00",
-  "count_dates": 174,
+  "generated_utc": "2026-11-12T00:24:10.723660+00:00",
+  "count_dates": 175,
   "range": {
     "from": "2026-01-05",
-    "to": "2026-11-10"
+    "to": "2026-11-11"
   },
   "dates": [
     {
@@ -1568,6 +1568,15 @@
       "fecha_iso": "2026-11-10",
       "fecha_publicada": "10/11/2026",
       "file": "sbs_tc_promedio_2026-11-10.json",
+      "rows_oferta_demanda": 7,
+      "rows_mesa_bcr": 2,
+      "rows_mercado_profesional": 1,
+      "source_used": "directo"
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "file": "sbs_tc_promedio_2026-11-11.json",
       "rows_oferta_demanda": 7,
       "rows_mesa_bcr": 2,
       "rows_mercado_profesional": 1,
@@ -21840,6 +21849,126 @@
       "compra": null,
       "venta": null,
       "promedio_ponderado": 3.4181,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "tipo": "oferta_demanda",
+      "moneda": "Dólar de N.A.",
+      "operacion": null,
+      "compra": 3.407,
+      "venta": 3.414,
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "tipo": "oferta_demanda",
+      "moneda": "Dólar Canadiense",
+      "operacion": null,
+      "compra": null,
+      "venta": 2.231,
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "tipo": "oferta_demanda",
+      "moneda": "Libra Esterlina",
+      "operacion": null,
+      "compra": 4.191,
+      "venta": 4.808,
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "tipo": "oferta_demanda",
+      "moneda": "Yen Japonés",
+      "operacion": null,
+      "compra": null,
+      "venta": 0.021,
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "tipo": "oferta_demanda",
+      "moneda": "Peso Mexicano",
+      "operacion": null,
+      "compra": 0.182,
+      "venta": 0.183,
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "tipo": "oferta_demanda",
+      "moneda": "Franco Suizo",
+      "operacion": null,
+      "compra": 3.823,
+      "venta": 4.15,
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "tipo": "oferta_demanda",
+      "moneda": "Euro",
+      "operacion": null,
+      "compra": 3.783,
+      "venta": 3.83,
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "tipo": "mesa_bcr",
+      "moneda": "Dólar de N.A.",
+      "operacion": "VENTA",
+      "compra": null,
+      "venta": null,
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "tipo": "mesa_bcr",
+      "moneda": "Dólar de N.A.",
+      "operacion": "COMPRA",
+      "compra": null,
+      "venta": null,
+      "promedio_ponderado": null,
+      "minimo": null,
+      "maximo": null
+    },
+    {
+      "fecha_iso": "2026-11-11",
+      "fecha_publicada": "11/11/2026",
+      "tipo": "mercado_profesional",
+      "moneda": "Dólar de N.A.",
+      "operacion": null,
+      "compra": null,
+      "venta": null,
+      "promedio_ponderado": 3.4097,
       "minimo": null,
       "maximo": null
     }
